@@ -548,6 +548,18 @@ details.sm-card[open]>summary{margin-bottom:12px}
 .zf-all{border:1px solid currentColor;background:transparent;color:inherit;opacity:.75;border-radius:999px;padding:5px 11px;font:500 12px/1.2 inherit;font-family:inherit;cursor:pointer;white-space:nowrap}
 .zf-all:hover{opacity:1}
 @media print{.zf-all{display:none!important}.zf-head::after{display:none}}
+@media print{
+  :root:not(#_print){color-scheme:light;
+    --ground:#FFFFFF;--surface:#FFFFFF;--surface-2:#F1F3F7;--surface-3:#E4E8EF;
+    --ink:#141722;--ink-2:#4B5164;--ink-3:#5F667A;--rule:#D6DAE4;--rule-2:#B9BFCE;
+    --acc:#33478C;--acc-wash:#E7EAF6;--acc-line:#C3CAE6;--on-accent:#FFFFFF;
+    --good:#0B7045;--good-wash:#E3F1E9;--good-line:#BADBC9;--warn:#8D6100;--warn-wash:#F7EEDA;--warn-line:#E4D2A8;
+    --bad:#AC2229;--bad-wash:#FAE9E9;--bad-line:#EBC4C5;--c-c:#1F6F87;--c-a:#AC2229;--c-r:#5B4A9E;--c-e:#0B7045;--c-w:#8A5712;
+    --zc-blue:#33478C;--zc-green:#0B7045;--zc-red:#AC2229;--zc-amber:#8A5712;--zc-teal:#1F6F87;--zc-violet:#5B4A9E;--zc-on:#fff;--shadow:none}
+  html,body{background:#fff!important;color:#141722!important}
+  body.sm-print .sm-wd,body.sm-print .sm-dh,body.sm-print .sm-disp,body.sm-print .sm-legend,body.sm-print .tile{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body.sm-print .sm-wd{break-inside:avoid}
+}
 </style>
 </head>
 <body>
@@ -1795,6 +1807,25 @@ function renderSimpleCore(){
   $('sOut').innerHTML=h;
   placePop();
 }
+function printTable(){
+  const inFrame=(()=>{try{return window.self!==window.top;}catch(x){return true;}})();
+  if(inFrame){
+    const w=window.open('','_blank');
+    if(w){
+      const head=[...document.querySelectorAll('head link[rel="stylesheet"],head link[rel="preconnect"],style')].map(n=>n.outerHTML).join('\n');
+      const lang=document.documentElement.getAttribute('lang')||'en';
+      w.document.open();
+      w.document.write('<!doctype html><html lang="'+lang+'" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>'+L('Warfarin schedule','ตารางรับประทานยาวาร์ฟาริน')+'</title>'+head+'</head><body class="sm-print"><section class="simple" id="simple">'+$('sOut').outerHTML+'</section><script>window.onload=function(){setTimeout(function(){window.focus();window.print();},300);};window.onafterprint=function(){window.close();};<'+'/script></body></html>');
+      w.document.close();
+      return;
+    }
+  }
+  document.body.classList.add('sm-print');
+  let done=false;const off=()=>{if(done)return;done=true;document.body.classList.remove('sm-print');window.removeEventListener('afterprint',off);};
+  window.addEventListener('afterprint',off);
+  window.print();
+  setTimeout(()=>{if(!window.matchMedia||!matchMedia('print').matches)off();},60000);   /* fallback if afterprint never fires */
+}
 function placePop(){
   const pop=$('sPop'),pl=document.querySelector('#sOut .sm-pill.sel');if(!pop||!pl)return;
   if(window.innerWidth<=640){ /* phone: open as a row under the day, so no other day is covered */
@@ -1952,7 +1983,7 @@ $('sOut').addEventListener('click',e=>{
   if(e.target.id==='sManReset'){sMan=null;sSelPill=null;sTool=null;renderSimple();toast('Hand edits undone');return;}
   const d=e.target.closest('.sm-wd[data-day]');if(d){dayAct(+d.dataset.day);return;}
   if(e.target.id==='sReorder'){sPref=null;sPick=null;renderSimple();toast('Back to the suggested days');return;}
-  if(e.target.id==='sPrint'){document.body.classList.add('sm-print');window.print();setTimeout(()=>document.body.classList.remove('sm-print'),500);}
+  if(e.target.id==='sPrint'){printTable();return;}
   if(e.target.id==='sCopy'){const txt=simpleText();(navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(()=>toast('Copied'),()=>{const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('Copied');}catch(x){toast('Copy failed');}ta.remove();});}
 });
 
@@ -2176,7 +2207,7 @@ applyLang();
 
 /* changelog */
 const changelogData=[
-  {version:'v1.8.0',date:'October 14, 2026',features:['Thai language: a 🇹🇭 ไทย / 🇬🇧 EN switch in the header translates the Simple view — calculator, weekly table, tablet tray, Thai nomogram, TTR calculator, messages and the copied text (Detailed view stays in English). The app remembers your choice.','“Clear table” in the tablet tray empties the week so you can build it tablet by tablet (with Undo).','Edit the Simple-mode table tablet by tablet: drag a whole tablet (1, 2, 3 or 5 mg) from the tablet tray onto a day to add it, drag a tablet from one day to another to move it, or drag it back to the tray to remove it. In the table, click a tablet to split it (whole → ½ → ¼ → whole), drag it to another day to move it, or press and hold it to remove it (with Undo); this works with a mouse and on a phone. The weekly total, % change and tablets to dispense update as you go; “Undo hand edits” returns to the calculated schedule.','Simple mode is now the default view (Detailed is one tap away and the app remembers your choice).','Move doses between days in the Simple-mode table: drag a day onto another, or tap two days, to swap their doses — for patients who want the smaller (or larger) dose on particular days. The chosen days are kept when the dose is changed: the smallest doses stay on the days the patient picked. “Reset to suggested days” undoes it; Copy and Print follow the new order.'],bugs:[]},
+  {version:'v1.8.1',date:'October 14, 2026',features:['Thai language: a 🇹🇭 ไทย / 🇬🇧 EN switch in the header translates the Simple view — calculator, weekly table, tablet tray, Thai nomogram, TTR calculator, messages and the copied text (Detailed view stays in English). The app remembers your choice.','“Clear table” in the tablet tray empties the week so you can build it tablet by tablet (with Undo).','Edit the Simple-mode table tablet by tablet: drag a whole tablet (1, 2, 3 or 5 mg) from the tablet tray onto a day to add it, drag a tablet from one day to another to move it, or drag it back to the tray to remove it. In the table, click a tablet to split it (whole → ½ → ¼ → whole), drag it to another day to move it, or press and hold it to remove it (with Undo); this works with a mouse and on a phone. The weekly total, % change and tablets to dispense update as you go; “Undo hand edits” returns to the calculated schedule.','Simple mode is now the default view (Detailed is one tap away and the app remembers your choice).','Move doses between days in the Simple-mode table: drag a day onto another, or tap two days, to swap their doses — for patients who want the smaller (or larger) dose on particular days. The chosen days are kept when the dose is changed: the smallest doses stay on the days the patient picked. “Reset to suggested days” undoes it; Copy and Print follow the new order.'],bugs:['Print printed a blank page in dark mode (white text on white paper); printing now always uses the light colours. On phones and in the Cardio suite tab, Print table printed the whole app instead of the weekly table.',]},
  {"version":"v1.5.1","date":"October 11, 2026","features":["Collapsible blocks: every block starts folded except the main one (history, consult note or case text; in the warfarin planner also Setting & situation and the Simple-mode calculator and schedule). Tap a block’s header to unfold or fold it, or use “Expand all / Collapse all” at the top. The app remembers your choices. Copy and Print always include every block."],"bugs":[]},
   {version:'v1.4.1',date:'October 7, 2026',features:['Colour-coded blocks for easier reading: each input card and plan section has its own colour band and tinted header; summary tiles, action boxes and the day-by-day schedule (Thai day colours) are tinted; in Simple mode the calculator, schedule, nomogram and TTR cards each have a colour, the dose-change buttons are green (up), blue (same) and red (down), and the nomogram rows are tinted by INR band.'],bugs:['Simple mode: the tablet picture in each “Tablets in stock” chip showed an extra checkbox and border.']},
   {version:'v1.4.0',date:'October 7, 2026',features:['Simple mode: tablet pictures — round scored tablets in the brand colours (1 mg white, 2 mg orange, 3 mg blue, 5 mg pink), with half tablets drawn as halves, in the day table, the dispense list, the stock chips and a tablet guide.','Simple mode: Thai warfarin nomogram chart (Thai HA 2010, Table 3) — an INR band gauge with today’s INR pinned, and the dose step for each band; tap a row to use its change. Simple-mode suggestions now follow the table, including the vitamin K step from INR 9.0 and about 20% reduction for INR 5–8.9.','Simple mode: TTR calculator (Rosendaal linear interpolation) — enter or paste dated INRs (Thai Buddhist years converted); shows TTR, % of tests in range, below/in/above bar, an INR chart with the target band, ESC 2024 (<70%) and NICE NG196 (<65%, INR >5 ×2, >8, <1.5 ×2 in 6 months) prompts.','Simple mode: six sample cases (low INR, stable, INR 4.3, INR 6.8, mechanical valve, erratic INRs) with INR histories, each with Undo.'],bugs:['Print table printed a blank page: the print style hid every card, including the schedule.']},
