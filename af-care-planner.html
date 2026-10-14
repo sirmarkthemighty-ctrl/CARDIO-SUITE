@@ -1,0 +1,1326 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AF-CARE Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  color-scheme: light;
+  --ground:#EFF1F5; --surface:#FFFFFF; --surface-2:#E7EAF1; --surface-3:#DBE0EA;
+  --ink:#141722; --ink-2:#4B5164; --ink-3:#787F93;
+  --rule:#D6DAE4; --rule-2:#B9BFCE;
+  --acc:#33478C; --acc-wash:#E7EAF6; --acc-line:#C3CAE6; --on-accent:#FFFFFF;
+  --good:#0B7045; --good-wash:#E3F1E9; --good-line:#BADBC9;
+  --warn:#8D6100; --warn-wash:#F7EEDA; --warn-line:#E4D2A8;
+  --bad:#AC2229;  --bad-wash:#FAE9E9;  --bad-line:#EBC4C5;
+  --c-c:#1F6F87; --c-a:#AC2229; --c-r:#5B4A9E; --c-e:#0B7045; --c-w:#8A5712;
+  --shadow:0 1px 2px rgba(20,23,34,.07);
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --cond:"IBM Plex Sans Condensed","IBM Plex Sans",-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --ground:#0E1016; --surface:#161A24; --surface-2:#1E2331; --surface-3:#282E3E;
+    --ink:#ECEFF6; --ink-2:#A6AEC2; --ink-3:#7C8499;
+    --rule:#262C3A; --rule-2:#3A4256;
+    --acc:#8CA5E8; --acc-wash:#1A2340; --acc-line:#2E3B63; --on-accent:#0E1016;
+    --good:#45C585; --good-wash:#102C1E; --good-line:#1F4A33;
+    --warn:#E0A93C; --warn-wash:#2E2412; --warn-line:#50401B;
+    --bad:#EE7A76;  --bad-wash:#301715;  --bad-line:#522522;
+    --c-c:#58B8D2; --c-a:#EE7A76; --c-r:#A99BE8; --c-e:#45C585; --c-w:#DCA24E;
+    --shadow:0 1px 2px rgba(0,0,0,.45);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --ground:#0E1016; --surface:#161A24; --surface-2:#1E2331; --surface-3:#282E3E;
+  --ink:#ECEFF6; --ink-2:#A6AEC2; --ink-3:#7C8499;
+  --rule:#262C3A; --rule-2:#3A4256;
+  --acc:#8CA5E8; --acc-wash:#1A2340; --acc-line:#2E3B63; --on-accent:#0E1016;
+  --good:#45C585; --good-wash:#102C1E; --good-line:#1F4A33;
+  --warn:#E0A93C; --warn-wash:#2E2412; --warn-line:#50401B;
+  --bad:#EE7A76;  --bad-wash:#301715;  --bad-line:#522522;
+  --c-c:#58B8D2; --c-a:#EE7A76; --c-r:#A99BE8; --c-e:#45C585; --c-w:#DCA24E;
+  --shadow:0 1px 2px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--ground);color:var(--ink);font:14px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+.top{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:14px 20px;border-bottom:1px solid var(--rule);background:var(--surface)}
+.top h1{margin:0;font:700 19px/1.2 var(--cond);letter-spacing:.2px}
+.top .sub{color:var(--ink-3);font-size:12.5px}
+.top .sp{flex:1}
+.seg-theme{display:inline-flex;border:1px solid var(--rule-2);border-radius:7px;overflow:hidden}
+.seg-theme button{border:0;background:transparent;padding:4px 10px;font-size:12px;cursor:pointer;color:var(--ink-2)}
+.seg-theme button.on{background:var(--acc);color:var(--on-accent)}
+.wrap{display:grid;grid-template-columns:minmax(360px,470px) 1fr;gap:18px;padding:18px 20px 40px;max-width:1500px;margin:0 auto}
+.inputs{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto;padding-right:4px}
+@media (max-width:980px){
+  .wrap{grid-template-columns:1fr;padding:14px 16px 40px}
+  .inputs{position:static;max-height:none;overflow:visible;padding-right:0}
+}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:10px;box-shadow:var(--shadow);margin-bottom:12px}
+.card>h2{margin:0;padding:10px 14px;font:600 13px/1.3 var(--cond);letter-spacing:.6px;text-transform:uppercase;color:var(--ink-2);border-bottom:1px solid var(--rule);display:flex;align-items:center;gap:8px}
+.card>h2 .n{font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+.card .bd{padding:12px 14px}
+textarea{width:100%;min-height:96px;resize:vertical;border:1px solid var(--rule-2);border-radius:7px;background:var(--surface);padding:8px 10px;line-height:1.45}
+textarea:focus,input:focus,select:focus{outline:2px solid var(--acc-line);outline-offset:0;border-color:var(--acc)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{border:1px solid var(--rule-2);background:var(--surface);border-radius:7px;padding:6px 11px;cursor:pointer;font-size:13px;font-weight:500}
+.btn:hover{background:var(--surface-2)}
+.btn.pri{background:var(--acc);border-color:var(--acc);color:var(--on-accent)}
+.btn.pri:hover{filter:brightness(1.08)}
+.btn.sm{padding:3px 8px;font-size:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px 10px}
+.fld{display:flex;flex-direction:column;gap:3px;min-width:0}
+.fld>span{font-size:11.5px;color:var(--ink-3);font-weight:500}
+.fld input,.fld select{width:100%;border:1px solid var(--rule-2);border-radius:7px;background:var(--surface);padding:6px 8px;min-width:0}
+.fld .dual{display:flex;gap:4px}
+.fld .dual input{flex:1}
+.fld .dual select{width:auto;flex:0 0 auto;padding:6px 4px}
+.lbl{font-size:11.5px;color:var(--ink-3);font-weight:500;margin:10px 0 5px}
+.lbl:first-child{margin-top:0}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--rule-2);border-radius:7px;overflow:hidden;background:var(--surface)}
+.seg label{cursor:pointer;position:relative}
+.seg input,.fld .seg input{position:absolute;left:0;top:0;width:1px;height:1px;margin:0;padding:0;opacity:0;pointer-events:none}
+.seg span{display:block;padding:5px 10px;font-size:12.5px;color:var(--ink-2);border-right:1px solid var(--rule)}
+.seg label:last-child span{border-right:0}
+.seg input:checked+span{background:var(--acc);color:var(--on-accent)}
+.seg input:focus-visible+span{outline:2px solid var(--acc-line);outline-offset:-2px}
+.cks{display:flex;flex-wrap:wrap;gap:6px}
+.ck{cursor:pointer;user-select:none;position:relative}
+.ck input{position:absolute;left:0;top:0;width:1px;height:1px;margin:0;opacity:0;pointer-events:none}
+.ck span{display:inline-flex;align-items:center;gap:6px;padding:4px 9px;border:1px solid var(--rule-2);border-radius:999px;font-size:12.5px;color:var(--ink-2);background:var(--surface);line-height:1.3}
+.ck span::before{content:"";width:9px;height:9px;border-radius:3px;border:1.5px solid var(--rule-2);flex:0 0 auto}
+.ck input:checked+span{background:var(--acc-wash);border-color:var(--acc);color:var(--ink)}
+.ck input:checked+span::before{background:var(--acc);border-color:var(--acc)}
+.ck input:focus-visible+span{outline:2px solid var(--acc-line)}
+.ck input:disabled+span{opacity:.45;cursor:not-allowed}
+.ck.danger input:checked+span{background:var(--bad-wash);border-color:var(--bad)}
+.ck.danger input:checked+span::before{background:var(--bad);border-color:var(--bad)}
+.hint{font-size:12px;color:var(--ink-3);margin-top:6px}
+.hint.w{color:var(--warn)}
+.found{margin-top:8px;display:flex;flex-wrap:wrap;gap:5px}
+.found .tag{font-size:11.5px;padding:2px 7px;border-radius:5px;background:var(--good-wash);border:1px solid var(--good-line);color:var(--good)}
+.found .tag.m{background:var(--surface-2);border-color:var(--rule);color:var(--ink-3)}
+
+/* plan */
+.plan-head{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.plan-head h2{margin:0;font:700 17px/1.2 var(--cond);flex:1;min-width:180px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(138px,1fr));gap:10px;margin-bottom:12px}
+.tile{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:10px 12px;box-shadow:var(--shadow)}
+.tile .k{font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.tile .v{font:600 24px/1.15 var(--mono);margin-top:3px;font-variant-numeric:tabular-nums}
+.tile .v small{font-size:13px;color:var(--ink-3);font-weight:500}
+.tile .s{font-size:12px;color:var(--ink-2);margin-top:2px}
+.tile.bad{border-color:var(--bad-line);background:var(--bad-wash)} .tile.bad .v{color:var(--bad)}
+.tile.warn{border-color:var(--warn-line);background:var(--warn-wash)} .tile.warn .v{color:var(--warn)}
+.tile.good .v{color:var(--good)}
+.alert{border:1px solid var(--bad-line);background:var(--bad-wash);border-left:4px solid var(--bad);border-radius:8px;padding:10px 12px;margin-bottom:10px}
+.alert b.h{display:block;color:var(--bad);font-family:var(--cond);font-size:14px;letter-spacing:.3px;margin-bottom:3px}
+.alert.w{border-color:var(--warn-line);background:var(--warn-wash);border-left-color:var(--warn)}
+.alert.w b.h{color:var(--warn)}
+.alert ul{margin:4px 0 0;padding-left:18px}
+.sec{background:var(--surface);border:1px solid var(--rule);border-radius:10px;margin-bottom:12px;box-shadow:var(--shadow);overflow:hidden}
+.sec>header{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--rule)}
+.sec>header .L{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font:700 16px/1 var(--cond);color:#fff;flex:0 0 auto}
+.sec>header h3{margin:0;font:600 15px/1.25 var(--cond)}
+.sec>header p{margin:0;font-size:12px;color:var(--ink-3)}
+.sec.c .L{background:var(--c-c)} .sec.a .L{background:var(--c-a)} .sec.r .L{background:var(--c-r)} .sec.e .L{background:var(--c-e)} .sec.w .L{background:var(--c-w)}
+:root[data-theme="dark"] .sec>header .L{color:#0E1016}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .sec>header .L{color:#0E1016}}
+.sec .bd{padding:6px 14px 12px}
+.sec h4{margin:12px 0 4px;font:600 12.5px/1.3 var(--cond);letter-spacing:.5px;text-transform:uppercase;color:var(--ink-2)}
+.verdict{margin:10px 0 4px;padding:9px 12px;border-radius:8px;background:var(--acc-wash);border:1px solid var(--acc-line);font-weight:500}
+.verdict.none{background:var(--surface-2);border-color:var(--rule)}
+.verdict.bad{background:var(--bad-wash);border-color:var(--bad-line)}
+ul.it{list-style:none;margin:0;padding:0}
+ul.it li{display:flex;gap:9px;padding:6px 0;border-bottom:1px dashed var(--rule);align-items:flex-start}
+ul.it li:last-child{border-bottom:0}
+ul.it li .tx{flex:1;min-width:0}
+ul.it li .tx small{display:block;color:var(--ink-3);font-size:12px;margin-top:1px}
+ul.it li.no .tx{color:var(--ink-2)}
+ul.it li.flag .tx{color:var(--warn)}
+.cls{flex:0 0 auto;min-width:34px;text-align:center;font:600 11px/1 var(--mono);padding:4px 5px;border-radius:5px;margin-top:1px;border:1px solid}
+.cls.I{color:var(--good);background:var(--good-wash);border-color:var(--good-line)}
+.cls.IIa{color:var(--acc);background:var(--acc-wash);border-color:var(--acc-line)}
+.cls.IIb{color:var(--warn);background:var(--warn-wash);border-color:var(--warn-line)}
+.cls.III{color:var(--bad);background:var(--bad-wash);border-color:var(--bad-line)}
+.cls.dot{color:var(--ink-3);background:transparent;border-color:transparent}
+table.dose{width:100%;border-collapse:collapse;font-size:13px;margin:4px 0}
+table.dose th,table.dose td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.dose th{font-size:11px;letter-spacing:.4px;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+table.dose td.d{font-family:var(--mono);font-weight:600;white-space:nowrap}
+table.dose tr.x td{color:var(--ink-3)} table.dose tr.x td.d{color:var(--bad);text-decoration:none}
+table.dose tr.pick td{background:var(--acc-wash)}
+.tblwrap{overflow-x:auto}
+.brk{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0 2px}
+.brk span{font:500 11.5px/1 var(--mono);padding:4px 6px;border-radius:5px;border:1px solid var(--rule);color:var(--ink-3)}
+.brk span.on{border-color:var(--acc);background:var(--acc-wash);color:var(--acc)}
+.legend{font-size:12px;color:var(--ink-3);display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:6px 0 14px}
+.legend .cls{margin:0}
+.foot{font-size:12px;color:var(--ink-3);margin-top:14px;line-height:1.55}
+.muted{color:var(--ink-3)}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--ground);padding:8px 14px;border-radius:8px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1;pointer-events:auto}
+.toast button{margin-left:10px;border:0;background:transparent;color:var(--acc-line);font:600 13px/1 var(--sans);text-decoration:underline;cursor:pointer;padding:4px 2px}
+.btn.new{border-color:var(--acc);color:var(--acc);font-weight:600}
+.btn.new:hover{background:var(--acc-wash)}
+.card>h2 .btn{margin-left:auto;text-transform:none;letter-spacing:0;font-family:var(--sans)}
+
+/* mobile */
+.mtabs{display:none}
+@media (max-width:980px){
+  body{padding-bottom:calc(68px + env(safe-area-inset-bottom))}
+  body[data-view="plan"] .inputs{display:none}
+  body[data-view="inputs"] #out{display:none}
+  .mtabs{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:20;gap:8px;padding:8px 12px calc(8px + env(safe-area-inset-bottom));background:var(--surface);border-top:1px solid var(--rule);box-shadow:0 -2px 10px rgba(0,0,0,.08)}
+  .mtabs button{flex:1;min-height:46px;border:1px solid var(--rule-2);border-radius:10px;background:var(--surface);color:var(--ink-2);font:600 14px/1.2 var(--cond);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px 6px}
+  .mtabs button small{font:500 11px/1.2 var(--mono);color:inherit;opacity:.85}
+  .mtabs button.on{background:var(--acc);border-color:var(--acc);color:var(--on-accent)}
+  .mtabs button .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--bad);margin-left:5px;vertical-align:middle}
+  .toast{bottom:calc(80px + env(safe-area-inset-bottom))}
+}
+@media (max-width:640px){
+  .top{padding:10px 16px;gap:8px}
+  .top h1{font-size:17px}
+  .top .sub{font-size:11.5px;line-height:1.4}
+  .top .sp{display:none}
+  .wrap{padding:12px 16px 24px;gap:12px}
+  input,select,textarea{font-size:16px!important}
+  .fld input,.fld select{padding:9px 10px}
+  .card .bd{padding:12px}
+  .grid{grid-template-columns:1fr 1fr}
+  .inputs .grid[style]{grid-template-columns:1fr!important}
+  .seg{display:flex;width:100%}
+  .seg label{flex:1 1 auto}
+  .seg span{padding:10px 10px;text-align:center;font-size:13.5px;height:100%;display:flex;align-items:center;justify-content:center}
+  .fld .seg span{padding:8px 10px}
+  .ck span{padding:8px 12px;font-size:13.5px}
+  .cks{gap:7px}
+  .btn{min-height:40px;padding:8px 12px}
+  .btn.sm{min-height:36px;padding:6px 10px}
+  .plan-head h2{flex-basis:100%}
+  .plan-head .btn{flex:1}
+  .tiles{grid-template-columns:1fr 1fr;gap:8px}
+  .tile{padding:9px 10px}
+  .tile .v{font-size:21px}
+  .legend{font-size:11.5px;gap:6px 8px}
+  .sec>header{padding:10px 12px}
+  .sec .bd{padding:4px 12px 10px}
+  ul.it li{gap:8px;padding:8px 0}
+  .cls{min-width:30px;padding:4px 3px}
+  .verdict{padding:9px 10px}
+  .alert{padding:10px}
+  table.dose thead{display:none}
+  table.dose,table.dose tbody{display:block}
+  table.dose tr{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:8px 0;border-bottom:1px solid var(--rule)}
+  table.dose td{border:0;padding:0}
+  table.dose td:first-child{font-weight:600}
+  table.dose td.d{text-align:right}
+  table.dose td:last-child{grid-column:1/-1;font-size:12.5px;color:var(--ink-2)}
+  table.dose tr.pick td,table.dose tr.pick{background:var(--acc-wash)}
+  .brk span{font-size:11px}
+}
+@media print{
+  .mtabs{display:none!important}
+  .top .seg-theme,.top .btn,.inputs,.plan-head .btn,.toast{display:none!important}
+  .wrap{display:block;padding:0}
+  body{background:#fff}
+  .sec,.tile{box-shadow:none;break-inside:avoid}
+}
+</style>
+<style id="zth-style">
+.zth{width:32px;height:32px;flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;padding:0;border-radius:999px;border:1px solid var(--rule-2,#c9ced8);background:var(--surface,#fff);color:var(--ink-2,#4b5164);box-shadow:0 1px 2px rgba(0,0,0,.08);cursor:pointer;vertical-align:middle;transition:background .15s,color .15s}
+.zth:hover{background:var(--surface-2,#eef1f6);color:var(--ink,#141722)}
+.zth:focus-visible{outline:2px solid var(--acc,#33478c);outline-offset:2px}
+.zth svg{width:16px;height:16px;display:block}
+.zth-hidden{display:none!important}
+@media print{.zth{display:none!important}}
+</style>
+<style id="zcl-style">
+.zcl-ver{display:inline-block;border:1px solid var(--rule-2,#b9bfce);background:var(--surface-2,#e7eaf1);color:var(--ink-3,#787f93);font:600 11px/1 var(--mono,ui-monospace,Menlo,monospace);padding:4px 8px;border-radius:999px;cursor:pointer;margin-left:8px;vertical-align:3px;letter-spacing:0;text-transform:none;white-space:nowrap}
+.zcl-ver:hover{color:var(--acc,#33478c);border-color:var(--acc,#33478c)}
+.zcl-modal{position:fixed;inset:0;z-index:2147483000;background:rgba(10,12,20,.55);display:flex;align-items:flex-start;justify-content:center;padding:4vh 16px;overflow:auto}
+.zcl-modal[hidden]{display:none}
+.zcl-sheet{background:var(--ground,#eff1f5);color:var(--ink,#141722);border:1px solid var(--rule,#d6dae4);border-radius:14px;box-shadow:0 20px 50px rgba(0,0,0,.3);width:100%;max-width:620px;margin:auto 0;font:14px/1.5 var(--sans,-apple-system,"Segoe UI",sans-serif);text-align:left}
+.zcl-sheet>header{position:sticky;top:0;background:var(--surface,#fff);border-bottom:1px solid var(--rule,#d6dae4);border-radius:14px 14px 0 0;padding:12px 16px;display:flex;gap:12px;align-items:center}
+.zcl-sheet h2{margin:0;font:700 18px/1.2 var(--cond,var(--sans,sans-serif));flex:1;color:var(--ink,#141722)}
+.zcl-sheet h2 small{display:block;font:400 12px/1.4 var(--sans,sans-serif);color:var(--ink-3,#787f93);margin-top:2px}
+.zcl-x{border:1px solid var(--rule-2,#b9bfce);background:var(--surface,#fff);border-radius:8px;width:36px;height:36px;font-size:20px;line-height:1;cursor:pointer;color:var(--ink-2,#4b5164)}
+.zcl-bd{padding:14px 16px 18px}
+.zcl-item{background:var(--surface,#fff);border:1px solid var(--rule,#d6dae4);border-radius:10px;padding:10px 12px;margin-bottom:10px}
+.zcl-item h3{margin:0;font:700 15px/1.2 var(--mono,ui-monospace,monospace);display:flex;justify-content:space-between;gap:10px;color:var(--ink,#141722)}
+.zcl-item h3 span{font:500 12px/1.2 var(--sans,sans-serif);color:var(--ink-3,#787f93)}
+.zcl-item h5{margin:8px 0 2px;font-size:11px;letter-spacing:.4px;text-transform:uppercase;color:var(--ink-3,#787f93)}
+.zcl-item ul{margin:0;padding-left:18px;font-size:13px;color:var(--ink,#141722)}
+@media (max-width:640px){.zcl-modal{padding:0}.zcl-sheet{border-radius:0;min-height:100%;max-width:none;border:0}.zcl-sheet>header{border-radius:0;padding:10px 12px}.zcl-bd{padding:12px}}
+@media print{.zcl-ver,.zcl-modal{display:none!important}}
+</style>
+<style id="zcol-style">
+:root{--zc-blue:#33478C;--zc-green:#0B7045;--zc-red:#AC2229;--zc-amber:#8A5712;--zc-teal:#1F6F87;--zc-violet:#5B4A9E;--zc-on:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--zc-blue:#8CA5E8;--zc-green:#45C585;--zc-red:#EE7A76;--zc-amber:#DCA24E;--zc-teal:#58B8D2;--zc-violet:#A99BE8;--zc-on:#0E1016}}
+:root[data-theme="dark"]{--zc-blue:#8CA5E8;--zc-green:#45C585;--zc-red:#EE7A76;--zc-amber:#DCA24E;--zc-teal:#58B8D2;--zc-violet:#A99BE8;--zc-on:#0E1016}
+.card[data-zk]{border-left:4px solid var(--zk);overflow:hidden}
+.card[data-zk]>h2{background:var(--surface-2);background:color-mix(in srgb,var(--zk) 15%,var(--surface));border-bottom-color:color-mix(in srgb,var(--zk) 30%,var(--rule));color:var(--ink)}
+.card[data-zk]>h2 .n{background:var(--zk);color:var(--zc-on);border-radius:5px;padding:2px 5px;font-weight:700}
+.sec[data-zk]{border-left:4px solid var(--zk)}
+.sec[data-zk]>header{background:color-mix(in srgb,var(--zk) 12%,var(--surface));border-bottom-color:color-mix(in srgb,var(--zk) 28%,var(--rule))}
+.sec[data-zk] h4{color:var(--ink);padding-left:8px;border-left:3px solid var(--zk)}
+.tile{border-top:3px solid var(--acc)}
+.tile:not(.good):not(.warn):not(.bad){background:color-mix(in srgb,var(--acc) 6%,var(--surface))}
+.tile.good{border-color:var(--good-line);border-top-color:var(--good);background:var(--good-wash)}
+.tile.warn{border-top-color:var(--warn)}.tile.bad{border-top-color:var(--bad)}
+@media print{.card>h2,.sec>header,.tile{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style>
+<style id="zfold-style">
+.zf-head{cursor:pointer;position:relative;padding-right:38px!important;-webkit-tap-highlight-color:transparent;user-select:none}
+.zf-head::after{content:"";position:absolute;right:15px;top:50%;width:8px;height:8px;margin-top:-7px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;opacity:.55;transform:rotate(45deg);transition:transform .15s}
+[data-zf="closed"]>.zf-head::after,[data-zf="closed"]>.zf-keep .zf-head::after,[data-zf="closed"]>.zf-keep.zf-head::after{transform:rotate(-45deg);margin-top:-5px}
+.zf-head:focus-visible{outline:2px solid currentColor;outline-offset:-3px}
+.zf-head:hover::after{opacity:1}
+@media screen{
+  [data-zf="closed"]>*:not(.zf-keep){display:none!important}
+  [data-zf="closed"]>.zf-keep{border-bottom-color:transparent!important;margin-bottom:0!important}
+  [data-zf="closed"]{align-self:start!important;height:auto!important;min-height:0!important}
+}
+.zf-all{border:1px solid currentColor;background:transparent;color:inherit;opacity:.75;border-radius:999px;padding:5px 11px;font:500 12px/1.2 inherit;font-family:inherit;cursor:pointer;white-space:nowrap}
+.zf-all:hover{opacity:1}
+@media print{.zf-all{display:none!important}.zf-head::after{display:none}}
+</style>
+</head>
+<body>
+<div class="top">
+  <div>
+    <h1>AF-CARE Planner</h1>
+    <div class="sub">History + key features → etiology work-up, rate/rhythm plan with doses, and anticoagulation by CHA₂DS₂-VA / HAS-BLED · ESC 2024 AF guideline</div>
+  </div>
+  <div class="sp"></div>
+  <button type="button" class="btn new" data-new>+ New case</button>
+  <div class="seg-theme" role="group" aria-label="Theme">
+    <button data-theme-set="light">Light</button><button data-theme-set="auto" class="on">Auto</button><button data-theme-set="dark">Dark</button>
+  </div>
+</div>
+
+<div class="wrap">
+<form class="inputs" id="f" autocomplete="off" onsubmit="return false">
+
+  <section class="card">
+    <h2><span class="n">01</span> History <button type="button" class="btn sm new" data-new>Clear · new case</button></h2>
+    <div class="bd">
+      <textarea id="hx" placeholder="Paste or type the history, e.g. &quot;74F HTN, T2DM, prior TIA. Palpitations x 2 days, persistent AF, HR 132, BP 138/84. LVEF 55%. Cr 1.3, wt 58 kg. On aspirin.&quot;"></textarea>
+      <div class="row" style="margin-top:8px">
+        <button type="button" class="btn pri" id="parseBtn">Auto-fill from history</button>
+        <span class="muted" style="font-size:12px">Examples:</span>
+        <button type="button" class="btn sm" data-ex="0">Paroxysmal, 72F</button>
+        <button type="button" class="btn sm" data-ex="1">HFrEF + CKD</button>
+        <button type="button" class="btn sm" data-ex="2">Elderly, bleed</button>
+        <button type="button" class="btn sm" data-ex="3">Unstable WPW</button>
+      </div>
+      <div class="found" id="found"></div>
+      <div class="hint">Auto-fill only ticks what it finds (simple negation: “no / denies / without”). Check the boxes below — they drive the plan.</div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="n">02</span> Patient &amp; presentation</h2>
+    <div class="bd">
+      <div class="grid">
+        <label class="fld"><span>Age (y)</span><input id="age" type="number" min="18" max="110" inputmode="numeric"></label>
+        <div class="fld"><span>Sex (for CrCl)</span>
+          <div class="seg"><label><input type="radio" name="sex" value="M" checked><span>M</span></label><label><input type="radio" name="sex" value="F"><span>F</span></label></div>
+        </div>
+        <label class="fld"><span>Weight (kg)</span><input id="wt" type="number" min="25" max="300" step="0.1" inputmode="decimal"></label>
+        <label class="fld"><span>Height (cm)</span><input id="ht" type="number" min="100" max="230" inputmode="numeric"></label>
+        <div class="fld"><span>Creatinine</span>
+          <div class="dual"><input id="cr" type="number" min="0.1" step="0.01" inputmode="decimal"><select id="crUnit"><option value="mg">mg/dL</option><option value="umol">µmol/L</option></select></div>
+        </div>
+        <label class="fld"><span>Ventricular rate (bpm)</span><input id="hr" type="number" min="20" max="300" inputmode="numeric"></label>
+        <label class="fld"><span>SBP (mmHg)</span><input id="sbp" type="number" min="40" max="300" inputmode="numeric"></label>
+        <label class="fld"><span>LVEF (%)</span><input id="lvef" type="number" min="5" max="85" inputmode="numeric" placeholder="unknown"></label>
+      </div>
+      <div class="lbl">Haemodynamic status</div>
+      <div class="seg"><label><input type="radio" name="hemo" value="stable" checked><span>Stable</span></label><label><input type="radio" name="hemo" value="unstable"><span>Unstable (shock, ischaemia, pulmonary oedema)</span></label></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="n">03</span> AF characteristics</h2>
+    <div class="bd">
+      <div class="grid" style="grid-template-columns:1fr 1fr">
+        <label class="fld"><span>Temporal pattern</span>
+          <select id="pattern">
+            <option value="first">First-diagnosed</option>
+            <option value="paroxysmal">Paroxysmal (≤7 d)</option>
+            <option value="persistent">Persistent (&gt;7 d)</option>
+            <option value="lsp">Long-standing persistent (&gt;12 mo)</option>
+            <option value="permanent">Permanent (no further rhythm control)</option>
+            <option value="subclinical">Device-detected subclinical AF</option>
+          </select>
+        </label>
+        <label class="fld"><span>Symptoms (mEHRA)</span>
+          <select id="ehra">
+            <option value="1">1 — none</option>
+            <option value="2a">2a — mild, not troublesome</option>
+            <option value="2b" selected>2b — moderate, troublesome</option>
+            <option value="3">3 — severe, daily activity affected</option>
+            <option value="4">4 — disabling</option>
+          </select>
+        </label>
+      </div>
+      <div class="lbl">Duration of current episode</div>
+      <div class="seg"><label><input type="radio" name="dur" value="lt24"><span>&lt;24 h, clear onset</span></label><label><input type="radio" name="dur" value="ge24" checked><span>≥24 h or unknown</span></label><label><input type="radio" name="dur" value="sr"><span>Now in sinus rhythm</span></label></div>
+      <div class="lbl">Features</div>
+      <div class="cks">
+        <label class="ck"><input type="checkbox" id="early"><span>Diagnosed ≤12 months ago</span></label>
+        <label class="ck"><input type="checkbox" id="flutter"><span>Typical atrial flutter</span></label>
+        <label class="ck danger"><input type="checkbox" id="preex"><span>Pre-excitation (WPW)</span></label>
+        <label class="ck"><input type="checkbox" id="tic"><span>Suspected tachycardiomyopathy</span></label>
+        <label class="ck"><input type="checkbox" id="ladil"><span>Severely dilated LA</span></label>
+        <label class="ck"><input type="checkbox" id="postop"><span>Post-operative AF</span></label>
+        <label class="ck"><input type="checkbox" id="sepsis"><span>Acute trigger (sepsis, pneumonia)</span></label>
+        <label class="ck"><input type="checkbox" id="pe"><span>PE suspected</span></label>
+        <label class="ck"><input type="checkbox" id="thyro"><span>Hyperthyroidism</span></label>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="n">04</span> Heart &amp; vessels</h2>
+    <div class="bd">
+      <div class="cks">
+        <label class="ck"><input type="checkbox" id="hf"><span>Heart failure (any EF)</span></label>
+        <label class="ck danger"><input type="checkbox" id="adhf"><span>Acute decompensated HF</span></label>
+        <label class="ck"><input type="checkbox" id="cad"><span>CAD / prior MI / CABG</span></label>
+        <label class="ck"><input type="checkbox" id="acs"><span>ACS or PCI within 12 mo</span></label>
+        <label class="ck"><input type="checkbox" id="pad"><span>PAD / aortic plaque</span></label>
+        <label class="ck"><input type="checkbox" id="lvh"><span>Significant LVH (≥15 mm)</span></label>
+        <label class="ck"><input type="checkbox" id="hcm"><span>Hypertrophic CM</span></label>
+        <label class="ck"><input type="checkbox" id="amyl"><span>Cardiac amyloidosis</span></label>
+        <label class="ck"><input type="checkbox" id="mech"><span>Mechanical valve</span></label>
+        <label class="ck"><input type="checkbox" id="ms"><span>Moderate–severe mitral stenosis</span></label>
+        <label class="ck"><input type="checkbox" id="snd"><span>Sinus node disease / AV block</span></label>
+        <label class="ck"><input type="checkbox" id="pacer"><span>Pacemaker / ICD in situ</span></label>
+        <label class="ck"><input type="checkbox" id="qt"><span>Prolonged QTc</span></label>
+      </div>
+      <div class="hint" id="acsType" hidden>
+        <div class="seg" style="margin-top:4px"><label><input type="radio" name="acst" value="acs" checked><span>ACS</span></label><label><input type="radio" name="acst" value="ccs"><span>Elective PCI (CCS)</span></label></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="n">05</span> Comorbidities &amp; risk factors</h2>
+    <div class="bd">
+      <div class="cks">
+        <label class="ck"><input type="checkbox" id="htn"><span>Hypertension</span></label>
+        <label class="ck"><input type="checkbox" id="uhtn"><span>Uncontrolled SBP &gt;160</span></label>
+        <label class="ck"><input type="checkbox" id="dm"><span>Diabetes</span></label>
+        <label class="ck"><input type="checkbox" id="stroke"><span>Prior stroke / TIA / embolism</span></label>
+        <label class="ck"><input type="checkbox" id="obese"><span>Obesity / overweight</span></label>
+        <label class="ck"><input type="checkbox" id="osa"><span>Sleep apnoea</span></label>
+        <label class="ck"><input type="checkbox" id="etoh"><span>Alcohol ≥8 drinks/wk</span></label>
+        <label class="ck"><input type="checkbox" id="smoke"><span>Current smoker</span></label>
+        <label class="ck"><input type="checkbox" id="lung"><span>Asthma / COPD</span></label>
+        <label class="ck"><input type="checkbox" id="dialysis"><span>Dialysis</span></label>
+        <label class="ck"><input type="checkbox" id="rtx"><span>Renal transplant</span></label>
+        <label class="ck"><input type="checkbox" id="liver"><span>Cirrhosis / significant liver disease</span></label>
+      </div>
+      <div class="hint w" id="sbpHint" hidden></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="n">06</span> Bleeding &amp; medicines</h2>
+    <div class="bd">
+      <div class="cks">
+        <label class="ck"><input type="checkbox" id="bleed"><span>Prior major bleed / anaemia / low platelets</span></label>
+        <label class="ck danger"><input type="checkbox" id="activeBleed"><span>Active bleeding now</span></label>
+        <label class="ck"><input type="checkbox" id="ciOAC"><span>Contraindication to long-term OAC</span></label>
+        <label class="ck"><input type="checkbox" id="apt"><span>Antiplatelet or NSAID</span></label>
+      </div>
+      <div class="grid" style="grid-template-columns:1fr;margin-top:10px">
+        <label class="fld"><span>Current anticoagulant</span>
+          <select id="oac"><option value="none">None</option><option value="vka">Warfarin / VKA</option><option value="doac">DOAC</option></select>
+        </label>
+      </div>
+      <div class="cks" style="margin-top:8px">
+        <label class="ck"><input type="checkbox" id="labile" disabled><span>Labile INR (TTR &lt;60%)</span></label>
+        <label class="ck"><input type="checkbox" id="pgp"><span>P-gp inhibitor (dronedarone, ciclosporin, erythromycin, ketoconazole)</span></label>
+        <label class="ck"><input type="checkbox" id="vera"><span>Verapamil</span></label>
+        <label class="ck"><input type="checkbox" id="azole"><span>Strong CYP3A4 + P-gp inhibitor (azoles, HIV PIs)</span></label>
+        <label class="ck"><input type="checkbox" id="inducer"><span>Strong inducer (rifampicin, carbamazepine, phenytoin)</span></label>
+      </div>
+    </div>
+  </section>
+
+  <div class="row" style="margin-bottom:24px"><button type="button" class="btn new" data-new>Clear all details — start new case</button></div>
+</form>
+
+<main id="out" aria-live="polite">
+  <div class="plan-head">
+    <h2>AF-CARE management plan</h2>
+    <button type="button" class="btn new" data-new>+ New case</button>
+    <button type="button" class="btn" id="copyBtn">Copy plan as text</button>
+    <button type="button" class="btn" onclick="window.print()">Print</button>
+  </div>
+  <div class="tiles" id="tiles"></div>
+  <div class="legend">ESC class:
+    <span class="cls I">I</span>recommended
+    <span class="cls IIa">IIa</span>should be considered
+    <span class="cls IIb">IIb</span>may be considered
+    <span class="cls III">III</span>not recommended
+  </div>
+  <div id="plan"></div>
+  <div class="foot">
+    Based on the 2024 ESC Guidelines for the management of atrial fibrillation (Van Gelder IC et al., <i>Eur Heart J</i> 2024;45:3314–3414) — AF-CARE: <b>C</b>omorbidity &amp; risk-factor management, <b>A</b>void stroke &amp; thromboembolism, <b>R</b>educe symptoms by rate &amp; rhythm control, <b>E</b>valuation &amp; dynamic reassessment. Items marked ESC 2020 come from the prior guideline where 2024 is silent. CrCl by Cockcroft–Gault with actual body weight (as used in DOAC trials).
+    <br>Teaching and decision-support aid. Doses are typical adult ranges — check local formulary, product labelling and the individual patient before prescribing.
+  </div>
+</main>
+</div>
+<nav class="mtabs" aria-label="View">
+  <button type="button" data-view="inputs">Inputs<small>history &amp; features</small></button>
+  <button type="button" data-view="plan">Plan<small id="mSum">—</small></button>
+</nav>
+<div class="toast" id="toast"></div>
+<script>
+(function(){
+"use strict";
+const $=id=>document.getElementById(id);
+const CK=['early','flutter','preex','tic','ladil','postop','sepsis','pe','thyro','hf','adhf','cad','acs','pad','lvh','hcm','amyl','mech','ms','snd','pacer','qt','htn','uhtn','dm','stroke','obese','osa','etoh','smoke','lung','dialysis','rtx','liver','bleed','activeBleed','ciOAC','apt','labile','pgp','vera','azole','inducer'];
+const NUM=['age','wt','ht','cr','hr','sbp','lvef'];
+const num=id=>{const v=parseFloat($(id).value);return isFinite(v)?v:null;};
+const rad=n=>{const e=document.querySelector('input[name="'+n+'"]:checked');return e?e.value:null;};
+const setRad=(n,v)=>{const e=document.querySelector('input[name="'+n+'"][value="'+v+'"]');if(e)e.checked=true;};
+const r1=x=>Math.round(x*10)/10;
+const EHRA={'1':'1 — no symptoms','2a':'2a — mild','2b':'2b — moderate','3':'3 — severe','4':'4 — disabling'};
+
+/* ---------- state ---------- */
+function collect(){
+  const s={};
+  CK.forEach(k=>s[k]=$(k).checked);
+  NUM.forEach(k=>s[k]=num(k));
+  s.sex=rad('sex'); s.unstable=rad('hemo')==='unstable'; s.dur=rad('dur'); s.acst=rad('acst');
+  s.pattern=$('pattern').value; s.ehra=$('ehra').value; s.oac=$('oac').value; s.crUnit=$('crUnit').value;
+  s.labile=s.labile&&s.oac==='vka';
+  s.crMg=s.cr==null?null:(s.crUnit==='umol'?s.cr/88.4:s.cr);
+  s.crcl=(s.age&&s.wt&&s.crMg)?((140-s.age)*s.wt/(72*s.crMg))*(s.sex==='F'?0.85:1):null;
+  s.esrd=s.dialysis||(s.crcl!=null&&s.crcl<15);
+  s.bmi=(s.wt&&s.ht)?s.wt/Math.pow(s.ht/100,2):null;
+  s.lowEF=s.lvef!=null&&s.lvef<=40;
+  s.hfAny=s.hf||s.adhf||s.lowEF;
+  s.vasc=s.cad||s.acs||s.pad;
+  s.shd=s.lowEF||s.hf||s.adhf||s.cad||s.acs||s.lvh||s.hcm||s.amyl||s.ms||s.mech;
+  s.obeseAny=s.obese||(s.bmi!=null&&s.bmi>=30);
+  s.symp=['2b','3','4'].includes(s.ehra);
+  s.hypo=s.sbp!=null&&s.sbp<90;
+  s.rhythmPath=!['permanent','subclinical'].includes(s.pattern);
+  return s;
+}
+
+/* ---------- scores ---------- */
+function cha(s){
+  const a=s.age;
+  const it=[
+    ['C','HF or LVEF ≤40%',s.hfAny?1:0],
+    ['H','Hypertension',s.htn?1:0],
+    ['A₂','Age ≥75',a!=null&&a>=75?2:0],
+    ['D','Diabetes',s.dm?1:0],
+    ['S₂','Stroke/TIA/embolism',s.stroke?2:0],
+    ['V','Vascular disease',s.vasc?1:0],
+    ['A','Age 65–74',a!=null&&a>=65&&a<75?1:0]];
+  return {it,score:it.reduce((t,x)=>t+x[2],0)};
+}
+function hb(s){
+  const renal=s.dialysis||s.rtx||(s.crMg!=null&&s.crMg>=2.26);
+  const it=[
+    ['H','SBP >160',s.uhtn?1:0],
+    ['A','Renal',renal?1:0],
+    ['A','Liver',s.liver?1:0],
+    ['S','Stroke',s.stroke?1:0],
+    ['B','Bleeding',(s.bleed||s.activeBleed)?1:0],
+    ['L','Labile INR',s.labile?1:0],
+    ['E','Age >65',s.age!=null&&s.age>65?1:0],
+    ['D','Drugs',s.apt?1:0],
+    ['D','Alcohol',s.etoh?1:0]];
+  return {it,score:it.reduce((t,x)=>t+x[2],0),renal};
+}
+
+/* ---------- html helpers ---------- */
+const li=(t,c,sub,mod)=>`<li class="${mod||''}"><span class="cls ${c||'dot'}">${c||'•'}</span><div class="tx">${t}${sub?`<small>${sub}</small>`:''}</div></li>`;
+const ul=a=>a.length?`<ul class="it">${a.join('')}</ul>`:'';
+const h4=t=>`<h4>${t}</h4>`;
+const sec=(k,L,title,desc,body)=>`<section class="sec ${k}"><header><div class="L">${L}</div><div><h3>${title}</h3><p>${desc}</p></div></header><div class="bd">${body}</div></section>`;
+const brk=items=>`<div class="brk">${items.map(x=>`<span class="${x[2]?'on':''}">${x[0]} ${x[1]}${x[2]?' +'+x[2]:''}</span>`).join('')}</div>`;
+const wd=(s,mgkg,max,unit)=>{if(!s.wt)return '';let v=mgkg*s.wt;if(max&&v>max)v=max;return ` <b>(≈ ${Math.round(v)} ${unit||'mg'})</b>`;};
+
+/* ---------- DOAC dosing ---------- */
+function doacRows(s,H){
+  const c=s.crcl,a=s.age,w=s.wt,cr=s.crMg,unk=c==null,rows=[];
+  const add=(n,d,why,x)=>rows.push({n,d,why,x:!!x});
+  // apixaban
+  if(s.inducer) add('Apixaban','Avoid','Strong CYP3A4/P-gp inducer lowers levels',1);
+  else if(s.esrd) add('Apixaban','Not recommended','CrCl <15 or dialysis — outside ESC-endorsed use',1);
+  else if(s.azole) add('Apixaban','Avoid','Strong dual CYP3A4 + P-gp inhibitor',1);
+  else{
+    const crit=[];if(a!=null&&a>=80)crit.push('age ≥80');if(w!=null&&w<=60)crit.push('weight ≤60 kg');if(cr!=null&&cr>=1.5)crit.push('Cr ≥1.5 mg/dL');
+    if(crit.length>=2) add('Apixaban','2.5 mg BID','≥2 of: '+crit.join(', '));
+    else if(c!=null&&c<30) add('Apixaban','2.5 mg BID','CrCl 15–29 mL/min');
+    else add('Apixaban','5 mg BID',(crit.length?`Only 1 criterion (${crit[0]}) — full dose`:'No dose-reduction criteria')+(unk?' · confirm age/weight/Cr':''));
+  }
+  // rivaroxaban
+  if(s.inducer) add('Rivaroxaban','Avoid','Strong CYP3A4/P-gp inducer',1);
+  else if(s.esrd) add('Rivaroxaban','Not recommended','CrCl <15 or dialysis',1);
+  else if(s.azole) add('Rivaroxaban','Avoid','Strong dual CYP3A4 + P-gp inhibitor',1);
+  else if(unk) add('Rivaroxaban','20 mg OD','15 mg OD if CrCl 15–49 · take with evening meal');
+  else if(c<50) add('Rivaroxaban','15 mg OD',`CrCl ${Math.round(c)} (15–49) · with food`);
+  else add('Rivaroxaban','20 mg OD','CrCl ≥50 · with evening meal');
+  // edoxaban
+  if(s.inducer) add('Edoxaban','Avoid','Strong P-gp inducer (rifampicin)',1);
+  else if(s.esrd) add('Edoxaban','Not recommended','CrCl <15 or dialysis',1);
+  else{
+    const r=[];if(c!=null&&c<=50)r.push('CrCl 15–50');if(w!=null&&w<=60)r.push('weight ≤60 kg');if(s.pgp)r.push('P-gp inhibitor');
+    let why=r.length?'Any 1 of: '+r.join(', '):'No dose-reduction criteria'+(unk?' · 30 mg if CrCl ≤50, wt ≤60 kg or P-gp inhibitor':'');
+    if(c!=null&&c>95) why+=' · CrCl >95: reduced efficacy vs warfarin (US label)';
+    add('Edoxaban',r.length?'30 mg OD':'60 mg OD',why);
+  }
+  // dabigatran
+  if(s.inducer) add('Dabigatran','Avoid','Strong P-gp inducer',1);
+  else if(s.esrd||(c!=null&&c<30)) add('Dabigatran','Contraindicated','CrCl <30 mL/min (renally cleared ~80%)',1);
+  else if(s.pgp||s.azole) add('Dabigatran','Avoid','P-gp inhibitor (dronedarone / ketoconazole / ciclosporin) ↑ levels',1);
+  else if((a!=null&&a>=80)||s.vera) add('Dabigatran','110 mg BID',[a>=80?'age ≥80':'',s.vera?'verapamil':''].filter(Boolean).join(', '));
+  else{
+    const r=[];if(a!=null&&a>=75)r.push('age 75–79');if(c!=null&&c<=50)r.push('CrCl 30–50');if(H.score>=3||s.bleed)r.push('high bleeding risk');
+    if(r.length) add('Dabigatran','110 or 150 mg BID','Individualise ('+r.join(', ')+'); 110 mg if bleeding risk dominates');
+    else add('Dabigatran','150 mg BID','No dose-reduction criteria'+(unk?' · contraindicated if CrCl <30':''));
+  }
+  return rows;
+}
+
+/* ---------- plan builders ---------- */
+function workup(s){
+  const base=[
+    li('<b>12-lead ECG</b> to confirm AF (or ≥30 s single-lead) — look for flutter waves, pre-excitation, LVH, Q waves, QRS/QTc as AAD baseline','I'),
+    li('<b>Transthoracic echocardiography</b> — LVEF, valve disease, LA size, LVH/wall thickness; guides AAD and anticoagulant choice','I'),
+    li('<b>Bloods</b>: FBC, U&amp;E with K⁺/Mg²⁺, creatinine → CrCl, LFT, TSH ± FT4, glucose/HbA1c, lipid profile, baseline PT/INR &amp; aPTT','I'),
+    li('Screen modifiable drivers: BP, BMI, alcohol, OSA symptoms, physical activity; drug history (sympathomimetics, thyroxine, stimulants, cocaine)')];
+  const t=[];
+  if(s.preex) t.push(li('Pre-excitation: electrophysiology study with <b>accessory-pathway ablation</b>','I'));
+  if(s.thyro) t.push(li('Hyperthyroidism: TSH, FT4/FT3, TRAb; treat and restore euthyroid state before elective rhythm control'));
+  if(s.sepsis) t.push(li('Acute trigger: cultures, CXR, lactate, CRP — treat the trigger; AF commonly recurs later'));
+  if(s.pe) t.push(li('Suspected PE: Wells/PERC → D-dimer or CT pulmonary angiography'));
+  if(s.acs) t.push(li('Recent ACS/PCI: serial troponin &amp; ECG; ischaemia management per ACS pathway'));
+  if(s.hfAny||s.tic) t.push(li('HF / LV dysfunction: NT-proBNP; ischaemia evaluation (coronary CT or angiography) for new LV dysfunction; <b>repeat echo 1–3 months</b> after rate/rhythm control to confirm tachycardiomyopathy'));
+  if(s.lvh||s.hcm||s.amyl||(s.age>=65&&s.hfAny&&!s.lowEF)) t.push(li('Unexplained LVH / HFpEF / suspected infiltration: cardiac MRI; amyloid screen (serum free light chains + immunofixation, ⁹⁹ᵐTc-PYP/DPD scintigraphy)'));
+  const noRF=!(s.htn||s.dm||s.cad||s.hfAny||s.obeseAny||s.etoh||s.osa);
+  if(s.age!=null&&s.age<60&&noRF) t.push(li('Young onset without risk factors: family history, cardiac MRI; consider genetic testing for cardiomyopathy/channelopathy; look for triggering SVT'));
+  if(s.osa||s.obeseAny) t.push(li('Formal sleep study (polysomnography / home testing) — do not rely on questionnaires alone'));
+  if(['paroxysmal','first'].includes(s.pattern)||s.pattern==='permanent') t.push(li('Ambulatory ECG (24 h – 7 d Holter) — AF burden, rate control adequacy, pauses/bradycardia'));
+  if(s.snd) t.push(li('Bradycardia/conduction disease: Holter for pauses; pacing assessment before rate-slowing drugs or AADs'));
+  if(s.cad&&!s.acs&&!s.lowEF) t.push(li('Known CAD: functional ischaemia testing if symptoms — also relevant for class IC drug eligibility'));
+  if(s.mech||s.ms) t.push(li('Valve disease: detailed echo (gradients, valve area, prosthesis function); consider TOE'));
+  if(s.etoh) t.push(li('Alcohol: GGT, MCV, LFT; AUDIT-C screen'));
+  if(s.rhythmPath&&s.dur==='ge24'&&s.oac==='none'&&!s.unstable) t.push(li('<b>TOE</b> if early cardioversion planned before 3 weeks of anticoagulation (exclude LAA thrombus)'));
+  if(s.flutter) t.push(li('Typical flutter: confirm saw-tooth waves inferior leads (II, III, aVF), negative; adenosine/vagal only for diagnosis if unclear'));
+  return sec('w','Dx','Etiology & baseline work-up','Confirm diagnosis, find the cause and the drivers',
+    h4('For every patient')+ul(base)+(t.length?h4('Targeted to this patient')+ul(t):''));
+}
+
+function careC(s){
+  const a=[li('Identify and manage risk factors and comorbidities as an integral part of AF care — reduces AF burden, recurrence and progression','I')];
+  if(s.htn||s.uhtn) a.push(li('<b>Hypertension</b>: BP lowering; target SBP 120–129 mmHg if tolerated. ACEi/ARB preferred (atrial remodelling)','I'));
+  if(s.hfAny){
+    a.push(li('<b>Heart failure</b>: diuretics for congestion; <b>SGLT2 inhibitor irrespective of LVEF</b> (dapagliflozin or empagliflozin 10 mg OD)','I'));
+    if(s.lowEF) a.push(li('HFrEF: full GDMT — β-blocker, ARNI/ACEi/ARB, MRA, SGLT2i; ICD/CRT evaluation after optimisation'));
+  }
+  if(s.dm) a.push(li('<b>Diabetes</b>: effective glycaemic control; favour agents with CV benefit (SGLT2i, GLP-1 RA)','I'));
+  if(s.obeseAny) a.push(li(`<b>Weight</b>: ≥10% body-weight reduction${s.bmi?` (BMI ${r1(s.bmi)} kg/m²)`:''} — structured programme; consider GLP-1 RA/bariatric referral where indicated`,'I'));
+  if(s.etoh) a.push(li('<b>Alcohol</b>: reduce to ≤3 standard drinks per week (abstinence lowers recurrence)','I'));
+  a.push(li('<b>Physical activity</b>: tailored exercise programme, moderate intensity ~150–300 min/week'+(s.hfAny?' (cardiac rehabilitation)':''),'I'));
+  if(s.osa) a.push(li('<b>Sleep apnoea</b>: CPAP and OSA management','IIb'));
+  if(s.smoke) a.push(li('<b>Smoking cessation</b> — pharmacotherapy + counselling'));
+  if(s.thyro) a.push(li('<b>Hyperthyroidism</b>: antithyroid therapy/definitive treatment; β-blocker for rate; defer elective cardioversion until euthyroid'));
+  if(s.vasc) a.push(li('<b>Vascular disease</b>: high-intensity statin and secondary prevention (antiplatelet strategy — see A)'));
+  if(s.crcl!=null&&s.crcl<60||s.dialysis||s.rtx) a.push(li(`<b>CKD</b>${s.crcl!=null?` (CrCl ${Math.round(s.crcl)} mL/min)`:''}: nephroprotection (RAS blockade, SGLT2i), renal dosing of all AF drugs`));
+  if(s.sepsis||s.postop) a.push(li('Treat the precipitant (sepsis / post-operative state); AF after a trigger has high long-term recurrence — keep under surveillance'));
+  return sec('c','C','Comorbidity & risk-factor management','Treat the substrate — reduces recurrence and progression',ul(a));
+}
+
+function careA(s,C,H){
+  let body='',v,vc='',ind;
+  const valve=s.mech||s.ms, ageUnk=s.age==null;
+  if(s.activeBleed) body+=`<div class="verdict bad"><b>Active bleeding:</b> withhold anticoagulation now — plan below applies once the source is controlled.</div>`;
+  if(valve){ind='vka';v='Anticoagulate with <b>warfarin (VKA)</b> — DOACs are contraindicated with '+(s.mech?'a mechanical valve':'moderate–severe mitral stenosis');}
+  else if(s.hcm||s.amyl){ind='yes';v='<b>Oral anticoagulation recommended regardless of CHA₂DS₂-VA</b> ('+(s.hcm?'HCM':'cardiac amyloidosis')+')';}
+  else if(s.pattern==='subclinical'){ind=C.score>=2?'maybe':'no';v=C.score>=2?'Device-detected subclinical AF with elevated risk — DOAC <b>may be considered</b> (not if high bleeding risk)':'Device-detected subclinical AF at low risk — OAC not indicated; monitor for clinical AF';}
+  else if(C.score>=2){ind='yes';v=`CHA₂DS₂-VA ${C.score} → <b>oral anticoagulation recommended</b>`;}
+  else if(C.score===1){ind='consider';v=`CHA₂DS₂-VA 1 → <b>oral anticoagulation should be considered</b> (shared decision)`;}
+  else {ind='no';v=`CHA₂DS₂-VA 0 → no anticoagulation for stroke prevention now; reassess risk regularly`;}
+  const vcls={vka:'I',yes:'I',maybe:'IIb',consider:'IIa',no:''}[ind];
+  body+=`<div class="verdict ${ind==='no'?'none':''}">${vcls?`<span class="cls ${vcls}" style="margin-right:8px">${vcls}</span>`:''}${v}</div>`;
+  body+=brk(C.it);
+  if(ageUnk) body+=`<div class="hint w">Age not entered — score may be underestimated.</div>`;
+
+  const a=[];
+  if(ind!=='no'&&ind!=='vka'){
+    a.push(li('<b>DOAC preferred over VKA</b> (apixaban, dabigatran, edoxaban, rivaroxaban)','I','VKA only for mechanical valves or moderate–severe mitral stenosis'));
+    a.push(li('Use the full dose unless the patient meets DOAC-specific reduction criteria — inappropriate under-dosing increases stroke risk','III'));
+  }
+  if(ind==='no'&&s.pattern!=='subclinical') a.push(li('Antiplatelet therapy is <b>not</b> an alternative for stroke prevention','III'));
+  if(ind!=='no') a.push(li('OAC decision is independent of AF pattern (paroxysmal/persistent/permanent) and of rhythm-control success'));
+  if(s.postop) a.push(li('Post-operative AF: long-term OAC per CHA₂DS₂-VA','IIa','IIa after non-cardiac surgery; IIb after cardiac surgery'));
+  if(s.sepsis) a.push(li('AF during an acute trigger (e.g. sepsis): long-term OAC in suitable patients at elevated risk','IIa'));
+  body+=ul(a);
+
+  // dosing table
+  if(valve){
+    body+=h4('Anticoagulant &amp; dose');
+    body+=`<div class="tblwrap"><table class="dose"><thead><tr><th>Agent</th><th>Dose</th><th>Notes</th></tr></thead><tbody>
+      <tr class="pick"><td>Warfarin</td><td class="d">INR ${s.mech?'2.5–3.5*':'2.0–3.0'}</td><td>Start 2–5 mg OD (≤3 mg if elderly, low weight, liver disease, interacting drugs); titrate to INR; aim TTR ≥70%.${s.mech?' *Target depends on prosthesis type/position — mechanical mitral or aortic with risk factors 2.5–3.5; bileaflet aortic without risk factors 2.0–3.0.':''}</td></tr>
+      <tr class="x"><td>DOACs</td><td class="d">Contraindicated</td><td>${s.mech?'Mechanical valve (dabigatran ↑ thrombosis & bleeding, RE-ALIGN)':'Moderate–severe rheumatic MS (INVICTUS: rivaroxaban inferior)'}</td></tr></tbody></table></div>`;
+  } else if(ind!=='no'){
+    body+=h4('DOAC dose for this patient'+(s.crcl!=null?` · CrCl ${Math.round(s.crcl)} mL/min`:' · CrCl not calculated'));
+    const rows=doacRows(s,H);
+    body+=`<div class="tblwrap"><table class="dose"><thead><tr><th>Agent</th><th>Dose</th><th>Reason</th></tr></thead><tbody>${rows.map(r=>`<tr class="${r.x?'x':''}"><td>${r.n}</td><td class="d">${r.d}</td><td>${r.why}</td></tr>`).join('')}
+      <tr><td>Warfarin</td><td class="d">INR 2.0–3.0</td><td>If DOAC unsuitable (e.g. ${s.esrd?'dialysis/CrCl &lt;15, ':''}interactions, cost); aim TTR ≥70%</td></tr></tbody></table></div>`;
+    if(rows.every(r=>r.x)) body+=`<div class="hint w">No DOAC suitable with current inputs — warfarin (INR 2–3) or specialist advice.</div>`;
+    body+=`<div class="hint">No DOAC is ranked above another by ESC. Apixaban and edoxaban had less major bleeding than warfarin; dabigatran 150 mg and rivaroxaban more GI bleeding. Consider dosing frequency, interactions, renal function, cost.</div>`;
+  }
+
+  // bleeding
+  body+=h4(`Bleeding risk — HAS-BLED ${H.score}${H.score>=3?' (high)':''}`);
+  body+=brk(H.it);
+  const b=[li('Bleeding-risk scores must <b>not</b> be used to start or withhold OAC','III','Use them to find and fix modifiable factors and to plan follow-up')];
+  const m=[];
+  if(s.uhtn) m.push('uncontrolled BP → target SBP &lt;140 (ideally 120–129)');
+  if(s.labile) m.push('labile INR → switch to DOAC');
+  if(s.apt) m.push('antiplatelet/NSAID → stop unless separately indicated; add PPI if combination unavoidable');
+  if(s.etoh) m.push('alcohol excess → reduce');
+  if(s.bleed) m.push('anaemia / bleeding source → investigate and correct; PPI if GI history');
+  if(H.renal||s.liver) m.push('renal/hepatic dysfunction → dose-adjust, monitor more often');
+  if(m.length) b.push(li('Correct modifiable bleeding risk factors: '+m.join('; '),'I'));
+  if(H.score>=3) b.push(li('High bleeding risk → closer review (e.g. 4 weeks after starting OAC, then every 3–6 months)'));
+  if(s.labile) b.push(li('On VKA with TTR &lt;70% → <b>switch to a DOAC</b>','I'));
+  else if(s.oac==='vka'&&s.age>=75&&!valve) b.push(li('Age ≥75 on stable therapeutic VKA with polypharmacy: continuing VKA rather than switching may be considered (FRAIL-AF)','IIb'));
+  if(s.ciOAC) b.push(li('Contraindication to long-term OAC → <b>percutaneous LAA occlusion</b>','IIb'));
+  if(s.activeBleed) b.push(li('Reversal if life-threatening: dabigatran → idarucizumab 5 g IV; FXa inhibitors → andexanet alfa or 4F-PCC 50 IU/kg; VKA → vitamin K 5–10 mg IV + 4F-PCC. Resume OAC once bleeding controlled in most patients'));
+  body+=ul(b);
+
+  // antiplatelets
+  const p=[];
+  if(s.acs){
+    if(s.acst==='acs') p.push(li('ACS with PCI: aspirin + clopidogrel + OAC <b>≤1 week</b>, then OAC + clopidogrel up to <b>12 months</b>, then OAC alone','I','Prefer DOAC over VKA in combination; avoid ticagrelor/prasugrel in triple therapy'));
+    else p.push(li('Elective PCI (chronic coronary syndrome): aspirin ≤1 week, then OAC + clopidogrel up to <b>6 months</b>, then OAC alone','I','Clopidogrel 75 mg OD; shorten if high bleeding risk'));
+    p.push(li('Where bleeding risk dominates, rivaroxaban 15 mg OD or dabigatran 110 mg BID may be used during combination therapy (ESC 2020)','IIa'));
+  } else if(s.vasc&&ind!=='no'){
+    p.push(li('Chronic CAD/vascular disease (&gt;12 months from event): <b>OAC monotherapy</b> — do not add antiplatelet','III'));
+  } else if(s.apt){
+    p.push(li('Stop antiplatelet/NSAID unless there is a separate indication'));
+  }
+  if(p.length) body+=h4('Antiplatelet combination')+ul(p);
+  return sec('a','A','Avoid stroke & thromboembolism','CHA₂DS₂-VA-guided anticoagulation; HAS-BLED to fix modifiable bleeding risk',body);
+}
+
+function eastEligible(s){
+  if(s.age>75||s.stroke) return true;
+  const n=[s.age>65,s.sex==='F',s.hfAny,s.htn,s.dm,s.cad||s.acs,s.crcl!=null&&s.crcl<60,s.lvh].filter(Boolean).length;
+  return n>=2;
+}
+
+function careR(s,C){
+  let body='';
+  // strategy verdict
+  let v;
+  const pro=[],con=[];
+  if(s.symp) pro.push('symptomatic (mEHRA '+s.ehra+')');
+  if(s.tic) pro.push('suspected tachycardiomyopathy');
+  if(s.lowEF) pro.push('HFrEF');
+  if(s.early) pro.push('diagnosed ≤12 months');
+  if(s.pattern==='first') pro.push('first-diagnosed');
+  if(s.age!=null&&s.age<65) pro.push('younger age');
+  if(s.flutter) pro.push('typical flutter (CTI ablation curative)');
+  if(['1','2a'].includes(s.ehra)) con.push('few/no symptoms');
+  if(s.age>=80) con.push('age ≥80');
+  if(s.ladil) con.push('severely dilated LA');
+  if(s.pattern==='lsp') con.push('long-standing persistent');
+  if(s.preex) v='<b>Pre-excited AF</b>: cardioversion (electrical, or IV procainamide/ibutilide) then accessory-pathway ablation. No AV-nodal blockers.';
+  else if(s.pattern==='permanent') v='<b>Rate control</b> — permanent AF (joint decision not to pursue rhythm control). Revisit if symptoms or HF progress.';
+  else if(s.pattern==='subclinical') v='Device-detected subclinical AF — no rate/rhythm therapy unless clinical AF documented; monitor for progression.';
+  else if(s.symp||s.tic||s.lowEF||s.flutter) v='<b>Rate control now + rhythm control favoured</b>'+(pro.length?' — '+pro.join(', '):'');
+  else if(s.early&&eastEligible(s)) v='<b>Rate control + early rhythm control should be considered</b> (≤12 months, CV risk profile as EAST-AFNET 4)';
+  else v='<b>Rate control</b>; rhythm control optional by shared decision'+(con.length?' — favours rate: '+con.join(', '):'');
+  body+=`<div class="verdict">${v}</div>`;
+  if(con.length&&!/favours rate/.test(v)&&s.rhythmPath&&!s.preex) body+=`<div class="hint">Factors lowering rhythm-control success: ${con.join(', ')}.</div>`;
+
+  const gen=[li('Rate control as initial therapy, adjunct to rhythm control, or sole strategy','I')];
+  if(s.rhythmPath&&!s.preex){
+    if(s.early&&eastEligible(s)) gen.push(li('Rhythm control within 12 months of diagnosis in patients at risk of thromboembolic events → ↓ CV death / stroke / hospitalisation','IIa'));
+    if(s.symp) gen.push(li('Rhythm control to reduce symptoms and improve quality of life in symptomatic AF'));
+  }
+  body+=ul(gen);
+
+  /* ---- rate control ---- */
+  if(!s.preex&&s.pattern!=='subclinical'){
+    body+=h4('Rate control');
+    const tgt=[li(`Target resting HR <b>&lt;110 bpm</b> initially (lenient); stricter (&lt;80) if symptoms persist, suspected tachycardiomyopathy, or CRT pacing needed${s.hr?` · current ${s.hr} bpm`:''}`,'IIa')];
+    body+=ul(tgt);
+    const lowEF=s.lowEF||s.adhf;
+    const showIV=s.hr==null||s.hr>=110||s.unstable||s.adhf;
+    if(showIV){
+      const iv=[];
+      if(!lowEF){
+        if(s.hypo) iv.push(li('SBP &lt;90: avoid IV β-blocker/CCB boluses — digoxin or amiodarone; cardiovert if instability','', '', 'flag'));
+        iv.push(li('<b>Metoprolol</b> 2.5–5 mg IV over 2 min, repeat q5 min to max 15 mg','I'));
+        iv.push(li(`<b>Esmolol</b> 500 µg/kg IV over 1 min${wd(s,0.5,0,'mg')}, then 50–300 µg/kg/min`,'I'));
+        iv.push(li(`<b>Diltiazem</b> 0.25 mg/kg IV over 5 min${wd(s,0.25,25)}, then 5–15 mg/h`,'I',s.lvef==null?'LVEF unknown — avoid if clinical HF until echo':''));
+        iv.push(li('<b>Verapamil</b> 2.5–10 mg IV over 5 min','I',s.lvef==null?'LVEF unknown — avoid if clinical HF':''));
+        iv.push(li('<b>Digoxin</b> 0.5 mg IV, then 0.25 mg q6h (max 1.5 mg/24 h) — add-on or if hypotensive','I',s.crcl!=null&&s.crcl<30?'CrCl &lt;30: reduce total loading, monitor level':''));
+      } else {
+        iv.push(li('LVEF ≤40% / decompensated HF: <b>avoid diltiazem and verapamil</b>','III'));
+        if(!s.adhf) iv.push(li('<b>β-blocker</b> cautiously: metoprolol 2.5 mg IV, repeat as tolerated; or <b>landiolol</b> 1–10 µg/kg/min titrated (where available)','I'));
+        else iv.push(li('<b>Landiolol</b> 1 µg/kg/min, titrate by 1 µg/kg/min to ~10 µg/kg/min (ultra-short-acting, least negative inotropy) — where available; avoid bolus β-blockers while congested','IIa'));
+        iv.push(li('<b>Digoxin</b> 0.5 mg IV, then 0.25 mg q6h (max 1.5 mg/24 h)','I',s.crcl!=null&&s.crcl<50?'Reduced CrCl: lower cumulative dose, check level':''));
+        iv.push(li(`<b>Amiodarone</b> 300 mg IV over 30–60 min then 900–1200 mg/24 h (central line) — haemodynamic instability or severely reduced LVEF`,'IIb','May cardiovert — ensure anticoagulation plan'));
+      }
+      body+=`<div class="lbl" style="margin-top:8px">Acute (IV)</div>`+ul(iv);
+    }
+    const po=[];
+    const hfBB=lowEF;
+    const bbList=hfBB
+      ?'<b>Bisoprolol</b> 1.25 → 10 mg OD · <b>metoprolol succinate</b> 12.5–25 → 200 mg OD · <b>carvedilol</b> 3.125 → 25 mg BID · <b>nebivolol</b> 1.25 → 10 mg OD (HF-evidence β-blockers, uptitrate every 2 wk)'
+      :'<b>Bisoprolol</b> 1.25–10 mg OD · <b>metoprolol</b> tartrate 25–100 mg BID / succinate 50–200 mg OD · <b>atenolol</b> 25–100 mg OD'+(s.crcl!=null&&s.crcl<35?' (max 50 mg, CrCl &lt;35)':'')+' · <b>carvedilol</b> 3.125–25 mg BID · <b>nebivolol</b> 2.5–10 mg OD';
+    po.push(li('β-blocker: '+bbList,'I',s.lung?'Asthma/COPD: use cardioselective (bisoprolol, metoprolol, nebivolol); avoid carvedilol/propranolol in asthma':''));
+    if(!lowEF) po.push(li('Non-DHP CCB: <b>diltiazem</b> 60 mg TID → max 360 mg/day (ER 120–360 mg OD) · <b>verapamil</b> 40–120 mg TID (ER 120–480 mg OD)','I',(s.lvef==null?'Only once LVEF &gt;40% confirmed. ':'')+(s.lung?'Good choice if bronchospasm limits β-blockers. ':'')+'Verapamil ↑ digoxin and dabigatran levels'));
+    const digLow=(s.age!=null&&s.age>=70)||(s.crcl!=null&&s.crcl<50)||(s.wt!=null&&s.wt<60);
+    po.push(li(`<b>Digoxin</b> ${digLow?'0.0625–0.125':'0.125–0.25'} mg OD — target serum level &lt;1.2 ng/mL (0.5–0.9 ideal); or digitoxin 0.05–0.1 mg OD`,'I',digLow?'Lower dose: age ≥70, CrCl &lt;50 or low weight':(''+(s.lowEF?'Useful add-on in HFrEF':''))));
+    po.push(li('Combination (e.g. β-blocker + digoxin) if target not reached with monotherapy','IIa'));
+    if(s.snd&&!s.pacer) po.push(li('Sinus node disease / AV block without pacemaker: rate-slowing drugs may cause bradycardia — pacing may be needed (tachy-brady)','','','flag'));
+    po.push(li('Refractory to rate and rhythm therapy: <b>AV-node ablation + pacemaker</b> (conduction-system pacing or CRT if LVEF reduced)','IIa','AVN ablation + CRT in severely symptomatic permanent AF with ≥1 HF hospitalisation (IIa)'));
+    body+=`<div class="lbl" style="margin-top:8px">Maintenance (oral)</div>`+ul(po);
+  }
+
+  /* ---- rhythm control ---- */
+  if(s.rhythmPath||s.preex){
+    body+=h4('Rhythm control');
+    const cv=[];
+    if(s.unstable) cv.push(li('<b>Emergency synchronised electrical cardioversion</b> — biphasic 120–200 J (flutter 50–100 J), anteroposterior pads, sedation','I','Start heparin/DOAC without delaying cardioversion'));
+    if(s.preex&&!s.unstable){
+      cv.push(li(`Stable pre-excited AF: <b>IV procainamide</b> 10–15 mg/kg over 20–30 min${wd(s,10,1000)} or <b>ibutilide</b> 1 mg IV over 10 min; electrical cardioversion if drug fails`,'IIb'));
+      cv.push(li('AV-nodal blockers (β-blockers, diltiazem, verapamil, digoxin, IV amiodarone) can accelerate pre-excited conduction → VF','III'));
+    }
+    if(s.preex) cv.push(li('Catheter ablation of the accessory pathway','I'));
+    if(s.rhythmPath&&!s.preex){
+      if(s.dur==='sr') cv.push(li('Currently in sinus rhythm — no cardioversion needed; focus on maintenance (AAD / ablation) and anticoagulation per CHA₂DS₂-VA'));
+      else if(!s.unstable){
+        if(s.thyro) cv.push(li('Defer elective cardioversion until euthyroid — high early recurrence','','','flag'));
+        if(s.dur==='lt24'){
+          cv.push(li('Onset &lt;24 h: early cardioversion may proceed, starting anticoagulation (heparin or DOAC) without delay'));
+          cv.push(li('<b>Wait-and-see</b>: rate control and observe up to 48 h for spontaneous conversion as alternative to immediate cardioversion','IIa'));
+        } else {
+          cv.push(li('AF ≥24 h / unknown: <b>≥3 weeks therapeutic OAC</b> (DOAC adherence or INR ≥2.0) before elective cardioversion','I'));
+          cv.push(li('or <b>TOE-guided</b> early cardioversion to exclude LAA thrombus','IIa'));
+          cv.push(li('Early cardioversion without 3 weeks OAC or TOE','III'));
+        }
+        cv.push(li('<b>Continue OAC ≥4 weeks</b> after cardioversion, then long-term per CHA₂DS₂-VA','I',(s.dur==='lt24'&&C.score===0)?'Onset definitely &lt;24 h and CHA₂DS₂-VA 0: 4-week post-cardioversion OAC may be omitted (IIb)':''));
+        cv.push(li('Electrical cardioversion: synchronised biphasic 120–200 J (flutter 50–100 J), anteroposterior pads','I'));
+        // pharmacological
+        const noSHD=!s.shd;
+        if(s.flutter){
+          cv.push(li(`Flutter: <b>ibutilide</b> 1 mg IV over 10 min${s.wt&&s.wt<60?' (0.01 mg/kg as &lt;60 kg)':''}, may repeat once; QTc/K⁺/Mg²⁺ check, ECG monitor 4 h — or low-energy DCCV / overdrive pacing`,'IIa','Class IC drugs are poor at converting flutter and risk 1:1 conduction'));
+        }
+        if(noSHD){
+          cv.push(li(`<b>Flecainide</b> 2 mg/kg IV over 10 min${wd(s,2,150)} (max 150 mg) or 200–300 mg PO`,'I','Exclude severe LVH, HFrEF and CAD'+(s.lvef==null?' — echo not yet available':'')));
+          cv.push(li(`<b>Propafenone</b> 1.5–2 mg/kg IV over 10 min${wd(s,2,0)} or 450–600 mg PO`,'I','Same exclusions as flecainide'));
+        }
+        const vernOK=!s.lowEF&&!s.adhf&&!s.acs&&!s.qt&&!(s.sbp!=null&&s.sbp<100);
+        if(vernOK) cv.push(li(`<b>Vernakalant</b> 3 mg/kg IV over 10 min${wd(s,3,339)}; if no conversion after 15 min, 2 mg/kg${wd(s,2,226)}`,'I','Exclude ACS &lt;30 d, HFrEF/NYHA III–IV, severe AS, SBP &lt;100, long QT'));
+        cv.push(li(`<b>Amiodarone</b> 300 mg IV over 30–60 min, then 900–1200 mg/24 h`,'I','For severe LVH, HFrEF or CAD — accept delayed conversion (8–12 h)'));
+        if(noSHD&&['paroxysmal','first'].includes(s.pattern)) cv.push(li(`<b>“Pill-in-the-pocket”</b>: flecainide ${s.wt&&s.wt<70?'200':'300'} mg or propafenone ${s.wt&&s.wt<70?'450':'600'} mg PO single dose at onset, after in-hospital safety test`,'IIa','Take with a β-blocker/non-DHP CCB to prevent 1:1 flutter'));
+      }
+    }
+    body+=`<div class="lbl" style="margin-top:8px">Cardioversion</div>`+ul(cv);
+
+    if(s.rhythmPath&&!s.preex){
+      // long-term AAD
+      const aad=[];
+      if(s.lvef==null&&!s.hf&&!s.adhf) aad.push(li('LVEF unknown — confirm structure with echo before choosing an AAD','','','flag'));
+      const amio='<b>Amiodarone</b> 200 mg TID ×4 wk → 200 mg BID ×4 wk → 100–200 mg OD';
+      if(s.lowEF||s.adhf){
+        aad.push(li(amio,'I','Only AAD for HFrEF · baseline TFT, LFT, CXR ± PFT · ↓ warfarin dose ~30–50%, halve digoxin'));
+        aad.push(li('Dronedarone in HFrEF / NYHA III–IV / recent decompensation','III'));
+        aad.push(li('Flecainide / propafenone with LVEF ≤40% or CAD','III'));
+      } else if(s.shd){
+        aad.push(li('<b>Dronedarone</b> 400 mg BID with meals','I','HFmrEF/HFpEF, CAD or valve disease with LVEF &gt;40% · avoid with dabigatran; edoxaban 30 mg; halve digoxin'+(s.crcl!=null&&s.crcl<30?' · <b>contraindicated CrCl &lt;30</b>':'')+(s.liver?' · <b>avoid in severe liver disease</b>':'')));
+        aad.push(li(amio,'I','Effective but extracardiac toxicity — often second line when LVEF &gt;40%'));
+        if(!s.lvh&&!s.qt&&!(s.crcl!=null&&s.crcl<30)) aad.push(li('<b>Sotalol</b> 80 mg BID → 160 mg BID, initiated with QTc monitoring','IIb','Stop if QTc &gt;500 ms; keep K⁺/Mg²⁺ normal; renal dosing'));
+        if(s.cad||s.acs||s.lvh||s.hcm) aad.push(li('Flecainide / propafenone with CAD, significant LVH or HCM','III'));
+      } else {
+        aad.push(li('<b>Flecainide</b> 50–150 mg BID (with β-blocker/non-DHP CCB)','I','No SHD · ECG after start: stop if QRS widens &gt;25%'));
+        aad.push(li('<b>Propafenone</b> 150–300 mg TID (SR 225–425 mg BID)','I','No SHD · β-blocking effect; avoid in severe asthma'));
+        aad.push(li('<b>Dronedarone</b> 400 mg BID with meals','I','Avoid with dabigatran; edoxaban 30 mg; monitor creatinine &amp; LFT'));
+        if(!s.qt&&!(s.crcl!=null&&s.crcl<30)) aad.push(li('<b>Sotalol</b> 80–160 mg BID with QTc monitoring','IIb'));
+        aad.push(li(amio,'IIa','Reserve for when others fail/unsuitable — extracardiac toxicity'));
+      }
+      if(s.qt) aad.push(li('Prolonged QTc: avoid sotalol and vernakalant; caution with amiodarone/dronedarone; correct K⁺/Mg²⁺','','','flag'));
+      if(s.snd&&!s.pacer) aad.push(li('Sinus node disease / AV block: AADs not recommended without pacemaker protection','III'));
+      body+=`<div class="lbl" style="margin-top:8px">Long-term antiarrhythmic drug</div>`+ul(aad);
+
+      // ablation
+      const ab=[];
+      if(s.tic&&s.lowEF) ab.push(li('<b>Catheter ablation</b> in HFrEF with high probability of tachycardia-induced cardiomyopathy — reverses LV dysfunction','I'));
+      else if(s.lowEF) ab.push(li('<b>Catheter ablation</b> in selected HFrEF patients → ↓ HF hospitalisation and death (CASTLE-AF)','IIa'));
+      if(s.tic&&!s.lowEF) ab.push(li('Suspected tachycardiomyopathy: prioritise rhythm control, catheter ablation early','I'));
+      if(['paroxysmal','first'].includes(s.pattern)){
+        ab.push(li('<b>PVI catheter ablation as first-line</b> rhythm control in paroxysmal AF (shared decision)','I'));
+        ab.push(li('PVI ablation after AAD failure or intolerance','I'));
+      } else if(s.pattern==='persistent'){
+        ab.push(li('PVI ablation after AAD failure or intolerance in persistent AF','I'));
+        ab.push(li('PVI ablation as first-line in selected persistent AF','IIb'));
+      } else if(s.pattern==='lsp'){
+        ab.push(li('Catheter ablation in selected long-standing persistent AF after AAD failure (lower success)','IIb'));
+      }
+      if(s.snd) ab.push(li('Tachy-brady syndrome: AF ablation to avoid pacemaker implantation','IIa'));
+      if(s.flutter) ab.push(li('<b>Cavotricuspid isthmus ablation</b> for recurrent typical flutter','I'));
+      ab.push(li('Continue OAC ≥2 months after ablation, then per CHA₂DS₂-VA regardless of apparent success','I'));
+      body+=`<div class="lbl" style="margin-top:8px">Catheter ablation</div>`+ul(ab);
+    }
+  }
+  return sec('r','R','Reduce symptoms: rate & rhythm control','Strategy, drugs and doses',body);
+}
+
+function careE(s,C,H){
+  const e=[li('Review at <b>6 months</b> after presentation, then at least yearly or with any clinical change — AF pattern, risk and treatment are dynamic','I')];
+  e.push(li('Re-score CHA₂DS₂-VA at each review (age thresholds, new HF/HTN/DM/vascular disease)','I'));
+  if(s.oac==='doac'||(!s.mech&&!s.ms&&(C.score>=1||s.hcm||s.amyl))){
+    let t='DOAC monitoring: Hb, creatinine/CrCl and LFT at least yearly';
+    if(s.crcl!=null&&s.crcl<60) t+=`; CrCl ${Math.round(s.crcl)} → recheck every <b>${Math.max(1,Math.floor(s.crcl/10))} months</b> (CrCl/10)`;
+    if(s.age>=75) t+='; age ≥75/frail: every 6 months';
+    e.push(li(t,'I'));
+  }
+  if(s.oac==='vka'||s.mech||s.ms) e.push(li('VKA: INR weekly until stable, then every 4–6 weeks; calculate TTR — switch to DOAC if TTR &lt;70% (where eligible)'));
+  if(H.score>=3) e.push(li('HAS-BLED ≥3: early review ~4 weeks after starting OAC; re-address modifiable bleeding factors each visit'));
+  if(s.pattern!=='subclinical') e.push(li('Rate control: resting HR, symptoms (mEHRA), 24 h Holter or exercise HR to confirm adequacy; digoxin level if used'));
+  if(s.rhythmPath&&!s.preex) e.push(li('Rhythm control: ECG ± Holter at 3, 6, 12 months after cardioversion/ablation; amiodarone — TFT &amp; LFT every 6 months; flecainide/propafenone — ECG for QRS widening; sotalol — QTc, K⁺/Mg²⁺, renal function; dronedarone — creatinine &amp; LFT'));
+  if(s.lowEF||s.tic) e.push(li('Repeat echocardiography 3–6 months after rate/rhythm control to assess LV recovery'));
+  e.push(li('Patient education and shared decision-making; multidisciplinary, patient-centred AF care','I'));
+  return sec('e','E','Evaluation & dynamic reassessment','Follow-up, monitoring and re-scoring',ul(e));
+}
+
+/* ---------- render ---------- */
+function render(){
+  const s=collect(), C=cha(s), H=hb(s);
+  $('labile').disabled=s.oac!=='vka';
+  $('acsType').hidden=!$('acs').checked;
+  const hint=$('sbpHint');
+  if(s.sbp!=null&&s.sbp>160&&!s.uhtn){hint.hidden=false;hint.textContent=`SBP ${s.sbp} at presentation — tick “Uncontrolled SBP >160” only if persistently uncontrolled (counts in HAS-BLED).`;}
+  else hint.hidden=true;
+
+  // tiles
+  const cRisk=C.score>=2?'bad':C.score===1?'warn':'good';
+  const t=[];
+  t.push(`<div class="tile ${cRisk}"><div class="k">CHA₂DS₂-VA</div><div class="v">${C.score}<small> /8</small></div><div class="s">${C.score>=2?'OAC recommended':C.score===1?'OAC should be considered':'Low risk'}</div></div>`);
+  t.push(`<div class="tile ${H.score>=3?'warn':''}"><div class="k">HAS-BLED</div><div class="v">${H.score}<small> /9</small></div><div class="s">${H.score>=3?'High — fix modifiable factors':'Low–moderate'}</div></div>`);
+  t.push(`<div class="tile ${s.crcl!=null&&s.crcl<30?'bad':s.crcl!=null&&s.crcl<50?'warn':''}"><div class="k">CrCl (C-G)</div><div class="v">${s.crcl!=null?Math.round(s.crcl):'—'}<small> mL/min</small></div><div class="s">${s.dialysis?'On dialysis':s.crcl==null?'Needs age, weight, Cr, sex':s.crMg!=null?'Cr '+(Math.round(s.crMg*100)/100)+' mg/dL':''}</div></div>`);
+  t.push(`<div class="tile ${s.lowEF?'bad':''}"><div class="k">LVEF</div><div class="v">${s.lvef!=null?s.lvef:'—'}<small>${s.lvef!=null?' %':''}</small></div><div class="s">${s.lvef==null?'Unknown — get echo':s.lvef<=40?'Reduced (≤40%)':s.lvef<50?'Mildly reduced':'Preserved'}</div></div>`);
+  t.push(`<div class="tile"><div class="k">mEHRA</div><div class="v">${s.ehra}</div><div class="s">${EHRA[s.ehra].split('— ')[1]}${s.hr?` · HR ${s.hr}`:''}</div></div>`);
+  if(s.bmi) t.push(`<div class="tile ${s.bmi>=30?'warn':''}"><div class="k">BMI</div><div class="v">${r1(s.bmi)}</div><div class="s">${s.bmi>=30?'Obese':s.bmi>=25?'Overweight':'Normal'}</div></div>`);
+  $('tiles').innerHTML=t.join('');
+  $('mSum').innerHTML=`VA ${C.score} · HB ${H.score}${s.crcl!=null?' · CrCl '+Math.round(s.crcl):''}${(s.unstable||s.preex||s.activeBleed)?'<span class="dot" title="Alert"></span>':''}`;
+
+  // alerts
+  let al='';
+  if(s.unstable) al+=`<div class="alert"><b class="h">HAEMODYNAMICALLY UNSTABLE — EMERGENCY ELECTRICAL CARDIOVERSION (Class I)</b>Synchronised DC cardioversion, biphasic 120–200 J (flutter 50–100 J), with sedation. Start heparin/DOAC without delaying cardioversion. If cardioversion fails or is not feasible: IV amiodarone 300 mg over 30–60 min${s.lowEF||s.adhf?'; for rate in HFrEF — IV digoxin/landiolol':''}.</div>`;
+  if(s.preex) al+=`<div class="alert"><b class="h">PRE-EXCITED AF (WPW)</b>Do NOT give β-blockers, diltiazem, verapamil, digoxin or IV amiodarone (Class III — may precipitate VF). ${s.unstable?'Emergency DC cardioversion.':'Stable: IV procainamide or ibutilide, or DC cardioversion.'} Refer for accessory-pathway ablation.</div>`;
+  if(s.activeBleed) al+=`<div class="alert"><b class="h">ACTIVE BLEEDING</b>Hold anticoagulation, resuscitate, find the source; reverse if life-threatening (see A). Plan the timing of OAC restart — most patients should resume.</div>`;
+  if(s.adhf&&!s.unstable) al+=`<div class="alert w"><b class="h">ACUTE DECOMPENSATED HF</b>Treat congestion; avoid diltiazem/verapamil and bolus β-blockers. Rate control with digoxin, cautious landiolol, or amiodarone; urgent cardioversion if AF drives the decompensation.</div>`;
+  if(s.hypo&&!s.unstable) al+=`<div class="alert w"><b class="h">SBP ${s.sbp} mmHg</b>Reassess haemodynamic stability — if hypotension is due to AF, treat as unstable (cardiovert).</div>`;
+
+  $('plan').innerHTML=al+workup(s)+careC(s)+careA(s,C,H)+careR(s,C)+careE(s,C,H);
+}
+
+/* ---------- history parser ---------- */
+const NEG=/\b(no|denies|denied|without|not|negative for|absence of|nil|free of|ruled out|r\/o)\b/i;
+function hit(text,re){
+  const g=new RegExp(re.source,'gi');let m;
+  while((m=g.exec(text))){
+    const pre=text.slice(Math.max(0,m.index-40),m.index);
+    const clause=pre.split(/[.;\n]|\bbut\b/i).pop();
+    if(!NEG.test(clause)) return m[0];
+  }
+  return null;
+}
+const RULES=[
+  ['htn',/\b(htn|hypertension|hypertensive|high blood pressure)\b/,'Hypertension'],
+  ['uhtn',/\b(uncontrolled|poorly controlled)\s+(htn|hypertension|bp|blood pressure)\b/,'Uncontrolled BP'],
+  ['dm',/\b(dm|t1dm|t2dm|dm2|diabet\w*)\b/,'Diabetes'],
+  ['hf',/\b(hf|chf|hfref|hfpef|hfmref|heart failure|cardiomyopathy)\b/,'Heart failure'],
+  ['adhf',/\b(adhf|decompensated|pulmonary o?edema|acute heart failure)\b/,'Decompensated HF'],
+  ['stroke',/\b(stroke|cva|tia|transient isch\w* attack|systemic embol\w*|cerebral infarct\w*)\b/,'Stroke/TIA'],
+  ['cad',/\b(cad|ihd|coronary|prior mi|previous mi|old mi|myocardial infarction|cabg|pci|stent\w*|ischa?emic cardiomyopathy)\b/,'CAD'],
+  ['acs',/\b(acs|stemi|nstemi|unstable angina|recent pci)\b/,'Recent ACS/PCI'],
+  ['pad',/\b(pad|peripheral arter\w*|aortic plaque|claudication)\b/,'PAD'],
+  ['lvh',/\b(lvh|left ventricular hypertrophy)\b/,'LVH'],
+  ['hcm',/\b(hcm|hypertrophic cardiomyopathy)\b/,'HCM'],
+  ['amyl',/\b(amyloid\w*|attr-?cm)\b/,'Amyloidosis'],
+  ['mech',/\b(mechanical\s+(?:\w+\s+)?valve|metallic valve|mhv)\b/,'Mechanical valve'],
+  ['ms',/\b(mitral stenosis|rheumatic ms)\b/,'Mitral stenosis'],
+  ['snd',/\b(sick sinus|sinus node dysfunction|tachy-?brady|av block|heart block|bradycardia)\b/,'Conduction disease'],
+  ['pacer',/\b(pacemaker|ppm|icd|crt-?[dp]?)\b/,'Device'],
+  ['qt',/\b(long qt|prolonged qtc?|qtc prolong\w*)\b/,'Long QT'],
+  ['flutter',/\b(atrial flutter|flutter|afl)\b/,'Flutter'],
+  ['preex',/\b(wpw|pre-?excit\w*|wolff)\b/,'Pre-excitation'],
+  ['tic',/\b(tachycardia[- ](?:induced|mediated)|tachycardiomyopathy|tachy-?cm)\b/,'Tachycardiomyopathy'],
+  ['ladil',/\b(severe(?:ly)? (?:dilated|enlarged) (?:la|left atri\w*))\b/,'Dilated LA'],
+  ['postop',/\b(post-?op\w*|postoperative|after surgery)\b/,'Post-op'],
+  ['sepsis',/\b(sepsis|septic|pneumonia)\b/,'Acute trigger'],
+  ['pe',/\b(pulmonary embol\w*|\bpe\b)/,'PE'],
+  ['thyro',/\b(hyperthyroid\w*|thyrotox\w*|graves)\b/,'Hyperthyroid'],
+  ['obese',/\b(obes\w*|overweight)\b/,'Obesity'],
+  ['osa',/\b(osa|sleep apn\w*)\b/,'OSA'],
+  ['etoh',/\b(alcohol (?:excess|abuse|use disorder|dependence)|heavy (?:drinking|drinker|alcohol)|etoh abuse|binge)\b/,'Alcohol excess'],
+  ['smoke',/\b(smoker|smokes|smoking|cigarettes?|tobacco)\b/,'Smoker'],
+  ['lung',/\b(asthma|copd|bronchospasm)\b/,'Asthma/COPD'],
+  ['dialysis',/\b(dialysis|haemodialysis|hemodialysis|esrd|capd)\b/,'Dialysis'],
+  ['rtx',/\b(kidney|renal) transplant\w*/,'Renal transplant'],
+  ['liver',/\b(cirrhosis|chronic liver disease|hepatic impairment)\b/,'Liver disease'],
+  ['activeBleed',/\b(active(?:ly)? bleed\w*|ongoing bleed\w*)\b/,'Active bleeding'],
+  ['bleed',/\b(gi bleed\w*|bleed\w*|haemorrhag\w*|hemorrhag\w*|ich|melaena|melena|haematemesis|hematemesis|anaemi\w*|anemi\w*|thrombocytopeni\w*)\b/,'Bleeding history'],
+  ['apt',/\b(aspirin|asa|clopidogrel|ticagrelor|prasugrel|nsaids?|ibuprofen|naproxen|diclofenac|celecoxib)\b/,'Antiplatelet/NSAID'],
+  ['labile',/\b(labile inr|unstable inr|poor ttr|low ttr|fluctuating inr)\b/,'Labile INR'],
+  ['pgp',/\b(dronedarone|ciclosporin|cyclosporin\w*|erythromycin|ketoconazole)\b/,'P-gp inhibitor'],
+  ['vera',/\bverapamil\b/,'Verapamil'],
+  ['azole',/\b(itraconazole|ketoconazole|voriconazole|posaconazole|ritonavir|lopinavir|cobicistat)\b/,'Azole/PI'],
+  ['inducer',/\b(rifampi\w*|carbamazepine|phenytoin|phenobarb\w*|st\.? john)/,'Enzyme inducer']
+];
+function parseHx(){
+  const tx=$('hx').value; if(!tx.trim()) return;
+  const found=[];
+  RULES.forEach(([id,re,lab])=>{if(hit(tx,re)){$(id).checked=true;found.push(lab);}});
+  let m;
+  if((m=tx.match(/\b(\d{2,3})\s*(?:-?\s*(?:y\/?o|yo|y\.o\.|yrs?|years?)(?:[\s-]*old)?\b|(m|f)\b)/i))){$('age').value=m[1];found.push('Age '+m[1]);if(m[2])setRad('sex',m[2].toUpperCase());}
+  if(/\b(female|woman|lady)\b/i.test(tx))setRad('sex','F');else if(/\b(male|man|gentleman)\b/i.test(tx))setRad('sex','M');
+  if((m=tx.match(/(\d{2,3}(?:\.\d+)?)\s*kg\b/i))){$('wt').value=m[1];found.push(m[1]+' kg');}
+  if((m=tx.match(/(\d{3})\s*cm\b/i))){$('ht').value=m[1];}
+  if((m=tx.match(/\b(?:cr|creat(?:inine)?|scr)\s*(?:of|=|:|is)?\s*(\d+(?:\.\d+)?)\s*(mg\/dl|[µμu]mol\/l)?/i))){
+    const v=parseFloat(m[1]);const um=(m[2]&&/mol/i.test(m[2]))||v>20;$('cr').value=m[1];$('crUnit').value=um?'umol':'mg';found.push('Cr '+m[1]);}
+  if((m=tx.match(/\b(?:lvef|ef)\s*(?:of|=|:|is)?\s*(\d{1,2})\s*%?/i))){$('lvef').value=m[1];found.push('LVEF '+m[1]+'%');}
+  if((m=tx.match(/\b(?:hr|heart rate|pulse|ventricular rate|rate)\s*(?:of|=|:|is)?\s*(\d{2,3})\b/i))){$('hr').value=m[1];found.push('HR '+m[1]);}
+  if((m=tx.match(/\b(?:bp|blood pressure)\s*(?:of|=|:|is)?\s*(\d{2,3})\s*\/\s*\d{2,3}/i))||(m=tx.match(/\b(\d{2,3})\s*\/\s*\d{2,3}\s*(?:mm\s*hg)?\b/i))){const v=+m[1];if(v>=50&&v<=260){$('sbp').value=v;found.push('SBP '+v);}}
+  // pattern
+  const pats=[['lsp',/long-?standing persistent/],['permanent',/\bpermanent\b/],['persistent',/\bpersistent\b/],['paroxysmal',/\bparoxysmal\b/],['subclinical',/\b(subclinical|device-detected|ahre)\b/],['first',/\b(first[- ]?(?:diagnosed|detected|episode|onset)|new[- ]onset|newly diagnosed)\b/]];
+  for(const [v,re] of pats){if(hit(tx,re)){$('pattern').value=v;found.push($('pattern').selectedOptions[0].text);if(v==='first')$('early').checked=true;break;}}
+  // duration
+  if((m=tx.match(/(\d+(?:\.\d+)?)\s*(?:h|hr|hrs|hours?)\b/i))&&+m[1]<24){setRad('dur','lt24');found.push('<24 h');}
+  else if(/\b(unknown (?:onset|duration)|onset unknown)\b/i.test(tx)||/\b\d+\s*(days?|weeks?|months?)\b/i.test(tx)) setRad('dur','ge24');
+  if(/\b(now|currently|back) in sinus\b|\breverted to sinus\b/i.test(tx)){setRad('dur','sr');found.push('In SR');}
+  if((m=tx.match(/\b(\d+)\s*(days?|weeks?|months?)\s*(?:ago|of|history)\b/i))){const n=+m[1],u=m[2].toLowerCase();if(!/month/.test(u)||n<=12){$('early').checked=true;found.push('≤12 mo');}}
+  // symptoms
+  if((m=tx.match(/\bm?ehra\s*(?:class|score)?\s*(1|2a|2b|3|4)\b/i))){$('ehra').value=m[1].toLowerCase();found.push('mEHRA '+m[1]);}
+  else if(hit(tx,/\basymptomatic\b/)){$('ehra').value='1';found.push('Asymptomatic');}
+  // anticoagulant
+  if(hit(tx,/\b(warfarin|vka|coumadin|acenocoumarol)\b/)){$('oac').value='vka';found.push('On VKA');}
+  else if(hit(tx,/\b(apixaban|rivaroxaban|edoxaban|dabigatran|doac|noac)\b/)){$('oac').value='doac';found.push('On DOAC');}
+  if(hit(tx,/\b(ha?emodynamically unstable|cardiogenic shock|shock)\b/)){setRad('hemo','unstable');found.push('Unstable');}
+  if($('acs').checked&&!/\b(acs|stemi|nstemi|unstable angina)\b/i.test(tx)&&/\belective pci\b/i.test(tx))setRad('acst','ccs');
+  const miss=[];['age','wt','cr','lvef'].forEach(k=>{if(num(k)==null)miss.push({age:'age',wt:'weight',cr:'creatinine',lvef:'LVEF'}[k]);});
+  $('found').innerHTML=found.map(f=>`<span class="tag">${f}</span>`).join('')+miss.map(f=>`<span class="tag m">missing: ${f}</span>`).join('')||'<span class="tag m">nothing recognised</span>';
+  render();
+}
+
+/* ---------- examples ---------- */
+const EX=[
+  {hx:'72F with HTN and T2DM. 3 months of recurrent palpitations; paroxysmal AF, current episode started 10 hours ago. HR 128, BP 146/88. LVEF 60%. Cr 0.9 mg/dL, weight 58 kg, height 155 cm. No prior stroke, no bleeding.',set:{ehra:'2b'}},
+  {hx:'68M with ischaemic cardiomyopathy (prior MI, PCI 2019), LVEF 30%, CKD. Breathless for 2 weeks; persistent AF, onset unknown. HR 138, BP 104/68. Cr 1.8 mg/dL, weight 76 kg. On aspirin. Suspected tachycardia-induced cardiomyopathy.',set:{ehra:'3'}},
+  {hx:'84M, permanent AF for 6 years. Prior ischaemic stroke 2021, hypertension, previous GI bleed 2023. On warfarin with labile INR. HR 96, BP 150/80. Cr 1.6 mg/dL, weight 55 kg. Takes ibuprofen for knee pain.',set:{ehra:'2a'}},
+  {hx:'24M with WPW pattern. Sudden palpitations 3 hours ago, irregular broad-complex tachycardia, HR 240, BP 78/40, drowsy — haemodynamically unstable. Weight 70 kg, Cr 0.9. No past history.',set:{ehra:'4',pattern:'first'}}
+];
+function loadEx(i){
+  resetAll(true);
+  $('hx').value=EX[i].hx; parseHx();
+  const o=EX[i].set; Object.keys(o).forEach(k=>{$(k).value=o[k];});
+  render();
+  setView('plan');
+}
+const mobile=()=>window.matchMedia('(max-width:980px)').matches;
+function setView(v,noScroll){
+  document.body.dataset.view=v;
+  document.querySelectorAll('.mtabs [data-view]').forEach(b=>b.classList.toggle('on',b.dataset.view===v));
+  if(!noScroll&&mobile()) window.scrollTo(0,0);
+}
+function resetAll(quiet){
+  $('f').reset(); $('found').innerHTML='';
+  if(!quiet) render();
+}
+
+/* ---------- copy ---------- */
+function planText(){
+  const L=['AF-CARE PLAN (ESC 2024 AF guideline)'];
+  const hx=$('hx').value.trim(); if(hx) L.push('History: '+hx);
+  L.push('Scores: '+[...document.querySelectorAll('#tiles .tile')].map(t=>t.querySelector('.k').textContent+' '+t.querySelector('.v').textContent.replace(/\s+/g,' ').trim()).join(' · '));
+  document.querySelectorAll('#plan > .alert, #plan > .sec').forEach(el=>{
+    if(el.classList.contains('alert')){L.push('','!! '+el.innerText.replace(/\s*\n+\s*/g,' — '));return;}
+    L.push('','== '+el.querySelector('h3').textContent.toUpperCase()+' ==');
+    el.querySelectorAll('.bd > *').forEach(ch=>{
+      if(ch.tagName==='H4') L.push('','-- '+ch.textContent);
+      else if(ch.classList.contains('lbl')) L.push(ch.textContent+':');
+      else if(ch.classList.contains('verdict')) L.push('> '+ch.innerText.replace(/\s+/g,' ').trim());
+      else if(ch.tagName==='UL') ch.querySelectorAll('li').forEach(x=>{const c=x.querySelector('.cls').textContent;L.push('  - '+(c!=='•'?'['+c+'] ':'')+x.querySelector('.tx').innerText.replace(/\s*\n+\s*/g,' — '));});
+      else if(ch.classList.contains('tblwrap')) ch.querySelectorAll('tbody tr').forEach(tr=>L.push('  - '+[...tr.cells].map(td=>td.innerText.trim()).join(' | ')));
+      else if(ch.classList.contains('brk')) L.push('  ('+[...ch.children].filter(x=>x.classList.contains('on')).map(x=>x.textContent).join(', ')+')');
+      else if(ch.innerText.trim()) L.push(ch.innerText.trim());
+    });
+  });
+  return L.join('\n');
+}
+let toastTimer;
+function toast(m,action,ms){const t=$('toast');t.textContent=m;if(action){const b=document.createElement('button');b.type='button';b.textContent=action.label;b.onclick=()=>{t.classList.remove('on');action.fn();};t.appendChild(b);}t.classList.add('on');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('on'),ms||1600);}
+$('copyBtn').addEventListener('click',()=>{
+  const txt=planText();
+  const done=()=>toast('Plan copied');
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done,()=>fallback(txt));
+  else fallback(txt);
+  function fallback(t){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy');done();}catch(e){toast('Copy failed');}a.remove();}
+});
+
+/* ---------- wiring ---------- */
+$('f').addEventListener('input',e=>{if(e.target.id!=='hx')render();});
+$('f').addEventListener('change',e=>{if(e.target.id!=='hx')render();});
+$('parseBtn').addEventListener('click',()=>{parseHx();if(mobile()&&$('hx').value.trim())toast('Filled — check the boxes, then tap Plan');});
+document.querySelectorAll('.mtabs [data-view]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
+setView('inputs',true);
+/* new case: clear everything, with undo */
+function formEls(){return [...$('f').elements].filter(e=>e.name||e.id);}
+function snapshot(){return {v:formEls().map(e=>(e.type==='checkbox'||e.type==='radio')?e.checked:e.value),found:$('found').innerHTML};}
+function restore(snap){formEls().forEach((e,i)=>{if(e.type==='checkbox'||e.type==='radio')e.checked=snap.v[i];else e.value=snap.v[i];});$('found').innerHTML=snap.found;render();}
+function isDirty(){return formEls().some(e=>(e.type==='checkbox'||e.type==='radio')?e.checked!==e.defaultChecked:e.tagName==='SELECT'?[...e.options].some(o=>o.selected!==o.defaultSelected):e.value!==e.defaultValue);}
+function newCase(){
+  const dirty=isDirty(), snap=dirty?snapshot():null;
+  resetAll(false);
+  setView('inputs');
+  window.scrollTo(0,0); $('f').scrollTop=0;
+  try{$('hx').focus({preventScroll:true});}catch(e){}
+  if(dirty) toast('All details cleared — ready for a new case',{label:'Undo',fn:()=>{restore(snap);toast('Previous case restored');}},6000);
+  else toast('Ready for a new case');
+}
+document.querySelectorAll('[data-new]').forEach(b=>b.addEventListener('click',newCase));
+document.querySelectorAll('[data-ex]').forEach(b=>b.addEventListener('click',()=>loadEx(+b.dataset.ex)));
+
+/* theme */
+const root=document.documentElement;
+function setTheme(v){
+  if(v==='auto') root.removeAttribute('data-theme'); else root.setAttribute('data-theme',v);
+  document.querySelectorAll('[data-theme-set]').forEach(b=>b.classList.toggle('on',b.getAttribute('data-theme-set')===v));
+  try{localStorage.setItem('afcare-theme',v);}catch(e){}
+}
+document.querySelectorAll('[data-theme-set]').forEach(b=>b.addEventListener('click',()=>setTheme(b.getAttribute('data-theme-set'))));
+try{const v=localStorage.getItem('afcare-theme');if(v)setTheme(v);}catch(e){}
+
+render();
+})();
+</script>
+
+<div class="zcl-modal" id="zclModal" hidden role="dialog" aria-modal="true" aria-labelledby="zclTitle"><div class="zcl-sheet"><header><h2 id="zclTitle">What's new<small>Version history</small></h2><button type="button" class="zcl-x" data-zcl-close aria-label="Close">×</button></header><div class="zcl-bd" id="zclBody"></div></div></div>
+<script>
+/* ---------- changelog (newest first; bump on every update) ---------- */
+(function(){
+const changelogData=[
+ {"version":"v1.3.1","date":"October 11, 2026","features":["Collapsible blocks: every block starts folded except the main one (history, consult note or case text; in the warfarin planner also Setting & situation and the Simple-mode calculator and schedule). Tap a block’s header to unfold or fold it, or use “Expand all / Collapse all” at the top. The app remembers your choices. Copy and Print always include every block."],"bugs":[]},
+  {"version":"v1.2.3","date":"October 7, 2026","features":["Colour-coded blocks for easier reading: each input card has its own colour band, tinted header and coloured number badge; each plan section takes the colour of its letter badge (tinted header, coloured edge and sub-headings); summary tiles are tinted."],"bugs":[]},
+ {"version":"v1.2.2","date":"October 6, 2026","features":["Theme switch is now a single sun/moon button, as in the Bronchodilator Guide: it follows your device setting until you tap it, then remembers your choice."],"bugs":[]},
+ {
+  "version": "v1.2.1",
+  "date": "October 6, 2026",
+  "features": [
+   "In-app changelog — tap the version badge next to the title."
+  ],
+  "bugs": []
+ },
+ {
+  "version": "v1.2.0",
+  "date": "October 1, 2026",
+  "features": [
+   "\"New case\" buttons in the header, History card, plan panel and bottom of the form clear every field and restore the defaults, with a 6-second Undo."
+  ],
+  "bugs": []
+ },
+ {
+  "version": "v1.1.0",
+  "date": "September 30, 2026",
+  "features": [
+   "Phone layout: Inputs / Plan tab bar with a live CHA₂DS₂-VA · HAS-BLED · CrCl summary and an alert dot; larger touch targets; 16 px inputs so iOS does not zoom; DOAC table stacks into cards; score tiles two per row."
+  ],
+  "bugs": [
+   "Hidden option buttons made the page wider than the screen and caused sideways scrolling on phones."
+  ]
+ },
+ {
+  "version": "v1.0.0",
+  "date": "September 30, 2026",
+  "features": [
+   "First release: history auto-fill; CHA₂DS₂-VA, HAS-BLED and Cockcroft–Gault CrCl; etiology work-up; AF-CARE plan (C · A · R · E) with ESC 2024 classes, per-patient DOAC dosing, rate- and rhythm-control drugs with doses, cardioversion and ablation; copy and print."
+  ],
+  "bugs": []
+ }
+];
+const APP_VERSION=changelogData[0].version;
+const modal=document.getElementById('zclModal'),body=document.getElementById('zclBody');
+const btn=document.createElement('button');btn.type='button';btn.className='zcl-ver';btn.title="What's new";btn.textContent=APP_VERSION;
+function place(){if(btn.isConnected)return;const a=document.querySelector("h1");if(a)a.appendChild(btn);}
+place();setInterval(place,1500);
+let back=null;
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+function open(){back=document.activeElement;
+  body.innerHTML=changelogData.map(l=>'<div class="zcl-item"><h3>'+esc(l.version)+'<span>'+esc(l.date)+'</span></h3>'+(l.features.length?'<h5>New</h5><ul>'+l.features.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'')+(l.bugs.length?'<h5>Fixed</h5><ul>'+l.bugs.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'')+'</div>').join('');
+  modal.hidden=false;document.documentElement.style.overflow='hidden';try{modal.querySelector('[data-zcl-close]').focus();}catch(e){}}
+function close(){modal.hidden=true;document.documentElement.style.overflow='';try{back&&back.focus();}catch(e){}}
+btn.addEventListener('click',open);
+modal.addEventListener('click',e=>{if(e.target===modal||e.target.closest('[data-zcl-close]'))close();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modal.hidden)close();});
+})();
+</script>
+
+<script>
+/* ---------- sun/moon theme button (drives the app's own light/dark controls, kept hidden) ---------- */
+(function(){
+var C={"hide":".seg-theme","light":"[data-theme-set=\"light\"]","dark":"[data-theme-set=\"dark\"]"},root=document.documentElement;
+var old=document.querySelector(C.hide);if(old&&C.parent)old=old.parentElement;if(!old)return;
+var SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>';
+var MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>';
+var btn=document.createElement('button');btn.type='button';btn.className='zth';
+old.classList.add('zth-hidden');old.insertAdjacentElement('afterend',btn);
+var mq=window.matchMedia?window.matchMedia('(prefers-color-scheme: dark)'):null;
+function cur(){var a=root.getAttribute('data-theme');if(a==='light'||a==='dark')return a;return mq&&mq.matches?'dark':'light';}
+function thai(){return (root.getAttribute('lang')||'').slice(0,2)==='th';}
+function paint(){var d=cur()==='dark';btn.innerHTML=d?SUN:MOON;
+  var l=d?(thai()?'เปลี่ยนเป็นโหมดสว่าง':'Switch to light mode'):(thai()?'เปลี่ยนเป็นโหมดมืด':'Switch to dark mode');
+  btn.setAttribute('aria-label',l);btn.title=l;}
+btn.addEventListener('click',function(){var t=document.querySelector(cur()==='dark'?C.light:C.dark);if(t)t.click();paint();});
+new MutationObserver(paint).observe(root,{attributes:true,attributeFilter:['data-theme','lang']});
+if(mq){if(mq.addEventListener)mq.addEventListener('change',paint);else if(mq.addListener)mq.addListener(paint);}
+paint();
+})();
+</script>
+<script id="zcol">
+/* ---------- colour-coded blocks: cards by topic, plan sections by their letter colour ---------- */
+(function(){
+  var KW=[[/bleed|contraind|red flag|danger|active cardiac|safety|storm|side.effect|alarm/i,'red'],
+          [/medic|drug|treatment|antihypertens|interact|tablet|override|dosing/i,'amber'],
+          [/history|note|picbox|report|case text/i,'teal'],
+          [/patient|labs?\b|vital|blood pressure|setting/i,'green'],];
+  var CYC=['violet','blue','teal','green'],prev=null;
+  function paintCards(){
+    var i=0;
+    document.querySelectorAll('.card').forEach(function(c){
+      var h=c.querySelector(':scope>h2');if(!h||c.dataset.zk)return;
+      var tx=h.textContent,k=null;
+      for(var j=0;j<KW.length;j++)if(KW[j][0].test(tx)){k=KW[j][1];break;}
+      if(!k||(k===prev&&k!=='red'&&k!=='amber')){k=CYC[i++%CYC.length];if(k===prev)k=CYC[i++%CYC.length];}
+      prev=k;
+      c.style.setProperty('--zk','var(--zc-'+k+')');c.dataset.zk=k;
+    });
+  }
+  function paintSecs(force){
+    document.querySelectorAll('.sec').forEach(function(s){
+      if(s.dataset.zk&&!force)return;
+      var L=s.querySelector(':scope>header .L');if(!L)return;
+      var c=getComputedStyle(L).backgroundColor;
+      if(!c||c==='transparent'||/rgba\(0, 0, 0, 0\)/.test(c))return;
+      s.style.setProperty('--zk',c);s.dataset.zk='1';
+    });
+  }
+  var q=0;function later(f){if(q)return;q=1;requestAnimationFrame(function(){q=0;paintCards();paintSecs(f);});}
+  paintCards();paintSecs(false);
+  new MutationObserver(function(){later(false);}).observe(document.body,{childList:true,subtree:true});
+  new MutationObserver(function(){requestAnimationFrame(function(){paintSecs(true);});}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+  var mq=window.matchMedia&&matchMedia('(prefers-color-scheme: dark)');
+  if(mq&&mq.addEventListener)mq.addEventListener('change',function(){requestAnimationFrame(function(){paintSecs(true);});});
+})();
+</script>
+<script id="zfold">
+/* ---------- collapsible blocks ---------- */
+(function(){
+  var SEL='.card,.sec,.simple>div.sm-card,section.panel,div.panel,section.section';
+  var KEY='zfold2:'+(document.title||'app'),st={};
+  try{st=JSON.parse(localStorage.getItem(KEY)||'{}')||{};}catch(e){}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(st));}catch(e){}}
+  function headOf(b){
+    var h=b.querySelector(':scope>h2,:scope>header,:scope>.sm-h,:scope>.panel-head,:scope>.section-head,:scope>h3');
+    if(h)return h;
+    var x=b.querySelector('h2,h3');if(!x)return null;
+    var k=x;while(k.parentElement&&k.parentElement!==b)k=k.parentElement;
+    if(k.parentElement!==b)return null;
+    return (k===x||k.children.length<=2)?k:null;   /* heading buried in a content wrapper: leave the block alone */
+  }
+  function name(b,h){var t=h.querySelector('h1,h2,h3,h4')||h;return (t.textContent||'').replace(/\s+/g,' ').trim().replace(/^[0-9]+[a-z]?\s+/i,'').slice(0,48);}
+  function setState(b,closed){
+    if(closed)b.setAttribute('data-zf','closed');else b.removeAttribute('data-zf');
+    var h=b.querySelector('.zf-head');if(h)h.setAttribute('aria-expanded',String(!closed));
+  }
+  /* everything starts folded except the main block(s) */
+  function defOpen(b){
+    if(/^(history|consult note|current meds|setting & situation|picbox|dose calculator|new weekly schedule)/i.test(b.dataset.zfn))return true;
+    return document.querySelector('[data-zfn]')===b;
+  }
+  function prep(){
+    document.querySelectorAll(SEL).forEach(function(b){
+      if(b.tagName==='DETAILS'||b.closest('[role=dialog],dialog,.modal,.zcl-back,.zcl-modal,.sheet,.sheet-doc'))return;
+      var h=headOf(b);if(!h)return;
+      if(!h.classList.contains('zf-head')){
+        h.classList.add('zf-head','zf-keep');h.setAttribute('role','button');h.setAttribute('tabindex','0');
+        var p=h.previousElementSibling;while(p){p.classList.add('zf-keep');p=p.previousElementSibling;}
+        b.dataset.zfn=name(b,h);
+        var s0=st[b.dataset.zfn];setState(b,s0?s0==='c':!defOpen(b));
+      }
+    });
+    paintAll();
+  }
+  function toggle(b,force){
+    var closed=force!=null?force:b.getAttribute('data-zf')!=='closed';
+    setState(b,closed);
+    st[b.dataset.zfn]=closed?'c':'o';
+    save();paintAll();
+    if(!closed)setTimeout(function(){try{window.dispatchEvent(new Event('resize'));}catch(e){}},30);
+  }
+  function blocks(){return [].filter.call(document.querySelectorAll(SEL),function(b){return b.dataset.zfn!=null&&b.offsetParent!==null;});}
+  var allBtn=null;
+  function anyOpen(){return blocks().some(function(b){return b.getAttribute('data-zf')!=='closed';});}
+  function paintAll(){if(allBtn)allBtn.textContent=anyOpen()?'Collapse all':'Expand all';}
+  function addAll(){
+    var host=document.querySelector('.top,header.mast,header.masthead,.masthead');if(!host||allBtn)return;
+    allBtn=document.createElement('button');allBtn.type='button';allBtn.className='zf-all btn';
+    allBtn.addEventListener('click',function(){var c=anyOpen();blocks().forEach(function(b){toggle(b,c);});});
+    var anchor=host.querySelector('.zth,[data-new]');
+    if(anchor&&anchor.parentElement)anchor.parentElement.insertBefore(allBtn,anchor);else host.appendChild(allBtn);
+    paintAll();
+  }
+  function act(e){
+    var h=e.target.closest&&e.target.closest('.zf-head');if(!h)return;
+    if(e.target.closest('button,a,input,select,textarea,label,summary')&&e.target.closest('button,a,input,select,textarea,label,summary')!==h)return;
+    var b=h.closest('[data-zfn]');if(!b)return;
+    if(e.type==='keydown'){if(e.key!=='Enter'&&e.key!==' ')return;if(e.target!==h)return;e.preventDefault();}
+    toggle(b);
+  }
+  document.addEventListener('click',act);document.addEventListener('keydown',act);
+  /* Copy / Print read the page text, so unfold everything for a moment */
+  document.addEventListener('click',function(e){
+    var b=e.target.closest&&e.target.closest('button');if(!b||b.classList.contains('zf-all'))return;
+    if(!/copy|print|คัดลอก|พิมพ์/i.test((b.textContent||'')+' '+(b.id||'')))return;
+    var c=[].slice.call(document.querySelectorAll('[data-zf="closed"]'));if(!c.length)return;
+    c.forEach(function(x){x.removeAttribute('data-zf');});
+    setTimeout(function(){c.forEach(function(x){if(x.isConnected)x.setAttribute('data-zf','closed');});},1200);
+  },true);
+  window.addEventListener('beforeprint',function(){});
+  var q=0;function later(){if(q)return;q=1;setTimeout(function(){q=0;prep();},0);}
+  function start(){prep();addAll();new MutationObserver(later).observe(document.body,{childList:true,subtree:true});}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
+})();
+</script>
+</body>
+</html>

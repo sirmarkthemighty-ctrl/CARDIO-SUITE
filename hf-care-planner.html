@@ -1,0 +1,1645 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HF Care Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  color-scheme: light;
+  --ground:#EFF1F5; --surface:#FFFFFF; --surface-2:#E7EAF1; --surface-3:#DBE0EA;
+  --ink:#141722; --ink-2:#4B5164; --ink-3:#787F93;
+  --rule:#D6DAE4; --rule-2:#B9BFCE;
+  --acc:#33478C; --acc-wash:#E7EAF6; --acc-line:#C3CAE6; --on-accent:#FFFFFF;
+  --good:#0B7045; --good-wash:#E3F1E9; --good-line:#BADBC9;
+  --warn:#8D6100; --warn-wash:#F7EEDA; --warn-line:#E4D2A8;
+  --bad:#AC2229;  --bad-wash:#FAE9E9;  --bad-line:#EBC4C5;
+  --c-c:#1F6F87; --c-a:#AC2229; --c-r:#5B4A9E; --c-e:#0B7045; --c-w:#8A5712;
+  --shadow:0 1px 2px rgba(20,23,34,.07);
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --cond:"IBM Plex Sans Condensed","IBM Plex Sans",-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --ground:#0E1016; --surface:#161A24; --surface-2:#1E2331; --surface-3:#282E3E;
+    --ink:#ECEFF6; --ink-2:#A6AEC2; --ink-3:#7C8499;
+    --rule:#262C3A; --rule-2:#3A4256;
+    --acc:#8CA5E8; --acc-wash:#1A2340; --acc-line:#2E3B63; --on-accent:#0E1016;
+    --good:#45C585; --good-wash:#102C1E; --good-line:#1F4A33;
+    --warn:#E0A93C; --warn-wash:#2E2412; --warn-line:#50401B;
+    --bad:#EE7A76;  --bad-wash:#301715;  --bad-line:#522522;
+    --c-c:#58B8D2; --c-a:#EE7A76; --c-r:#A99BE8; --c-e:#45C585; --c-w:#DCA24E;
+    --shadow:0 1px 2px rgba(0,0,0,.45);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --ground:#0E1016; --surface:#161A24; --surface-2:#1E2331; --surface-3:#282E3E;
+  --ink:#ECEFF6; --ink-2:#A6AEC2; --ink-3:#7C8499;
+  --rule:#262C3A; --rule-2:#3A4256;
+  --acc:#8CA5E8; --acc-wash:#1A2340; --acc-line:#2E3B63; --on-accent:#0E1016;
+  --good:#45C585; --good-wash:#102C1E; --good-line:#1F4A33;
+  --warn:#E0A93C; --warn-wash:#2E2412; --warn-line:#50401B;
+  --bad:#EE7A76;  --bad-wash:#301715;  --bad-line:#522522;
+  --c-c:#58B8D2; --c-a:#EE7A76; --c-r:#A99BE8; --c-e:#45C585; --c-w:#DCA24E;
+  --shadow:0 1px 2px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--ground);color:var(--ink);font:14px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+.top{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:14px 20px;border-bottom:1px solid var(--rule);background:var(--surface)}
+.top h1{margin:0;font:700 19px/1.2 var(--cond);letter-spacing:.2px}
+.top .sub{color:var(--ink-3);font-size:12.5px}
+.top .sp{flex:1}
+.seg-theme{display:inline-flex;border:1px solid var(--rule-2);border-radius:7px;overflow:hidden}
+.seg-theme button{border:0;background:transparent;padding:4px 10px;font-size:12px;cursor:pointer;color:var(--ink-2)}
+.seg-theme button.on{background:var(--acc);color:var(--on-accent)}
+.wrap{display:grid;grid-template-columns:minmax(360px,470px) 1fr;gap:18px;padding:18px 20px 40px;max-width:1500px;margin:0 auto}
+.inputs{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto;padding-right:4px}
+@media (max-width:980px){
+  .wrap{grid-template-columns:1fr;padding:14px 16px 40px}
+  .inputs{position:static;max-height:none;overflow:visible;padding-right:0}
+}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:10px;box-shadow:var(--shadow);margin-bottom:12px}
+.card>h2{margin:0;padding:10px 14px;font:600 13px/1.3 var(--cond);letter-spacing:.6px;text-transform:uppercase;color:var(--ink-2);border-bottom:1px solid var(--rule);display:flex;align-items:center;gap:8px}
+.card>h2 .n{font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+.card .bd{padding:12px 14px}
+textarea{width:100%;min-height:96px;resize:vertical;border:1px solid var(--rule-2);border-radius:7px;background:var(--surface);padding:8px 10px;line-height:1.45}
+textarea:focus,input:focus,select:focus{outline:2px solid var(--acc-line);outline-offset:0;border-color:var(--acc)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{border:1px solid var(--rule-2);background:var(--surface);border-radius:7px;padding:6px 11px;cursor:pointer;font-size:13px;font-weight:500}
+.btn:hover{background:var(--surface-2)}
+.btn.pri{background:var(--acc);border-color:var(--acc);color:var(--on-accent)}
+.btn.pri:hover{filter:brightness(1.08)}
+.btn.sm{padding:3px 8px;font-size:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px 10px}
+.fld{display:flex;flex-direction:column;gap:3px;min-width:0}
+.fld>span{font-size:11.5px;color:var(--ink-3);font-weight:500}
+.fld input,.fld select{width:100%;border:1px solid var(--rule-2);border-radius:7px;background:var(--surface);padding:6px 8px;min-width:0}
+.fld .dual{display:flex;gap:4px}
+.fld .dual input{flex:1}
+.fld .dual select{width:auto;flex:0 0 auto;padding:6px 4px}
+.lbl{font-size:11.5px;color:var(--ink-3);font-weight:500;margin:10px 0 5px}
+.lbl:first-child{margin-top:0}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--rule-2);border-radius:7px;overflow:hidden;background:var(--surface)}
+.seg label{cursor:pointer;position:relative}
+.seg input,.fld .seg input{position:absolute;left:0;top:0;width:1px;height:1px;margin:0;padding:0;opacity:0;pointer-events:none}
+.seg span{display:block;padding:5px 10px;font-size:12.5px;color:var(--ink-2);border-right:1px solid var(--rule)}
+.seg label:last-child span{border-right:0}
+.seg input:checked+span{background:var(--acc);color:var(--on-accent)}
+.seg input:focus-visible+span{outline:2px solid var(--acc-line);outline-offset:-2px}
+.cks{display:flex;flex-wrap:wrap;gap:6px}
+.ck{cursor:pointer;user-select:none;position:relative}
+.ck input{position:absolute;left:0;top:0;width:1px;height:1px;margin:0;opacity:0;pointer-events:none}
+.ck span{display:inline-flex;align-items:center;gap:6px;padding:4px 9px;border:1px solid var(--rule-2);border-radius:999px;font-size:12.5px;color:var(--ink-2);background:var(--surface);line-height:1.3}
+.ck span::before{content:"";width:9px;height:9px;border-radius:3px;border:1.5px solid var(--rule-2);flex:0 0 auto}
+.ck input:checked+span{background:var(--acc-wash);border-color:var(--acc);color:var(--ink)}
+.ck input:checked+span::before{background:var(--acc);border-color:var(--acc)}
+.ck input:focus-visible+span{outline:2px solid var(--acc-line)}
+.ck input:disabled+span{opacity:.45;cursor:not-allowed}
+.ck.danger input:checked+span{background:var(--bad-wash);border-color:var(--bad)}
+.ck.danger input:checked+span::before{background:var(--bad);border-color:var(--bad)}
+.hint{font-size:12px;color:var(--ink-3);margin-top:6px}
+.hint.w{color:var(--warn)}
+.found{margin-top:8px;display:flex;flex-wrap:wrap;gap:5px}
+.found .tag{font-size:11.5px;padding:2px 7px;border-radius:5px;background:var(--good-wash);border:1px solid var(--good-line);color:var(--good)}
+.found .tag.m{background:var(--surface-2);border-color:var(--rule);color:var(--ink-3)}
+
+/* plan */
+.plan-head{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.plan-head h2{margin:0;font:700 17px/1.2 var(--cond);flex:1;min-width:180px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(138px,1fr));gap:10px;margin-bottom:12px}
+.tile{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:10px 12px;box-shadow:var(--shadow)}
+.tile .k{font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.tile .v{font:600 24px/1.15 var(--mono);margin-top:3px;font-variant-numeric:tabular-nums}
+.tile .v small{font-size:13px;color:var(--ink-3);font-weight:500}
+.tile .s{font-size:12px;color:var(--ink-2);margin-top:2px}
+.tile.bad{border-color:var(--bad-line);background:var(--bad-wash)} .tile.bad .v{color:var(--bad)}
+.tile.warn{border-color:var(--warn-line);background:var(--warn-wash)} .tile.warn .v{color:var(--warn)}
+.tile.good .v{color:var(--good)}
+.alert{border:1px solid var(--bad-line);background:var(--bad-wash);border-left:4px solid var(--bad);border-radius:8px;padding:10px 12px;margin-bottom:10px}
+.alert b.h{display:block;color:var(--bad);font-family:var(--cond);font-size:14px;letter-spacing:.3px;margin-bottom:3px}
+.alert.w{border-color:var(--warn-line);background:var(--warn-wash);border-left-color:var(--warn)}
+.alert.w b.h{color:var(--warn)}
+.alert ul{margin:4px 0 0;padding-left:18px}
+.sec{background:var(--surface);border:1px solid var(--rule);border-radius:10px;margin-bottom:12px;box-shadow:var(--shadow);overflow:hidden}
+.sec>header{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--rule)}
+.sec>header .L{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font:700 16px/1 var(--cond);color:#fff;flex:0 0 auto}
+.sec>header h3{margin:0;font:600 15px/1.25 var(--cond)}
+.sec>header p{margin:0;font-size:12px;color:var(--ink-3)}
+.sec.c .L{background:var(--c-c)} .sec.a .L{background:var(--c-a)} .sec.r .L{background:var(--c-r)} .sec.e .L{background:var(--c-e)} .sec.w .L{background:var(--c-w)}
+:root[data-theme="dark"] .sec>header .L{color:#0E1016}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .sec>header .L{color:#0E1016}}
+.sec .bd{padding:6px 14px 12px}
+.sec h4{margin:12px 0 4px;font:600 12.5px/1.3 var(--cond);letter-spacing:.5px;text-transform:uppercase;color:var(--ink-2)}
+.verdict{margin:10px 0 4px;padding:9px 12px;border-radius:8px;background:var(--acc-wash);border:1px solid var(--acc-line);font-weight:500}
+.verdict.none{background:var(--surface-2);border-color:var(--rule)}
+.verdict.bad{background:var(--bad-wash);border-color:var(--bad-line)}
+ul.it{list-style:none;margin:0;padding:0}
+ul.it li{display:flex;gap:9px;padding:6px 0;border-bottom:1px dashed var(--rule);align-items:flex-start}
+ul.it li:last-child{border-bottom:0}
+ul.it li .tx{flex:1;min-width:0}
+ul.it li .tx small{display:block;color:var(--ink-3);font-size:12px;margin-top:1px}
+ul.it li.no .tx{color:var(--ink-2)}
+ul.it li.flag .tx{color:var(--warn)}
+.cls{flex:0 0 auto;min-width:34px;text-align:center;font:600 11px/1 var(--mono);padding:4px 5px;border-radius:5px;margin-top:1px;border:1px solid}
+.cls.I{color:var(--good);background:var(--good-wash);border-color:var(--good-line)}
+.cls.IIa{color:var(--acc);background:var(--acc-wash);border-color:var(--acc-line)}
+.cls.IIb{color:var(--warn);background:var(--warn-wash);border-color:var(--warn-line)}
+.cls.III{color:var(--bad);background:var(--bad-wash);border-color:var(--bad-line)}
+.cls.dot{color:var(--ink-3);background:transparent;border-color:transparent}
+table.dose{width:100%;border-collapse:collapse;font-size:13px;margin:4px 0}
+table.dose th,table.dose td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.dose th{font-size:11px;letter-spacing:.4px;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+table.dose td.d{font-family:var(--mono);font-weight:600;white-space:nowrap}
+table.dose tr.x td{color:var(--ink-3)} table.dose tr.x td.d{color:var(--bad);text-decoration:none}
+table.dose tr.pick td{background:var(--acc-wash)}
+.tblwrap{overflow-x:auto}
+.brk{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0 2px}
+.brk span{font:500 11.5px/1 var(--mono);padding:4px 6px;border-radius:5px;border:1px solid var(--rule);color:var(--ink-3)}
+.brk span.on{border-color:var(--acc);background:var(--acc-wash);color:var(--acc)}
+.legend{font-size:12px;color:var(--ink-3);display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:6px 0 14px}
+.legend .cls{margin:0}
+.foot{font-size:12px;color:var(--ink-3);margin-top:14px;line-height:1.55}
+.muted{color:var(--ink-3)}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--ground);padding:8px 14px;border-radius:8px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1;pointer-events:auto}
+.toast button{margin-left:10px;border:0;background:transparent;color:var(--acc-line);font:600 13px/1 var(--sans);text-decoration:underline;cursor:pointer;padding:4px 2px}
+.btn.new{border-color:var(--acc);color:var(--acc);font-weight:600}
+.btn.new:hover{background:var(--acc-wash)}
+.card>h2 .btn{margin-left:auto;text-transform:none;letter-spacing:0;font-family:var(--sans)}
+
+/* mobile */
+.mtabs{display:none}
+@media (max-width:980px){
+  body{padding-bottom:calc(68px + env(safe-area-inset-bottom))}
+  body[data-view="plan"] .inputs{display:none}
+  body[data-view="inputs"] #out{display:none}
+  .mtabs{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:20;gap:8px;padding:8px 12px calc(8px + env(safe-area-inset-bottom));background:var(--surface);border-top:1px solid var(--rule);box-shadow:0 -2px 10px rgba(0,0,0,.08)}
+  .mtabs button{flex:1;min-height:46px;border:1px solid var(--rule-2);border-radius:10px;background:var(--surface);color:var(--ink-2);font:600 14px/1.2 var(--cond);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px 6px}
+  .mtabs button small{font:500 11px/1.2 var(--mono);color:inherit;opacity:.85}
+  .mtabs button.on{background:var(--acc);border-color:var(--acc);color:var(--on-accent)}
+  .mtabs button .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--bad);margin-left:5px;vertical-align:middle}
+  .toast{bottom:calc(80px + env(safe-area-inset-bottom))}
+}
+@media (max-width:640px){
+  .top{padding:10px 16px;gap:8px}
+  .top h1{font-size:17px}
+  .top .sub{font-size:11.5px;line-height:1.4}
+  .top .sp{display:none}
+  .wrap{padding:12px 16px 24px;gap:12px}
+  input,select,textarea{font-size:16px!important}
+  .fld input,.fld select{padding:9px 10px}
+  .card .bd{padding:12px}
+  .grid{grid-template-columns:1fr 1fr}
+  .inputs .grid[style]{grid-template-columns:1fr!important}
+  .seg{display:flex;width:100%}
+  .seg label{flex:1 1 auto}
+  .seg span{padding:10px 10px;text-align:center;font-size:13.5px;height:100%;display:flex;align-items:center;justify-content:center}
+  .fld .seg span{padding:8px 10px}
+  .ck span{padding:8px 12px;font-size:13.5px}
+  .cks{gap:7px}
+  .btn{min-height:40px;padding:8px 12px}
+  .btn.sm{min-height:36px;padding:6px 10px}
+  .plan-head h2{flex-basis:100%}
+  .plan-head .btn{flex:1}
+  .tiles{grid-template-columns:1fr 1fr;gap:8px}
+  .tile{padding:9px 10px}
+  .tile .v{font-size:21px}
+  .legend{font-size:11.5px;gap:6px 8px}
+  .sec>header{padding:10px 12px}
+  .sec .bd{padding:4px 12px 10px}
+  ul.it li{gap:8px;padding:8px 0}
+  .cls{min-width:30px;padding:4px 3px}
+  .verdict{padding:9px 10px}
+  .alert{padding:10px}
+  table.dose thead{display:none}
+  table.dose,table.dose tbody{display:block}
+  table.dose tr{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:8px 0;border-bottom:1px solid var(--rule)}
+  table.dose td{border:0;padding:0}
+  table.dose td:first-child{font-weight:600}
+  table.dose td.d{text-align:right}
+  table.dose td:last-child{grid-column:1/-1;font-size:12.5px;color:var(--ink-2)}
+  table.dose tr.pick td,table.dose tr.pick{background:var(--acc-wash)}
+  .brk span{font-size:11px}
+}
+@media print{
+  .mtabs{display:none!important}
+  .top .seg-theme,.top .btn,.inputs,.plan-head .btn,.toast{display:none!important}
+  .wrap{display:block;padding:0}
+  body{background:#fff}
+  .sec,.tile{box-shadow:none;break-inside:avoid}
+}
+/* HF-specific */
+:root{--c-g:#2F5DA8;--c-s:#5A6478}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--c-g:#7FA6EA;--c-s:#A3ACBF}}
+:root[data-theme="dark"]{--c-g:#7FA6EA;--c-s:#A3ACBF}
+.sec.g .L{background:var(--c-g)} .sec.s .L{background:var(--c-s)}
+.card[hidden],.hide{display:none!important}
+.pips{display:flex;gap:4px;margin-top:6px}
+.pips i{flex:1;height:6px;border-radius:3px;background:var(--surface-3)}
+.pips i.on{background:var(--good)} .pips i.part{background:var(--warn)}
+.chk{display:grid;grid-template-columns:auto 1fr;gap:3px 8px;font-size:13px;margin:4px 0}
+.chk b{font-family:var(--mono);font-weight:600}
+.chk .y{color:var(--good)} .chk .n{color:var(--bad)} .chk .q{color:var(--ink-3)}
+.sub3{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px;margin-top:8px}
+@media (max-width:640px){.sub3{grid-template-columns:1fr}}
+</style>
+<style id="zth-style">
+.zth{width:32px;height:32px;flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;padding:0;border-radius:999px;border:1px solid var(--rule-2,#c9ced8);background:var(--surface,#fff);color:var(--ink-2,#4b5164);box-shadow:0 1px 2px rgba(0,0,0,.08);cursor:pointer;vertical-align:middle;transition:background .15s,color .15s}
+.zth:hover{background:var(--surface-2,#eef1f6);color:var(--ink,#141722)}
+.zth:focus-visible{outline:2px solid var(--acc,#33478c);outline-offset:2px}
+.zth svg{width:16px;height:16px;display:block}
+.zth-hidden{display:none!important}
+@media print{.zth{display:none!important}}
+</style>
+<style id="zcl-style">
+.zcl-ver{display:inline-block;border:1px solid var(--rule-2,#b9bfce);background:var(--surface-2,#e7eaf1);color:var(--ink-3,#787f93);font:600 11px/1 var(--mono,ui-monospace,Menlo,monospace);padding:4px 8px;border-radius:999px;cursor:pointer;margin-left:8px;vertical-align:3px;letter-spacing:0;text-transform:none;white-space:nowrap}
+.zcl-ver:hover{color:var(--acc,#33478c);border-color:var(--acc,#33478c)}
+.zcl-modal{position:fixed;inset:0;z-index:2147483000;background:rgba(10,12,20,.55);display:flex;align-items:flex-start;justify-content:center;padding:4vh 16px;overflow:auto}
+.zcl-modal[hidden]{display:none}
+.zcl-sheet{background:var(--ground,#eff1f5);color:var(--ink,#141722);border:1px solid var(--rule,#d6dae4);border-radius:14px;box-shadow:0 20px 50px rgba(0,0,0,.3);width:100%;max-width:620px;margin:auto 0;font:14px/1.5 var(--sans,-apple-system,"Segoe UI",sans-serif);text-align:left}
+.zcl-sheet>header{position:sticky;top:0;background:var(--surface,#fff);border-bottom:1px solid var(--rule,#d6dae4);border-radius:14px 14px 0 0;padding:12px 16px;display:flex;gap:12px;align-items:center}
+.zcl-sheet h2{margin:0;font:700 18px/1.2 var(--cond,var(--sans,sans-serif));flex:1;color:var(--ink,#141722)}
+.zcl-sheet h2 small{display:block;font:400 12px/1.4 var(--sans,sans-serif);color:var(--ink-3,#787f93);margin-top:2px}
+.zcl-x{border:1px solid var(--rule-2,#b9bfce);background:var(--surface,#fff);border-radius:8px;width:36px;height:36px;font-size:20px;line-height:1;cursor:pointer;color:var(--ink-2,#4b5164)}
+.zcl-bd{padding:14px 16px 18px}
+.zcl-item{background:var(--surface,#fff);border:1px solid var(--rule,#d6dae4);border-radius:10px;padding:10px 12px;margin-bottom:10px}
+.zcl-item h3{margin:0;font:700 15px/1.2 var(--mono,ui-monospace,monospace);display:flex;justify-content:space-between;gap:10px;color:var(--ink,#141722)}
+.zcl-item h3 span{font:500 12px/1.2 var(--sans,sans-serif);color:var(--ink-3,#787f93)}
+.zcl-item h5{margin:8px 0 2px;font-size:11px;letter-spacing:.4px;text-transform:uppercase;color:var(--ink-3,#787f93)}
+.zcl-item ul{margin:0;padding-left:18px;font-size:13px;color:var(--ink,#141722)}
+@media (max-width:640px){.zcl-modal{padding:0}.zcl-sheet{border-radius:0;min-height:100%;max-width:none;border:0}.zcl-sheet>header{border-radius:0;padding:10px 12px}.zcl-bd{padding:12px}}
+@media print{.zcl-ver,.zcl-modal{display:none!important}}
+</style>
+<style id="zcol-style">
+:root{--zc-blue:#33478C;--zc-green:#0B7045;--zc-red:#AC2229;--zc-amber:#8A5712;--zc-teal:#1F6F87;--zc-violet:#5B4A9E;--zc-on:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--zc-blue:#8CA5E8;--zc-green:#45C585;--zc-red:#EE7A76;--zc-amber:#DCA24E;--zc-teal:#58B8D2;--zc-violet:#A99BE8;--zc-on:#0E1016}}
+:root[data-theme="dark"]{--zc-blue:#8CA5E8;--zc-green:#45C585;--zc-red:#EE7A76;--zc-amber:#DCA24E;--zc-teal:#58B8D2;--zc-violet:#A99BE8;--zc-on:#0E1016}
+.card[data-zk]{border-left:4px solid var(--zk);overflow:hidden}
+.card[data-zk]>h2{background:var(--surface-2);background:color-mix(in srgb,var(--zk) 15%,var(--surface));border-bottom-color:color-mix(in srgb,var(--zk) 30%,var(--rule));color:var(--ink)}
+.card[data-zk]>h2 .n{background:var(--zk);color:var(--zc-on);border-radius:5px;padding:2px 5px;font-weight:700}
+.sec[data-zk]{border-left:4px solid var(--zk)}
+.sec[data-zk]>header{background:color-mix(in srgb,var(--zk) 12%,var(--surface));border-bottom-color:color-mix(in srgb,var(--zk) 28%,var(--rule))}
+.sec[data-zk] h4{color:var(--ink);padding-left:8px;border-left:3px solid var(--zk)}
+.tile{border-top:3px solid var(--acc)}
+.tile:not(.good):not(.warn):not(.bad){background:color-mix(in srgb,var(--acc) 6%,var(--surface))}
+.tile.good{border-color:var(--good-line);border-top-color:var(--good);background:var(--good-wash)}
+.tile.warn{border-top-color:var(--warn)}.tile.bad{border-top-color:var(--bad)}
+@media print{.card>h2,.sec>header,.tile{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style>
+<style id="zfold-style">
+#out,.inputs{min-width:0}
+.zf-head{cursor:pointer;position:relative;padding-right:38px!important;-webkit-tap-highlight-color:transparent;user-select:none}
+.zf-head::after{content:"";position:absolute;right:15px;top:50%;width:8px;height:8px;margin-top:-7px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;opacity:.55;transform:rotate(45deg);transition:transform .15s}
+[data-zf="closed"]>.zf-head::after,[data-zf="closed"]>.zf-keep .zf-head::after,[data-zf="closed"]>.zf-keep.zf-head::after{transform:rotate(-45deg);margin-top:-5px}
+.zf-head:focus-visible{outline:2px solid currentColor;outline-offset:-3px}
+.zf-head:hover::after{opacity:1}
+@media screen{
+  [data-zf="closed"]>*:not(.zf-keep){display:none!important}
+  [data-zf="closed"]>.zf-keep{border-bottom-color:transparent!important;margin-bottom:0!important}
+  [data-zf="closed"]{align-self:start!important;height:auto!important;min-height:0!important}
+}
+.zf-all{border:1px solid currentColor;background:transparent;color:inherit;opacity:.75;border-radius:999px;padding:5px 11px;font:500 12px/1.2 inherit;font-family:inherit;cursor:pointer;white-space:nowrap}
+.zf-all:hover{opacity:1}
+@media print{.zf-all{display:none!important}.zf-head::after{display:none}}
+</style>
+</head>
+<body>
+<div class="top">
+  <div>
+    <h1>HF Care Planner</h1>
+    <div class="sub">History + key findings → phenotype &amp; stage, FMT titration with doses, additional therapy, devices/interventions, decompensation pathway · ESC 2026 HF guideline</div>
+  </div>
+  <div class="sp"></div>
+  <button type="button" class="btn new" data-new>+ New case</button>
+  <div class="seg-theme" role="group" aria-label="Theme">
+    <button data-theme-set="light">Light</button><button data-theme-set="auto" class="on">Auto</button><button data-theme-set="dark">Dark</button>
+  </div>
+</div>
+
+<div class="wrap">
+<form class="inputs" id="f" autocomplete="off" onsubmit="return false">
+
+  <section class="card">
+    <h2><span class="n">01</span> History <button type="button" class="btn sm new" data-new>Clear · new case</button></h2>
+    <div class="bd">
+      <textarea id="hx" placeholder="Paste or type the history, e.g. &quot;66M ischaemic CM, prior MI, NYHA III, LVEF 28%, QRS 158 ms LBBB, SR HR 82, BP 112/70, NT-proBNP 2600, K 4.7, Cr 1.3, 78 kg. On ramipril 2.5 mg bd, bisoprolol 2.5 mg, furosemide 40 mg. TSAT 14%.&quot;"></textarea>
+      <div class="row" style="margin-top:8px">
+        <button type="button" class="btn pri" id="parseBtn">Auto-fill from history</button>
+        <span class="muted" style="font-size:12px">Examples:</span>
+        <button type="button" class="btn sm" data-ex="0">HFrEF, new</button>
+        <button type="button" class="btn sm" data-ex="1">HFpEF + obesity</button>
+        <button type="button" class="btn sm" data-ex="2">Decompensated</button>
+        <button type="button" class="btn sm" data-ex="3">Advanced</button>
+        <button type="button" class="btn sm" data-ex="4">Stage B post-MI</button>
+      </div>
+      <div class="found" id="found"></div>
+      <div class="hint">Auto-fill only ticks what it finds (simple negation: “no / denies / without”). Drug doses are matched against Table 11 targets. Check the fields below — they drive the plan.</div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="n">02</span> Setting &amp; patient</h2>
+    <div class="bd">
+      <div class="lbl">Clinical setting</div>
+      <div class="seg" style="margin-bottom:10px">
+        <label><input type="radio" name="set" value="A"><span>At risk (A)</span></label><label><input type="radio" name="set" value="B"><span>Asymptomatic, structural (B)</span></label><label><input type="radio" name="set" value="C" checked><span>Symptomatic chronic HF</span></label><label><input type="radio" name="set" value="D"><span>Decompensated HF</span></label>
+      </div>
+      <div class="grid">
+        <label class="fld"><span>Age (y)</span><input id="age" type="number" min="18" max="110" inputmode="numeric"></label>
+        <div class="fld"><span>Sex</span>
+          <div class="seg"><label><input type="radio" name="sex" value="M" checked><span>M</span></label><label><input type="radio" name="sex" value="F"><span>F</span></label></div>
+        </div>
+        <label class="fld"><span>Weight (kg)</span><input id="wt" type="number" min="25" max="300" step="0.1" inputmode="decimal"></label>
+        <label class="fld"><span>Height (cm)</span><input id="ht" type="number" min="100" max="230" inputmode="numeric"></label>
+        <label class="fld"><span>NYHA class</span>
+          <select id="nyha"><option value="1">I</option><option value="2" selected>II</option><option value="3">III</option><option value="4">IV</option></select>
+        </label>
+        <label class="fld"><span>LVEF (%)</span><input id="lvef" type="number" min="5" max="85" inputmode="numeric" placeholder="unknown"></label>
+        <label class="fld"><span>SBP (mmHg)</span><input id="sbp" type="number" min="40" max="300" inputmode="numeric"></label>
+        <label class="fld"><span>Heart rate (bpm)</span><input id="hr" type="number" min="20" max="250" inputmode="numeric"></label>
+        <div class="fld"><span>Rhythm</span>
+          <select id="rhy"><option value="sr">Sinus</option><option value="af">AF / flutter</option><option value="paced">Paced</option></select>
+        </div>
+        <label class="fld"><span>QRS (ms)</span><input id="qrs" type="number" min="60" max="260" inputmode="numeric"></label>
+        <label class="fld"><span>QRS morphology</span>
+          <select id="qrsm"><option value="">—</option><option value="lbbb">LBBB</option><option value="non">Non-LBBB</option></select>
+        </label>
+        <label class="fld"><span>HF hosp. / 12 mo</span><input id="hfh" type="number" min="0" max="20" inputmode="numeric" placeholder="0"></label>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="n">03</span> Labs</h2>
+    <div class="bd">
+      <div class="grid">
+        <div class="fld"><span>Natriuretic peptide</span>
+          <div class="dual"><input id="np" type="number" min="0" inputmode="numeric"><select id="npType"><option value="nt">NT-proBNP</option><option value="bnp">BNP</option></select></div>
+        </div>
+        <div class="fld"><span>Creatinine</span>
+          <div class="dual"><input id="cr" type="number" min="0.1" step="0.01" inputmode="decimal"><select id="crUnit"><option value="mg">mg/dL</option><option value="umol">µmol/L</option></select></div>
+        </div>
+        <label class="fld"><span>eGFR (blank = calc)</span><input id="egfrIn" type="number" min="1" max="150" inputmode="numeric" placeholder="CKD-EPI"></label>
+        <label class="fld"><span>K⁺ (mmol/L)</span><input id="k" type="number" min="1.5" max="9" step="0.1" inputmode="decimal"></label>
+        <label class="fld"><span>Na⁺ (mmol/L)</span><input id="na" type="number" min="100" max="170" inputmode="numeric"></label>
+        <label class="fld"><span>Hb (g/dL)</span><input id="hb" type="number" min="3" max="22" step="0.1" inputmode="decimal"></label>
+        <label class="fld"><span>TSAT (%)</span><input id="tsat" type="number" min="1" max="100" inputmode="numeric"></label>
+        <label class="fld"><span>Ferritin (ng/mL)</span><input id="ferr" type="number" min="1" max="5000" inputmode="numeric"></label>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" id="dhfCard" hidden>
+    <h2><span class="n">03b</span> Decompensation profile</h2>
+    <div class="bd">
+      <div class="seg" style="margin-bottom:10px">
+        <label><input type="radio" name="dtype" value="left" checked><span>Left-sided congestion</span></label><label><input type="radio" name="dtype" value="right"><span>Right-sided</span></label><label><input type="radio" name="dtype" value="apo"><span>Acute pulmonary oedema</span></label><label><input type="radio" name="dtype" value="cs"><span>Cardiogenic shock</span></label>
+      </div>
+      <div class="grid">
+        <label class="fld"><span>SpO₂ (%)</span><input id="spo2" type="number" min="40" max="100" inputmode="numeric"></label>
+        <label class="fld"><span>Resp. rate (/min)</span><input id="rr" type="number" min="5" max="70" inputmode="numeric"></label>
+        <label class="fld"><span>Lactate (mmol/L)</span><input id="lact" type="number" min="0" max="30" step="0.1" inputmode="decimal"></label>
+      </div>
+      <div class="cks" style="margin-top:10px">
+        <label class="ck danger"><input type="checkbox" id="hypoperf"><span>Signs of hypoperfusion</span></label>
+        <label class="ck"><input type="checkbox" id="stemi"><span>Caused by acute MI / STEMI</span></label>
+        <label class="ck"><input type="checkbox" id="afrvr"><span>AF with rapid rate + instability</span></label>
+        <label class="ck"><input type="checkbox" id="pe"><span>PE / RV infarct suspected</span></label>
+        <label class="ck"><input type="checkbox" id="immob"><span>Immobilised</span></label>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="n">04</span> Structure, aetiology &amp; devices</h2>
+    <div class="bd">
+      <div class="lbl">HFpEF echo evidence (Table 10)</div>
+      <div class="cks">
+        <label class="ck"><input type="checkbox" id="lvh"><span>LVMI ≥95 (F) / ≥115 (M) or RWT &gt;0.42</span></label>
+        <label class="ck"><input type="checkbox" id="lad"><span>LAVI &gt;34 (SR) / &gt;40 (AF) mL/m²</span></label>
+        <label class="ck"><input type="checkbox" id="ee"><span>E/e′ &gt;9 at rest</span></label>
+        <label class="ck"><input type="checkbox" id="pasp"><span>PASP &gt;35 or TRV &gt;2.8 m/s</span></label>
+        <label class="ck"><input type="checkbox" id="prevLow"><span>LVEF previously &lt;50%</span></label>
+      </div>
+      <div class="lbl">Aetiology &amp; structure</div>
+      <div class="cks">
+        <label class="ck"><input type="checkbox" id="isch"><span>Ischaemic / prior MI</span></label>
+        <label class="ck danger"><input type="checkbox" id="mi40"><span>MI within 40 days</span></label>
+        <label class="ck"><input type="checkbox" id="angina"><span>Angina despite therapy</span></label>
+        <label class="ck"><input type="checkbox" id="mvd"><span>Multivessel CAD</span></label>
+        <label class="ck"><input type="checkbox" id="revasc"><span>CAD needing revascularisation</span></label>
+        <label class="ck"><input type="checkbox" id="cmUnc"><span>Aetiology unclear / suspected CM</span></label>
+        <label class="ck"><input type="checkbox" id="amySusp"><span>Amyloid red flags</span></label>
+        <label class="ck"><input type="checkbox" id="attr"><span>ATTR-CM confirmed</span></label>
+        <label class="ck"><input type="checkbox" id="hcm"><span>HCM</span></label>
+        <label class="ck"><input type="checkbox" id="as"><span>Severe aortic stenosis</span></label>
+        <label class="ck"><input type="checkbox" id="mr"><span>Severe secondary MR</span></label>
+        <label class="ck"><input type="checkbox" id="tr"><span>Severe TR</span></label>
+        <label class="ck"><input type="checkbox" id="rvd"><span>Severe RV dysfunction</span></label>
+        <label class="ck"><input type="checkbox" id="mech"><span>Mechanical valve</span></label>
+        <label class="ck"><input type="checkbox" id="msten"><span>Mod–severe mitral stenosis</span></label>
+      </div>
+      <div class="lbl">Rhythm &amp; devices</div>
+      <div class="cks">
+        <label class="ck"><input type="checkbox" id="va"><span>Prior VT/VF with instability / arrest</span></label>
+        <label class="ck"><input type="checkbox" id="avb"><span>High-degree AV block needing pacing</span></label>
+        <label class="ck"><input type="checkbox" id="rvp"><span>Pacemaker/ICD with high RV pacing</span></label>
+        <label class="ck"><input type="checkbox" id="icd"><span>ICD in situ</span></label>
+        <label class="ck"><input type="checkbox" id="crt"><span>CRT in situ</span></label>
+        <label class="ck"><input type="checkbox" id="permAF"><span>Permanent AF, poor rate control</span></label>
+        <label class="ck"><input type="checkbox" id="afAbl"><span>AF: high burden, &lt;1 y persistent, clear cause→HF</span></label>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="n">05</span> Course &amp; severity</h2>
+    <div class="bd">
+      <div class="cks">
+        <label class="ck"><input type="checkbox" id="congest"><span>Congestion now (oedema, JVP, rales)</span></label>
+        <label class="ck"><input type="checkbox" id="fmt3"><span>≥3 months on optimised FMT</span></label>
+        <label class="ck"><input type="checkbox" id="wfh"><span>Worsening-HF event in last 6 mo</span></label>
+        <label class="ck"><input type="checkbox" id="inotr"><span>Needed inotropes (12 mo)</span></label>
+        <label class="ck"><input type="checkbox" id="dres"><span>Diuretic resistance / escalating diuretics</span></label>
+        <label class="ck"><input type="checkbox" id="exlow"><span>6MWT &lt;300 m or pVO₂ &lt;12–14</span></label>
+        <label class="ck"><input type="checkbox" id="endorg"><span>End-organ dysfunction (liver, kidney)</span></label>
+        <label class="ck"><input type="checkbox" id="shocks"><span>ICD shocks</span></label>
+        <label class="ck"><input type="checkbox" id="lowlife"><span>Life expectancy &lt;1 y / severe frailty</span></label>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="n">06</span> Comorbidities</h2>
+    <div class="bd">
+      <div class="cks">
+        <label class="ck"><input type="checkbox" id="htn"><span>Hypertension</span></label>
+        <label class="ck"><input type="checkbox" id="dm2"><span>Type 2 diabetes</span></label>
+        <label class="ck"><input type="checkbox" id="dm1"><span>Type 1 diabetes</span></label>
+        <label class="ck"><input type="checkbox" id="ckd"><span>CKD / albuminuria</span></label>
+        <label class="ck"><input type="checkbox" id="ascvd"><span>ASCVD / multiple CV risk factors</span></label>
+        <label class="ck"><input type="checkbox" id="obese"><span>Obesity</span></label>
+        <label class="ck"><input type="checkbox" id="af"><span>Atrial fibrillation (any)</span></label>
+        <label class="ck"><input type="checkbox" id="stroke"><span>Prior stroke / TIA / embolism</span></label>
+        <label class="ck"><input type="checkbox" id="copd"><span>COPD</span></label>
+        <label class="ck"><input type="checkbox" id="asthma"><span>Asthma</span></label>
+        <label class="ck"><input type="checkbox" id="osa"><span>Obstructive sleep apnoea</span></label>
+        <label class="ck"><input type="checkbox" id="csa"><span>Central sleep apnoea</span></label>
+        <label class="ck"><input type="checkbox" id="dep"><span>Depression / anxiety</span></label>
+        <label class="ck"><input type="checkbox" id="frail"><span>Frailty</span></label>
+        <label class="ck"><input type="checkbox" id="gout"><span>Gout / hyperuricaemia</span></label>
+        <label class="ck"><input type="checkbox" id="thy"><span>Thyroid dysfunction</span></label>
+        <label class="ck"><input type="checkbox" id="cancer"><span>Cardiotoxic cancer therapy</span></label>
+        <label class="ck"><input type="checkbox" id="hyperk"><span>History of hyperkalaemia</span></label>
+        <label class="ck"><input type="checkbox" id="black"><span>Self-identified Black</span></label>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="n">07</span> Current medicines</h2>
+    <div class="bd">
+      <div class="grid" style="grid-template-columns:1.4fr 1fr">
+        <label class="fld"><span>ACE-I / ARB / ARNI</span>
+          <select id="ras">
+            <option value="none">None</option>
+            <optgroup label="ARNI"><option value="arni">Sacubitril/valsartan</option></optgroup>
+            <optgroup label="ACE-I"><option value="enalapril">Enalapril</option><option value="ramipril">Ramipril</option><option value="lisinopril">Lisinopril</option><option value="captopril">Captopril</option><option value="trandolapril">Trandolapril</option><option value="aceOther">Other ACE-I</option></optgroup>
+            <optgroup label="ARB"><option value="candesartan">Candesartan</option><option value="losartan">Losartan</option><option value="valsartan">Valsartan</option><option value="arbOther">Other ARB</option></optgroup>
+          </select>
+        </label>
+        <label class="fld"><span>Dose vs target</span><select id="rasD"><option value="low">&lt;50%</option><option value="mid">50–99%</option><option value="tgt">Target</option></select></label>
+        <label class="fld"><span>Beta-blocker</span>
+          <select id="bb"><option value="none">None</option><option value="bisoprolol">Bisoprolol</option><option value="carvedilol">Carvedilol</option><option value="metoprolol">Metoprolol succinate</option><option value="nebivolol">Nebivolol</option><option value="bbOther">Other (atenolol, tartrate…)</option></select>
+        </label>
+        <label class="fld"><span>Dose vs target</span><select id="bbD"><option value="low">&lt;50%</option><option value="mid">50–99%</option><option value="tgt">Target</option></select></label>
+        <label class="fld"><span>MRA</span>
+          <select id="mra"><option value="none">None</option><option value="spironolactone">Spironolactone</option><option value="eplerenone">Eplerenone</option><option value="finerenone">Finerenone</option></select>
+        </label>
+        <label class="fld"><span>Dose vs target</span><select id="mraD"><option value="low">&lt;50%</option><option value="mid">50–99%</option><option value="tgt">Target</option></select></label>
+        <label class="fld"><span>SGLT2 inhibitor</span>
+          <select id="sglt"><option value="none">None</option><option value="dapagliflozin">Dapagliflozin</option><option value="empagliflozin">Empagliflozin</option><option value="sglOther">Other (sotagliflozin…)</option></select>
+        </label>
+        <label class="fld"><span>Loop (furosemide-eq mg/day)</span><input id="loop" type="number" min="0" max="2000" inputmode="numeric" placeholder="0"></label>
+      </div>
+      <div class="lbl">Intolerance / contraindication</div>
+      <div class="cks">
+        <label class="ck"><input type="checkbox" id="xRas"><span>ACE-I/ARNI/ARB not tolerated</span></label>
+        <label class="ck"><input type="checkbox" id="xAng"><span>History of angio-oedema</span></label>
+        <label class="ck"><input type="checkbox" id="xBb"><span>Beta-blocker not tolerated</span></label>
+        <label class="ck"><input type="checkbox" id="xMra"><span>MRA not tolerated</span></label>
+        <label class="ck"><input type="checkbox" id="xSgl"><span>SGLT2-I not tolerated</span></label>
+      </div>
+      <div class="lbl">Other medicines</div>
+      <div class="cks">
+        <label class="ck"><input type="checkbox" id="digox"><span>Digoxin / digitoxin</span></label>
+        <label class="ck"><input type="checkbox" id="ivab"><span>Ivabradine</span></label>
+        <label class="ck"><input type="checkbox" id="veric"><span>Vericiguat</span></label>
+        <label class="ck"><input type="checkbox" id="hisdn"><span>Hydralazine/ISDN</span></label>
+        <label class="ck"><input type="checkbox" id="glp1"><span>Semaglutide / tirzepatide</span></label>
+        <label class="ck"><input type="checkbox" id="oac"><span>Oral anticoagulant</span></label>
+        <label class="ck"><input type="checkbox" id="thiaz"><span>Chronic thiazide</span></label>
+      </div>
+      <div class="lbl">Potentially harmful in HF</div>
+      <div class="cks">
+        <label class="ck danger"><input type="checkbox" id="nsaid"><span>NSAID / COX-2</span></label>
+        <label class="ck danger"><input type="checkbox" id="ndhp"><span>Verapamil / diltiazem</span></label>
+        <label class="ck danger"><input type="checkbox" id="tzd"><span>Glitazone / saxagliptin</span></label>
+        <label class="ck danger"><input type="checkbox" id="aad"><span>Flecainide / propafenone / dronedarone</span></label>
+        <label class="ck danger"><input type="checkbox" id="tca"><span>Tricyclic antidepressant</span></label>
+        <label class="ck danger"><input type="checkbox" id="moxo"><span>Moxonidine / alpha-blocker for BP</span></label>
+        <label class="ck"><input type="checkbox" id="nitr"><span>Long-acting nitrate / PDE5-I</span></label>
+      </div>
+    </div>
+  </section>
+
+  <div class="row" style="margin-bottom:24px"><button type="button" class="btn new" data-new>Clear all details — start new case</button></div>
+</form>
+
+<main id="out" aria-live="polite">
+  <div class="plan-head">
+    <h2>Heart failure care plan</h2>
+    <button type="button" class="btn new" data-new>+ New case</button>
+    <button type="button" class="btn" id="copyBtn">Copy plan as text</button>
+    <button type="button" class="btn" onclick="window.print()">Print</button>
+  </div>
+  <div class="tiles" id="tiles"></div>
+  <div class="legend">ESC class:
+    <span class="cls I">I</span>recommended
+    <span class="cls IIa">IIa</span>should be considered
+    <span class="cls IIb">IIb</span>may be considered
+    <span class="cls III">III</span>not recommended
+  </div>
+  <div id="plan"></div>
+  <div class="foot">
+    Based on the 2026 ESC Guidelines for the management of heart failure (<i>Eur Heart J</i> 2026; doi:10.1093/eurheartj/ehag100). New nomenclature: <b>FMT</b> foundational medical therapy (HFrEF: beta-blocker, ACE-I/ARNI/ARB, MRA, SGLT2-I · HFpEF: MRA, SGLT2-I), <b>AMT</b> additional medical therapy, <b>GDIT</b> guideline-directed interventional therapy. HFmrEF is retired: HFrEF = LVEF &lt;50%, HFpEF = LVEF ≥50%. eGFR by CKD-EPI 2021 (race-free). Items marked “practical” are common practice or product labelling, not a guideline recommendation.
+    <br>Teaching and decision-support aid. Doses are typical adult ranges — check local formulary, product labelling and the individual patient before prescribing.
+  </div>
+</main>
+</div>
+<nav class="mtabs" aria-label="View">
+  <button type="button" data-view="inputs">Inputs<small>history &amp; findings</small></button>
+  <button type="button" data-view="plan">Plan<small id="mSum">—</small></button>
+</nav>
+<div class="toast" id="toast"></div>
+<script>
+(function(){
+"use strict";
+const $=id=>document.getElementById(id);
+const CK=['hypoperf','stemi','afrvr','pe','immob','lvh','lad','ee','pasp','prevLow','isch','mi40','angina','mvd','revasc','cmUnc','amySusp','attr','hcm','as','mr','tr','rvd','mech','msten','va','avb','rvp','icd','crt','permAF','afAbl','congest','fmt3','wfh','inotr','dres','exlow','endorg','shocks','lowlife','htn','dm2','dm1','ckd','ascvd','obese','af','stroke','copd','asthma','osa','csa','dep','frail','gout','thy','cancer','hyperk','black','xRas','xAng','xBb','xMra','xSgl','digox','ivab','veric','hisdn','glp1','oac','thiaz','nsaid','ndhp','tzd','aad','tca','moxo','nitr'];
+const NUM=['age','wt','ht','lvef','sbp','hr','qrs','hfh','np','cr','egfrIn','k','na','hb','tsat','ferr','spo2','rr','lact','loop'];
+const SEL=['nyha','rhy','qrsm','npType','crUnit','ras','rasD','bb','bbD','mra','mraD','sglt'];
+const num=id=>{const v=parseFloat($(id).value);return isFinite(v)?v:null;};
+const rad=n=>{const e=document.querySelector('input[name="'+n+'"]:checked');return e?e.value:null;};
+const setRad=(n,v)=>{const e=document.querySelector('input[name="'+n+'"][value="'+v+'"]');if(e)e.checked=true;};
+const ROMAN=['','I','II','III','IV'];
+
+/* ---------- Table 11 doses ---------- */
+const DR={
+  arni:{cl:'ras',k:'ARNI',n:'Sacubitril/valsartan',st:'49/51 mg b.i.d.',tg:'97/103 mg b.i.d.',tgd:194,f:2,re:/sacubitril|entresto|\barni\b/},
+  enalapril:{cl:'ras',k:'ACE-I',n:'Enalapril',st:'2.5 mg b.i.d.',tg:'10–20 mg b.i.d.',tgd:20,f:2,re:/enalapril/},
+  ramipril:{cl:'ras',k:'ACE-I',n:'Ramipril',st:'1.25–2.5 mg b.i.d.',tg:'5 mg b.i.d.',tgd:10,f:1,re:/ramipril/},
+  lisinopril:{cl:'ras',k:'ACE-I',n:'Lisinopril',st:'2.5–5 mg o.d.',tg:'20–35 mg o.d.',tgd:20,f:1,re:/lisinopril/},
+  captopril:{cl:'ras',k:'ACE-I',n:'Captopril',st:'6.25 mg t.i.d.',tg:'50 mg t.i.d.',tgd:150,f:3,re:/captopril/},
+  trandolapril:{cl:'ras',k:'ACE-I',n:'Trandolapril',st:'0.5 mg o.d.',tg:'4 mg o.d.',tgd:4,f:1,re:/trandolapril/},
+  aceOther:{cl:'ras',k:'ACE-I',n:'Other ACE-I',st:'—',tg:'no Table 11 target',tgd:null,re:/\b(perindopril|quinapril|fosinopril|benazepril|zofenopril|cilazapril)\b/},
+  candesartan:{cl:'ras',k:'ARB',n:'Candesartan',st:'4 mg o.d.',tg:'32 mg o.d.',tgd:32,f:1,re:/candesartan/},
+  losartan:{cl:'ras',k:'ARB',n:'Losartan',st:'25–50 mg o.d.',tg:'150 mg o.d.',tgd:150,f:1,re:/losartan/},
+  valsartan:{cl:'ras',k:'ARB',n:'Valsartan',st:'40 mg b.i.d.',tg:'160 mg b.i.d.',tgd:320,f:2,re:/\bvalsartan\b/},
+  arbOther:{cl:'ras',k:'ARB',n:'Other ARB',st:'—',tg:'no Table 11 target',tgd:null,re:/\b(telmisartan|irbesartan|olmesartan|azilsartan)\b/},
+  bisoprolol:{cl:'bb',n:'Bisoprolol',st:'1.25 mg o.d.',tg:'10 mg o.d.',tgd:10,f:1,re:/bisoprolol/},
+  carvedilol:{cl:'bb',n:'Carvedilol',st:'3.125 mg b.i.d.',tg:'25 mg b.i.d. (50 mg b.i.d. if >85 kg)',tgd:50,f:2,re:/carvedilol/},
+  metoprolol:{cl:'bb',n:'Metoprolol succinate',st:'12.5–25 mg o.d.',tg:'200 mg o.d.',tgd:200,f:1,re:/metoprolol/},
+  nebivolol:{cl:'bb',n:'Nebivolol',st:'1.25 mg o.d.',tg:'10 mg o.d.',tgd:10,f:1,re:/nebivolol/},
+  bbOther:{cl:'bb',n:'Non-evidence-based beta-blocker',st:'—',tg:'switch',tgd:null,re:/\b(atenolol|propranolol|metoprolol tartrate)\b/},
+  spironolactone:{cl:'mra',n:'Spironolactone',st:'12.5–25 mg o.d.',tg:'50 mg o.d.',tgd:50,f:1,re:/spironolactone|aldactone/},
+  eplerenone:{cl:'mra',n:'Eplerenone',st:'25 mg o.d.',tg:'50 mg o.d.',tgd:50,f:1,re:/eplerenone/},
+  finerenone:{cl:'mra',n:'Finerenone',st:'10 mg (eGFR ≤60) / 20 mg (eGFR >60) o.d.',tg:'20 mg (eGFR ≤60) / 40 mg (eGFR >60) o.d.',tgd:40,f:1,re:/finerenone/},
+  dapagliflozin:{cl:'sglt',n:'Dapagliflozin',st:'10 mg o.d.',tg:'10 mg o.d.',tgd:10,f:1,re:/dapagliflozin|forxiga/},
+  empagliflozin:{cl:'sglt',n:'Empagliflozin',st:'10 mg o.d.',tg:'10 mg o.d.',tgd:10,f:1,re:/empagliflozin|jardiance/},
+  sglOther:{cl:'sglt',n:'Other SGLT2-I',st:'—',tg:'—',tgd:null,re:/\b(sotagliflozin|canagliflozin|ertugliflozin)\b/}
+};
+
+/* ---------- state ---------- */
+function ckdepi(cr,age,sex){
+  const F=sex==='F',k=F?0.7:0.9,a=F?-0.241:-0.302;
+  return 142*Math.pow(Math.min(cr/k,1),a)*Math.pow(Math.max(cr/k,1),-1.2)*Math.pow(0.9938,age)*(F?1.012:1);
+}
+function collect(){
+  const s={};
+  CK.forEach(k=>s[k]=$(k).checked);
+  NUM.forEach(k=>s[k]=num(k));
+  SEL.forEach(k=>s[k]=$(k).value);
+  s.set=rad('set'); s.sex=rad('sex'); s.dtype=rad('dtype');
+  s.nyha=+s.nyha; s.hfh=s.hfh||0; s.loop=s.loop||0;
+  s.crMg=s.cr==null?null:(s.crUnit==='umol'?s.cr/88.4:s.cr);
+  s.egfr=s.egfrIn!=null?s.egfrIn:((s.crMg&&s.age)?ckdepi(s.crMg,s.age,s.sex):null);
+  s.egfrCalc=s.egfrIn==null&&s.egfr!=null;
+  s.bmi=(s.wt&&s.ht)?s.wt/Math.pow(s.ht/100,2):null;
+  s.obeseAny=s.obese||(s.bmi!=null&&s.bmi>=30);
+  s.afAny=s.af||s.rhy==='af'||s.permAF||s.afAbl||s.afrvr;
+  s.dhf=s.set==='D';
+  s.symp=s.set==='C'||s.set==='D';
+  s.pre=s.set==='A'||s.set==='B';
+  s.nt=s.npType==='nt';
+  s.echoN=['lvh','lad','ee','pasp'].filter(k=>s[k]).length;
+  // phenotype
+  const E=s.lvef;
+  if(s.set==='A') s.ph='A';
+  else if(s.set==='B') s.ph='B';
+  else if(E==null) s.ph='unk';
+  else if(E<50) s.ph='rEF';
+  else if(s.prevLow) s.ph='impEF';
+  else s.ph='pEF';
+  s.rEF=s.ph==='rEF'||s.ph==='impEF';
+  s.pEF=s.ph==='pEF';
+  s.ras=s.ras; s.rasK=s.ras==='none'?null:DR[s.ras].k;
+  s.onRas=s.ras!=='none'; s.onBb=s.bb!=='none'; s.onMra=s.mra!=='none'; s.onSgl=s.sglt!=='none';
+  s.hyperK=s.k!=null&&s.k>5.5;
+  // advanced HF (Table 14)
+  s.adv={
+    c1:s.nyha>=3,
+    c2:(E!=null&&E<=30)||s.rvd||(s.pEF&&npHigh(s)&&s.echoN>=2),
+    c3:s.hfh>=2||s.inotr,
+    c4:s.exlow
+  };
+  s.advAll=s.symp&&s.adv.c1&&s.adv.c2&&s.adv.c3&&s.adv.c4;
+  s.stage=s.set==='A'?'A':s.set==='B'?'B':(s.advAll?'D':'C');
+  s.help=[
+    [s.inotr,'Inotropes'],
+    [s.nyha>=3||(npHigh(s)&&s.symp),'NYHA III/IV or persistently high NP'],
+    [s.endorg,'End-organ dysfunction'],
+    [(E!=null&&E<20)||s.rvd,'EF <20% or poor RV function'],
+    [s.shocks,'Defibrillator shocks'],
+    [s.hfh>1,'HF hospitalisation >1'],
+    [s.dres,'Escalating diuretics'],
+    [(s.sbp!=null&&s.sbp<90)||(s.hr!=null&&s.hr>100),'Low BP / high HR'],
+    [s.xRas||s.xBb||s.xMra,'Prognostic medication intolerance']
+  ].filter(x=>x[0]).map(x=>x[1]);
+  return s;
+}
+function npHigh(s){
+  if(s.np==null) return false;
+  return s.npType==='nt'?s.np>=1000:s.np>=300;
+}
+
+/* ---------- html helpers ---------- */
+const li=(t,c,sub,mod)=>`<li class="${mod||''}"><span class="cls ${c?c.split(' ')[0]:'dot'}">${c||'•'}</span><div class="tx">${t}${sub?`<small>${sub}</small>`:''}</div></li>`;
+const ul=a=>a.length?`<ul class="it">${a.join('')}</ul>`:'';
+const h4=t=>`<h4>${t}</h4>`;
+const sec=(k,L,title,desc,body)=>`<section class="sec ${k}"><header><div class="L">${L}</div><div><h3>${title}</h3><p>${desc}</p></div></header><div class="bd">${body}</div></section>`;
+const alertBox=(title,items,warn)=>`<div class="alert${warn?' w':''}"><b class="h">${title}</b>${Array.isArray(items)?`<ul>${items.map(x=>`<li>${x}</li>`).join('')}</ul>`:items}</div>`;
+const rnd=x=>Math.round(x);
+const r1=x=>Math.round(x*10)/10;
+
+/* ---------- NP interpretation ---------- */
+function npRead(s){
+  if(s.np==null) return null;
+  const v=s.np,a=s.age,o={v,lab:s.nt?'NT-proBNP':'BNP'};
+  if(s.dhf){
+    if(s.nt){
+      const rin=a==null?null:a<50?450:a<75?900:1800;
+      o.ruleOut=v<300; o.likely=rin!=null&&v>rin; o.cut=`rule-out <300; “likely” >${rin??'450/900/1800 by age'}`;
+      o.veryHigh=v>5000;
+      o.txt=v<300?'Below DHF rule-out':o.veryHigh?'Very high risk (>5000)':o.likely?'DHF likely (age-adjusted)':'Grey zone';
+    } else {o.ruleOut=v<100;o.cut='rule-out <100';o.txt=v<100?'Below DHF rule-out':'Above rule-out';}
+  } else {
+    if(s.nt){
+      const lk=a==null?125:a<50?125:a<=75?250:500;
+      o.ruleOut=v<125; o.likely=v>=lk; o.cut=`rule-out <125; “likely” ≥${lk} (age-adjusted)`;
+      o.urgent=v>2000;
+      o.txt=v<125?'Below rule-out':o.urgent?'>2000 — expedite (echo ≤2 wk)':o.likely?'HF likely (age-adjusted)':'Above rule-out, below age cut';
+    } else {o.ruleOut=v<35;o.cut='rule-out <35';o.txt=v<35?'Below rule-out':'Above rule-out';}
+  }
+  if(s.obeseAny) o.txt+=' · lower in obesity';
+  return o;
+}
+
+/* ---------- tiles ---------- */
+function tiles(s){
+  const T=[];
+  const t=(k,v,sub,cls,extra)=>T.push(`<div class="tile ${cls||''}"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${sub||''}</div>${extra||''}</div>`);
+  const PH={A:['At risk','no structural disease'],B:['Pre-HF','structural, asymptomatic'],unk:['LVEF ?','echo needed'],rEF:['HFrEF','LVEF <50%'],impEF:['HFrEF-imp','improved LVEF'],pEF:['HFpEF','LVEF ≥50%']};
+  const p=PH[s.ph];
+  t('Phenotype',p[0],s.lvef!=null?`LVEF ${s.lvef}%`+(s.rEF&&s.lvef<=35?' · ≤35%':''):p[1],s.ph==='unk'?'warn':'');
+  t('Stage',s.stage,s.dhf?'decompensated':s.symp?`NYHA ${ROMAN[s.nyha]}`:(s.stage==='A'?'at risk':'pre-HF'),s.stage==='D'||s.dhf?'bad':'');
+  if(s.symp&&(s.rEF||s.pEF)){
+    const pil=s.rEF?[['BB',s.onBb,s.bbD],['RASi',s.onRas,s.rasD],['MRA',s.onMra,s.mraD],['SGLT2-I',s.onSgl,'tgt']]:[['MRA',s.onMra,s.mraD],['SGLT2-I',s.onSgl,'tgt']];
+    const on=pil.filter(x=>x[1]).length,tg=pil.filter(x=>x[1]&&x[2]==='tgt').length;
+    const pips=`<div class="pips">${pil.map(x=>`<i class="${x[1]?(x[2]==='tgt'?'on':'part'):''}" title="${x[0]}"></i>`).join('')}</div>`;
+    t('FMT',`${on}<small>/${pil.length}</small>`,`${tg} at target dose`,on<pil.length?'warn':'good',pips);
+  }
+  if(s.egfr!=null) t('eGFR',`${rnd(s.egfr)}<small> mL/min</small>`,s.egfrCalc?'CKD-EPI 2021':'entered',s.egfr<20?'bad':s.egfr<30?'warn':'');
+  if(s.k!=null) t('K⁺',`${s.k}<small> mmol/L</small>`,s.k>6?'stop MRA/RASi':s.k>5.5?'reduce / hold MRA':s.k>=5?'caution starting MRA':s.k<3.5?'low':'OK',s.k>5.5?'bad':s.k>=5?'warn':s.k<3.5?'warn':'good');
+  const n=npRead(s);
+  if(n) t(n.lab,`${n.v}<small> pg/mL</small>`,n.txt,n.veryHigh||n.urgent?'bad':n.ruleOut?'good':'');
+  if(s.afAny){const c=cha(s);t('CHA₂DS₂-VA',c.score,c.score>=2?'OAC recommended':c.score===1?'consider OAC':'no OAC',c.score>=1&&!s.oac?'warn':'');}
+  if(s.bmi!=null) t('BMI',r1(s.bmi),s.bmi>=35?'≥35':s.bmi>=30?'obese':'',s.bmi>=30?'warn':'');
+  $('tiles').innerHTML=T.join('');
+  $('mSum').textContent=`${p[0]} · stage ${s.stage}`;
+}
+function cha(s){
+  const a=s.age;
+  const it=[['C',s.set!=='A'?1:0],['H',s.htn?1:0],['A₂',a!=null&&a>=75?2:0],['D',(s.dm2||s.dm1)?1:0],['S₂',s.stroke?2:0],['V',(s.isch||s.ascvd)?1:0],['A',a!=null&&a>=65&&a<75?1:0]];
+  return {it,score:it.reduce((t,x)=>t+x[1],0)};
+}
+
+/* ---------- alerts ---------- */
+function alerts(s){
+  const H=[];
+  if(s.dhf&&(s.dtype==='cs'||s.hypoperf||(s.lact!=null&&s.lact>2))){
+    H.push(alertBox('Cardiogenic shock / hypoperfusion',[
+      'Activate the <b>Shock Team</b> if a temporary-MCS candidate (Class I) · arterial lactate >2 mmol/L supports hypoperfusion',
+      'Hold beta-blocker and ACE-I/ARNI/ARB while haemodynamically unstable; restart once stable',
+      'Norepinephrine is the preferred vasopressor; inotrope only if SBP &lt;90 with hypoperfusion despite fluid challenge (both IIb)',
+      'Identify and treat the cause now (ACS, arrhythmia, mechanical complication, PE, tamponade)']));
+  }
+  if(s.dhf&&s.dtype==='apo') H.push(alertBox('Acute pulmonary oedema',['Mostly fluid <i>redistribution</i>: vasodilator if SBP &gt;110, NIV for respiratory distress; usually does not need high-dose diuretic']));
+  if(s.k!=null&&s.k>6) H.push(alertBox(`K⁺ ${s.k} mmol/L`,['Stop MRA and hold ACE-I/ARNI/ARB temporarily; treat hyperkalaemia; ECG','Restart once resolved — hyperkalaemia is a reason to pause, not to abandon FMT']));
+  else if(s.k!=null&&s.k>5.5) H.push(alertBox(`K⁺ ${s.k} mmol/L`,['Recheck first. If confirmed, reduce or temporarily stop the MRA (and review ACE-I/ARNI/ARB dose); restart when K⁺ settles'],true));
+  if(s.egfr!=null&&s.egfr<15) H.push(alertBox(`eGFR ${rnd(s.egfr)}`,['If this is AKI: temporarily hold MRA, ACE-I/ARNI/ARB and SGLT2-I, then reintroduce','Evaluate for kidney replacement therapy if refractory overload with end-stage kidney failure (IIa C)'],true));
+  if(!s.dhf&&s.sbp!=null&&s.sbp<90) H.push(alertBox(`SBP ${s.sbp} mmHg`,['Symptomatic? Look for hypoperfusion or over-diuresis first; asymptomatic low BP alone should not trigger FMT down-titration','Consider advanced-HF referral if persistent (I NEED HELP)'],true));
+  if(s.symp&&s.rEF&&s.hr!=null&&s.hr<50&&s.onBb) H.push(alertBox(`HR ${s.hr} on beta-blocker`,['Check for AV block / other rate-slowing drugs before further uptitration'],true));
+  const harm=[];
+  if(s.nsaid) harm.push('<b>NSAID / COX-2 inhibitor</b> — stop (III B2): worsens HF and kidney function');
+  if(s.ndhp&&s.rEF) harm.push('<b>Verapamil / diltiazem</b> — contraindicated in HFrEF');
+  if(s.tzd) harm.push('<b>Glitazone / saxagliptin</b> — ~30% higher HFH risk; contraindicated in HF');
+  if(s.aad&&s.rEF) harm.push('<b>Flecainide / propafenone / dronedarone</b> — poorer outcomes in HFrEF; use amiodarone');
+  if(s.tca) harm.push('<b>Tricyclic antidepressant</b> — hypotension, WHF, arrhythmias; prefer CBT / sertraline / escitalopram');
+  if(s.moxo&&s.rEF) harm.push('<b>Moxonidine / alpha-blocker for BP</b> — not for hypertension in HFrEF (alpha-blocker may continue for BPH)');
+  if(s.thiaz&&!s.dhf) harm.push('<b>Chronic thiazide</b> in stable HF — avoid (electrolyte disturbance); keep for short-term resistant oedema');
+  if(s.veric&&s.nitr) harm.push('<b>Vericiguat + long-acting nitrate / PDE5-I</b> — do not combine (label)');
+  if(harm.length) H.push(alertBox('Medicines to review',harm,true));
+  return H.join('');
+}
+
+/* ---------- D: diagnosis & phenotype ---------- */
+function diagSec(s){
+  let b='';
+  const n=npRead(s);
+  if(s.symp){
+    const V={unk:'LVEF unknown — transthoracic echo to confirm HF and phenotype (I C)',rEF:`<b>HFrEF</b> — symptoms/signs + LVEF ${s.lvef}% (&lt;50%)`,impEF:`<b>HFrEF with improved LVEF</b> — now ${s.lvef}% (was &lt;50%). Not HFpEF: manage as HFrEF and keep FMT`,pEF:`<b>HFpEF</b> — LVEF ${s.lvef}% with ${s.echoN} of 4 Table 10 echo criteria`};
+    b+=`<div class="verdict${s.ph==='unk'?' none':''}">${V[s.ph]}${s.rEF&&s.lvef>40&&s.lvef<50?' <small class="muted">(LVEF 41–49%: former HFmrEF — responds to FMT like HFrEF; RCT data limited)</small>':''}</div>`;
+    if(s.pEF){
+      const ok=s.echoN>=1&&(n?!n.ruleOut:false);
+      b+=`<div class="chk"><b class="${s.echoN?'y':'n'}">${s.echoN?'✓':'✗'}</b><span>Objective structural/functional abnormality (${s.echoN}/4: LVH, LA dilatation, E/e′ &gt;9, PASP &gt;35/TRV &gt;2.8) — more criteria = higher probability</span>
+      <b class="${n?(n.ruleOut?'n':'y'):'q'}">${n?(n.ruleOut?'✗':'✓'):'?'}</b><span>Raised natriuretic peptide${n?'':' — not entered'}${s.obeseAny?' (interpret cautiously in obesity — may be falsely low)':''}</span></div>`;
+      if(!ok) b+=ul([li('Uncertain HFpEF diagnosis → exercise stress echo or CPET; invasive exercise haemodynamics (PCWP ≥15 rest / ≥25 exercise, LVEDP ≥16) is the gold standard for the minority where it changes management','IIb','Right heart catheterisation — may be considered in selected patients')]);
+      b+=ul([li('Exclude mimics that coexist with HFpEF: HCM, amyloidosis, lung disease, anaemia, obesity, deconditioning')]);
+    }
+  }
+  if(n) b+=`<div class="hint">${n.lab} ${n.v} pg/mL — ${n.cut}${s.dhf&&n.veryHigh?' · >5000: admission generally recommended':''}</div>`;
+  const L=[];
+  if(s.symp||s.set==='B'){
+    L.push(li('<b>Bloods</b>: FBC, eGFR <b>and UACR</b>, electrolytes, LFT, TFT, HbA1c, lipids, iron status (TSAT + ferritin)','I','UACR newly added — albuminuria is prognostic and treatable with FMT'));
+    L.push(li('<b>12-lead ECG</b> (rhythm, QRS width/morphology for CRT, Q waves) and <b>chest X-ray</b>','I'));
+    if(s.lvef==null) L.push(li('<b>Transthoracic echocardiogram</b> — confirms HF, phenotype and aetiology','I',n&&n.urgent?'NT-proBNP >2000: within 2 weeks':''));
+  }
+  if(s.cmUnc||(s.symp&&s.rEF&&!s.isch)) L.push(li('<b>Contrast CMR</b> for suspected cardiomyopathy or uncertain aetiology (LGE, mapping)','I'));
+  if(s.amySusp) L.push(li('<b>Amyloid screen</b>: serum + urine immunofixation, serum free light chains, and DPD/PYP/HMDP scintigraphy','I'));
+  if(s.cmUnc) L.push(li('<b>Genetic testing</b> when cardiomyopathy criteria met and it changes diagnosis, prognosis, therapy or family screening','I'));
+  if(s.symp&&s.angina) L.push(li('<b>Invasive coronary angiography</b> — HF with angina and high probability of obstructive CAD, if a revascularisation candidate','I'));
+  else if(s.symp&&s.rEF&&s.isch) L.push(li('<b>Invasive coronary angiography</b> — HFrEF with high pre-test likelihood of CAD (weigh risk/benefit)','IIa'));
+  else if(s.symp&&s.rEF) L.push(li('<b>CTCA</b> — HFrEF with low–moderate pre-test likelihood of CAD (caution eGFR &lt;30)','IIa'));
+  if(s.symp&&s.rEF&&(s.rvp||s.icd||s.crt||s.rhy==='paced')) L.push(li('Review the <b>% RV pacing</b> in any CIED patient with new or worsening HFrEF','IIa'));
+  if(s.symp&&s.rEF&&s.afAny) L.push(li('Diagnostic cardioversion if unclear whether sinus rhythm would improve symptoms or LV function','IIb'));
+  if(s.symp&&s.rEF&&s.qrs!=null&&s.qrs>=130&&s.qrsm==='lbbb'&&!s.isch) L.push(li('Consider <b>HF from abnormal conduction</b> (LBBB, wide QRS, no scar on CMR) — CRT may be planned early',''));
+  if(s.cmUnc) L.push(li('Endomyocardial biopsy if rapidly progressive despite therapy or suspected inflammation/infiltration; <sup>18</sup>F-FDG-PET for suspected sarcoid','IIa'));
+  b+=L.length?h4('Work-up')+ul(L):'';
+  if(s.symp) b+=h4('Risk')+ul([li('Prognostic scores (MAGGIC, Seattle HF Model, LIFE-HF / LIFE-Preserved) help target closer follow-up and goals-of-care talks — they do not gate FMT')]);
+  return sec('c','D','Diagnosis & phenotype',s.symp?'Definition, natriuretic peptides, aetiology (Sections 3 & 5)':'Structural assessment',b);
+}
+
+/* ---------- Stage A/B prevention ---------- */
+function prevSec(s){
+  const L=[];
+  L.push(li('Blood pressure target <b>SBP &lt;130 mmHg</b> in hypertension or stage B HF','I',s.sbp!=null?`Current SBP ${s.sbp}`+(s.sbp>=130?' — above target':''):''));
+  if(s.dm2){
+    L.push(li('<b>SGLT2-I</b> in T2DM with multiple ASCVD risk factors or established ASCVD','I'));
+    if(s.ckd) L.push(li('<b>SGLT2-I</b> in T2DM + CKD, and <b>finerenone</b> in T2DM + CKD (albuminuric) to reduce HF','I'));
+    L.push(li('<b>GLP-1 RA</b> in T2DM with ≥1 additional CV risk factor','IIa'));
+  } else if(s.ckd) L.push(li('CKD: optimise diabetes/BP/ASCVD control — see 2026 ESC CVD & CKD guideline'));
+  if(s.ascvd||s.isch) L.push(li('<b>Statin</b> in high ASCVD risk or established ASCVD','IIa'));
+  L.push(li('Lifestyle: healthy weight, balanced diet, avoid sedentary time, no smoking or heavy alcohol, no cocaine/amphetamines/anabolic steroids','I'));
+  if(s.cancer) L.push(li('Cardiotoxic cancer therapy: surveillance per 2022 ESC cardio-oncology guideline'));
+  if(s.set==='B'){
+    const E=s.lvef;
+    const B=[];
+    if(E!=null&&E<=40) B.push(li(`<b>ACE-I</b> (ARB if intolerant) — stage B with LVEF ${E}% (≤40%)`,'I'));
+    if(E!=null&&E<50) B.push(li(`<b>Beta-blocker</b> — stage B with LVEF ${E}% (&lt;50%)`,'I'));
+    if(E!=null&&E<=40&&s.isch&&(s.dm2||s.dm1||s.congest)) B.push(li('<b>Eplerenone</b> after MI with LVEF ≤40% and HF signs or diabetes','I'));
+    if(E!=null&&E>50&&s.isch) B.push(li('Post-MI with preserved LVEF: no routine beta-blocker for HF prevention (REDUCE-AMI)','','','no'));
+    if(E==null) B.push(li('Enter LVEF — stage B therapy depends on it','','','flag'));
+    if(E!=null&&E>=50) B.push(li('No drug recommendation for stage B with LVEF ≥50% beyond risk-factor control; follow for decline'));
+    return sec('e','B','Stage B — prevent progression','Recommendation Tables 1–2',h4('Stage B therapy')+ul(B)+h4('Risk-factor control')+ul(L));
+  }
+  return sec('e','A','Stage A — prevent HF','Recommendation Table 1',ul(L));
+}
+
+/* ---------- DHF ---------- */
+function dhfSec(s){
+  let b='';
+  const P1=[],cs=s.dtype==='cs'||s.hypoperf;
+  P1.push(li('At first contact: BP, RR, SpO₂, temperature, ECG; lactate if suspected hypoperfusion; screen for triggers (ACS, arrhythmia, infection, PE, non-adherence, NSAIDs)',''));
+  if(s.spo2!=null&&s.spo2<90) P1.push(li(`<b>Oxygen</b> — SpO₂ ${s.spo2}% (&lt;90%)`,'I','Not for non-hypoxaemic patients (may harm)'));
+  else P1.push(li('Oxygen only if SpO₂ &lt;90% or PaO₂ &lt;60 mmHg','I'));
+  if((s.rr!=null&&s.rr>25)||(s.spo2!=null&&s.spo2<90)||s.dtype==='apo') P1.push(li('<b>Non-invasive ventilation</b> for respiratory distress (RR &gt;25, SpO₂ &lt;90%) — start early',s.dtype==='right'?'IIa':'IIa',s.dtype==='right'?'Caution in right-sided HF / low preload: NIV lowers venous return':'Reduces intubation'));
+  P1.push(li('Intubate for persistent/progressive respiratory failure despite O₂/NIV (PaO₂ &lt;60, PaCO₂ &gt;50, pH &lt;7.35), arrest, falling GCS, instability','I'));
+  if(s.afrvr) P1.push(li('<b>Urgent cardioversion</b> — AF with rapid rate and haemodynamic instability','I','If pharmacological: amiodarone; IV amiodarone or digoxin for acute rate control is IIb'));
+  if(s.pe||s.dtype==='right') P1.push(li('Right-sided: exclude <b>PE</b> and <b>RV infarction</b>; monitor kidney and liver function closely'));
+  if(s.stemi&&cs) P1.push(li('STEMI-related shock with LV dysfunction and no risk of hypoxic brain injury: <b>microaxial flow pump</b>','IIa'));
+  if(cs){
+    P1.push(li('Multidisciplinary <b>Shock Team</b> to guide temporary MCS selection','I'));
+    P1.push(li('Temporary MCS for HF-related haemodynamic instability as bridge (BTR/BTD/BTB/BTC/BTT)','IIa'));
+    P1.push(li('Vasopressor — preferably <b>norepinephrine</b>','IIb'));
+    P1.push(li('<b>Inotrope</b> if SBP &lt;90 with hypoperfusion despite standard treatment incl. fluid challenge (levosimendan or PDE-III inhibitor if on beta-blocker)','IIb'));
+    P1.push(li('Routine IABP in unselected cardiogenic shock','III'));
+    if(s.stemi) P1.push(li('Temporary MCS in <i>unselected</i> MI-related shock','III'));
+  }
+  if(s.sbp!=null&&s.sbp>110&&!cs) P1.push(li(`<b>IV vasodilator</b> (nitroglycerin) as initial therapy — SBP ${s.sbp} (&gt;110)`,'IIb',s.dtype==='apo'?'First-line mechanism in APO':'Monitor BP closely'));
+  P1.push(li('Routine opiates','III','Only for severe/intractable pain or anxiety'));
+  b+=h4('Phase 1 — initial management')+ul(P1);
+
+  // diuretics
+  const D=[];
+  const iv=s.loop>0?`${rnd(s.loop*2)} mg/day IV furosemide (2× the usual oral daily dose of ${s.loop} mg), split bolus or infusion`:'<b>40 mg IV furosemide</b> (diuretic-naïve)'+(s.egfr!=null&&s.egfr<30?' — use a higher starting dose in CKD':'');
+  D.push(li(`<b>IV loop diuretic</b>: ${iv}`,'I','Bolus vs infusion and high vs low dose: no outcome difference (DOSE)'));
+  D.push(li('<b>Response check</b>: spot urine Na⁺ ≥70 mmol/L at 2 h <i>or</i> urine output ≥100 mL/h over the first 6 h → repeat every 12 h until decongested','IIb','Urinary Na⁺-guided diuretic therapy in the first days (PUSH-AHF, ENACT-HF)'));
+  let hctz='25 mg';if(s.egfr!=null){hctz=s.egfr>50?'25 mg':s.egfr>=20?'50 mg':'100 mg';}
+  D.push(li(`<b>Poor response</b>: double the loop dose, and/or add <b>acetazolamide 500 mg IV o.d.</b> or <b>hydrochlorothiazide ${hctz}</b>${s.egfr!=null?` (eGFR ${rnd(s.egfr)})`:' (25 / 50 / 100 mg for eGFR &gt;50 / 20–50 / &lt;20)'}`,s.loop>0?'IIa':'',s.loop>0?'Patients on chronic loop therapy (ADVOR, CLOROTIC). Acetazolamide may suit advanced CKD; HCTZ → watch K⁺ and creatinine':'Non-loop add-on recommendation applies to prior loop users'));
+  D.push(li('If &lt;3 L diuresis at 24 h with persistent congestion → escalate on day 2; maximum IV furosemide ~600 mg/day (up to 1000 mg in severe CKD); ultrafiltration if refractory','IIb'));
+  D.push(li('Creatinine and electrolytes at least every 24 h; small creatinine rises during effective decongestion are not harmful — do not stop diuresis for them'));
+  D.push(li('Fluid intake &lt; urine output; fluid restriction only if hyponatraemic'+(s.na!=null&&s.na<135?` (Na⁺ ${s.na} — restriction reasonable)`:'')+'; sodium intake &lt; natriuresis'));
+  if(s.immob) D.push(li('Thromboprophylaxis — immobilised (no RCT in DHF, but generally indicated)'));
+  b+=h4('Decongestion')+ul(D);
+
+  // phase 2
+  const P2=[];
+  if(s.onRas||s.onBb||s.onMra||s.onSgl) P2.push(li('<b>Continue FMT</b> or reintroduce as soon as possible — stop only for hypoperfusion or a specific reason'+(cs?' (currently: hold beta-blocker and RAS inhibitor)':''),'','Interrupted &lt;14 days → restart at the previous dose once stable'));
+  P2.push(li('<b>SGLT2-I in hospital</b> after initial stabilisation (empagliflozin 10 mg / dapagliflozin 10 mg) — also aids decongestion','I',s.dm1?'Not in type 1 diabetes':''));
+  if(s.rEF||s.ph==='unk') P2.push(li('Start MRA and ARNI during stabilisation; <b>simultaneous</b> rather than sequential initiation preferred; beta-blocker cautiously once haemodynamically stable and euvolaemic','', 'More conservative in low eGFR, hypotension or prior hyperkalaemia'));
+  else P2.push(li('Start MRA during stabilisation (HFpEF FMT = MRA + SGLT2-I)',''));
+  b+=h4('Phase 2 — stabilisation')+ul(P2);
+
+  const P3=[];
+  P3.push(li('<b>Pre-discharge congestion check</b>: clinical score, NP trend, kidney function/electrolytes, imaging (LUS, IVC, CXR) as available','I'));
+  P3.push(li('<b>Rapid initiation and uptitration of FMT</b> before discharge and at frequent visits over the first 6 weeks (STRONG-HF): check BP, HR, creatinine, K⁺, NT-proBNP at each','I'));
+  if(s.tsat!=null&&s.tsat<20&&s.rEF) P3.push(li(`IV iron before discharge — TSAT ${s.tsat}% (AFFIRM-AHF)`,'IIa'));
+  P3.push(li('Enrol in HF multidisciplinary programme and rehabilitation; education on self-care'));
+  if(s.hfh>=2||s.dres||s.inotr) P3.push(li('Recurrent admissions / diuretic resistance → screen for <b>advanced HF</b> and refer early','','','flag'));
+  b+=h4('Phase 3 — pre-discharge & early post-discharge')+ul(P3);
+  return sec('a','!','Decompensated HF','Section 7 — Recommendation Tables 8–10',b);
+}
+
+/* ---------- FMT ---------- */
+function doseLbl(d){return {low:'&lt;50% target',mid:'50–99% target',tgt:'at target'}[d];}
+function fmtSec(s){
+  let b='';
+  const rows=[],E=s.lvef,lowBP=s.sbp!=null&&s.sbp<100,lowG=s.egfr!=null&&s.egfr<30,kHi=s.k!=null&&s.k>5.2,kMra=s.k!=null&&s.k>=5;
+  const R=(cls,cur,act,dose,pick,x)=>rows.push(`<tr class="${pick?'pick':''}${x?' x':''}"><td>${cls}</td><td>${cur}</td><td class="d">${dose}</td><td>${act}</td></tr>`);
+  const hold=s.sbp!=null&&s.sbp<90?'SBP &lt;90: hold uptitration until hypoperfusion/over-diuresis excluded':null;
+  const titr=(onId,dId,why)=>s[dId]==='tgt'?'Continue at target — lifelong (I C)':(why||hold)?`<span class="muted">Hold dose — ${why||hold}</span>`:'Uptitrate one step every 1–2 weeks toward target (I C)';
+  if(s.rEF){
+    // RAS
+    if(s.xRas&&!s.onRas) R('ACE-I / ARNI / ARB','Not tolerated','Hydralazine + ISDN may be considered (IIb C) — see AMT','—',0,1);
+    else if(!s.onRas){
+      const arniOk=!s.xAng;
+      const lowStart=lowBP||(s.egfr!=null&&s.egfr<60);
+      R('ARNI (or ACE-I)','None',arniOk?`<b>Start sacubitril/valsartan</b> (I A) — de novo ARNI acceptable; or ACE-I.${lowStart?' Use 24/26 mg start (SBP/eGFR).':''}${lowBP||lowG||kHi?' <span class="muted">Caution: SBP &lt;100, eGFR &lt;30 or K⁺ &gt;5.2.</span>':''}`:'<b>ARB</b> (candesartan/valsartan) — ACE-I and ARNI avoided after angio-oedema; use ARB with caution',arniOk?(lowStart?'24/26 → 97/103 mg b.i.d.':'49/51 → 97/103 mg b.i.d.'):'Candesartan 4 → 32 mg o.d.',1);
+    } else {
+      const d=DR[s.ras];
+      let act;
+      if(d.k!=='ARNI'&&!s.xAng) act=`<b>Switch to ARNI</b> (I B1) — ${d.k==='ACE-I'?'stop ACE-I ≥36 h before first dose':'no washout needed from ARB'}; start 49/51 (or 24/26) mg b.i.d.`;
+      else act=titr('onRas','rasD',kHi?'K⁺ &gt;5.2':(lowBP&&s.sbp>=90?'SBP &lt;100, symptomatic?':null));
+      if(d.tgd==null) act+=' · prefer an agent with a Table 11 target';
+      R(d.k,`${d.n} · ${doseLbl(s.rasD)}`,act,`${d.st} → ${d.tg}`,d.k!=='ARNI'||s.rasD!=='tgt');
+    }
+    // BB
+    if(s.xBb&&!s.onBb) R('Beta-blocker','Not tolerated','Retry low dose when euvolaemic; if SR and HR ≥70 → ivabradine (IIa C)','—',0,1);
+    else if(!s.onBb) R('Beta-blocker','None',`<b>Start</b> (I A) in stable, euvolaemic patients${s.dhf?' — once haemodynamically stabilised':''}${s.copd||s.asthma?' · cardioselective (bisoprolol/metoprolol succinate/nebivolol)':''}`,'Bisoprolol 1.25 → 10 mg o.d. · Carvedilol 3.125 → 25 mg b.i.d. · Metoprolol succ. 12.5–25 → 200 mg o.d.',1);
+    else if(s.bb==='bbOther') R('Beta-blocker','Non-evidence-based agent','<b>Switch</b> to bisoprolol, carvedilol or metoprolol succinate (mortality-proven)','Bisoprolol 1.25 → 10 mg',1);
+    else {const d=DR[s.bb];R('Beta-blocker',`${d.n} · ${doseLbl(s.bbD)}`,titr('onBb','bbD')+(s.bb==='nebivolol'?' · nebivolol: no mortality reduction alone':''),`${d.st} → ${d.tg}`,s.bbD!=='tgt');}
+    // MRA
+    if(s.xMra&&!s.onMra) R('MRA','Not tolerated','Re-challenge with eplerenone (less gynaecomastia) or lower dose if hyperkalaemia resolved','—',0,1);
+    else if(!s.onMra){
+      const ci=s.k!=null&&s.k>5.5;
+      R('MRA (steroidal)','None',ci?'Defer — K⁺ &gt;5.5; correct first':`<b>Start</b> spironolactone or eplerenone (I A)${(s.egfr!=null&&s.egfr<25)?' — <span class="muted">not tested at eGFR &lt;25</span>':''}${kMra?' — <span class="muted">caution K⁺ ≥5.0</span>':''}`,'Spironolactone 12.5–25 → 50 mg · Eplerenone 25 → 50 mg o.d.',!ci,ci);
+    } else {
+      const d=DR[s.mra];
+      R('MRA',`${d.n} · ${doseLbl(s.mraD)}`,(s.k!=null&&s.k>5.5)?'K⁺ &gt;5.5: recheck, then reduce or pause; restart when resolved':titr('onMra','mraD',kMra?'K⁺ ≥5.0':null)+(s.mra==='finerenone'?' · HFrEF evidence is for steroidal MRAs':''),`${d.st} → ${d.tg}`,s.mraD!=='tgt');
+    }
+    // SGLT2
+    if(s.dm1) R('SGLT2-I','—','Not indicated in type 1 diabetes (ketoacidosis risk)','—',0,1);
+    else if(s.xSgl&&!s.onSgl) R('SGLT2-I','Not tolerated','Recheck reason (genital infection is often manageable)','—',0,1);
+    else if(!s.onSgl) R('SGLT2-I','None',`<b>Start</b> dapagliflozin or empagliflozin (I A)${s.egfr!=null&&s.egfr<20?' — <span class="muted">eGFR &lt;20: outside trial/label initiation range (practical)</span>':''}`,'10 mg o.d. (no titration)',1);
+    else R('SGLT2-I',DR[s.sglt].n,s.sglt==='sglOther'?'Use dapagliflozin or empagliflozin (HF-trial agents)':'Continue — expect a small early eGFR dip','10 mg o.d.',s.sglt==='sglOther');
+  } else if(s.pEF){
+    if(s.dm1) R('SGLT2-I','—','Not indicated in type 1 diabetes','—',0,1);
+    else if(!s.onSgl) R('SGLT2-I','None','<b>Start</b> dapagliflozin or empagliflozin (I A) — reduces HFH','10 mg o.d.',1);
+    else R('SGLT2-I',DR[s.sglt].n,'Continue','10 mg o.d.',0);
+    const fin=s.egfr!=null&&s.egfr>60?'20 → 40 mg':'10 → 20 mg';
+    if(!s.onMra) R('MRA (steroidal or non-steroidal)','None',(s.k!=null&&s.k>5.5)?'Defer — K⁺ &gt;5.5':`<b>Start</b> finerenone or spironolactone (I A)${kMra?' — <span class="muted">caution K⁺ ≥5.0</span>':''}${(s.egfr!=null&&s.egfr<25)?' — <span class="muted">not tested at eGFR &lt;25</span>':''}`,`Finerenone ${fin} o.d.${s.egfr!=null?'':' (by eGFR)'} · Spironolactone 12.5–25 → 50 mg`,1);
+    else {const d=DR[s.mra];R('MRA',`${d.n} · ${doseLbl(s.mraD)}`,s.mra==='eplerenone'?'Eplerenone was studied only in HFrEF — finerenone or spironolactone preferred':(s.k!=null&&s.k>5.5)?'K⁺ &gt;5.5: recheck, then reduce or pause':titr('onMra','mraD',kMra?'K⁺ ≥5.0':null),s.mra==='finerenone'?`${fin} o.d. (eGFR-based)`:`${d.st} → ${d.tg}`,s.mraD!=='tgt');}
+  }
+  if(!rows.length){
+    return sec('e','F','Foundational medical therapy','Needs LVEF',ul([li('Enter LVEF to choose HFrEF (&lt;50%) vs HFpEF (≥50%) FMT. Regardless of LVEF: <b>SGLT2-I</b> and <b>MRA</b> are Class I in symptomatic HF','I')]));
+  }
+  b+=`<div class="tblwrap"><table class="dose"><thead><tr><th>Class</th><th>Current</th><th>Start → target (Table 11)</th><th>Action</th></tr></thead><tbody>${rows.join('')}</tbody></table></div>`;
+  const G=[];
+  if(s.rEF){
+    G.push(li('No preferred sequence — start FMT classes <b>together</b> as soon as HFrEF is diagnosed, individualised to BP, HR, K⁺ and eGFR',''));
+    G.push(li('<b>Uptitrate at least every 1–2 weeks</b> guided by symptoms, vitals and labs to trial target doses','I'));
+    G.push(li('<b>Continue lifelong</b> at the highest tolerated dose, even if asymptomatic or LVEF improves','I'));
+    if(s.ph==='impEF') G.push(li('Gradual FMT withdrawal only in highly selected, asymptomatic patients with full normalisation of LV size/function <i>and</i> NP after treating a reversible cause, under close surveillance','IIb','~40% relapsed within 6 months in TRED-HF'));
+  } else if(s.pEF){
+    G.push(li('<b>ACE-I / ARB / ARNI</b> to reduce HFH — ARNI most plausible at the lower end of LVEF (&lt;60%); many already need one for HTN/DM/CKD','IIb'));
+    G.push(li('Beta-blockers are not FMT in HFpEF — use only for another indication (AF rate, angina, post-MI)'));
+    G.push(li('Keep normotension and avoid hypotension (limited preload reserve)'));
+  }
+  G.push(li(`<b>Loop diuretic: dynamic, individualised dosing</b> to volume status — lowest dose that keeps euvolaemia${s.loop?` (now ${s.loop} mg/day furosemide-eq)`:''}`,'I',s.congest?'Congested now → increase loop dose; review in days':(s.loop?'If euvolaemic, try reducing — optimal FMT often lowers diuretic need':'Only if congestion')));
+  b+=h4('How to titrate')+ul(G);
+  const S=[];
+  S.push(li('Creatinine rise &lt;50% above baseline (eGFR &gt;15) after RASi/MRA/SGLT2-I start is acceptable — do not stop FMT for it','','Misreading kidney function changes is a leading cause of under-dosed FMT'));
+  S.push(li('K⁺ &gt;5.5 → recheck then reduce/pause MRA; &gt;6.0 → pause MRA and RASi; restart once resolved. Potassium binders: no guideline recommendation (outcome benefit unproven)'));
+  S.push(li('Asymptomatic or tolerable hypotension → do not down-titrate; review diuretic dose first. Intercurrent illness without haemodynamic compromise → keep FMT'));
+  S.push(li('Check K⁺ and creatinine ~1–2 weeks after each RASi/MRA start or dose rise','','practical'));
+  b+=h4('Safety rules')+ul(S);
+  const title=s.rEF?'HFrEF: beta-blocker · ACE-I/ARNI/ARB · MRA · SGLT2-I':'HFpEF: MRA · SGLT2-I';
+  return sec('e','F','Foundational medical therapy',title+' — Recommendation Table 5',b);
+}
+
+/* ---------- AMT ---------- */
+function amtSec(s){
+  const L=[],E=s.lvef;
+  if(s.rEF){
+    const bbMax=s.onBb&&s.bbD==='tgt';
+    if(s.rhy==='sr'&&E!=null&&E<=35){
+      if(s.hr!=null&&s.hr>70){
+        if(bbMax||s.xBb) L.push(li(`<b>Ivabradine</b> 5 → 7.5 mg b.i.d. — SR, HR ${s.hr}, LVEF ≤35%, ${s.xBb?'beta-blocker intolerant':'on target beta-blocker'}`,s.xBb?'IIa':'IIa',s.xBb?'IIa C when beta-blocker not tolerated':'IIa B1'));
+        else L.push(li(`HR ${s.hr} in SR: <b>uptitrate the beta-blocker first</b>, then reassess for ivabradine`,'','','flag'));
+      } else if(s.hr==null) L.push(li('Ivabradine if SR with resting HR &gt;70 despite maximal beta-blocker (LVEF ≤35%)','IIa'));
+    }
+    if(E!=null&&E<=40) L.push(li(`<b>Cardiac glycoside</b> if still symptomatic on optimal FMT — digoxin 62.5 → 250 µg (level &lt;1.2 ng/mL) or digitoxin 0.07 → 0.1 mg${s.egfr!=null&&s.egfr<45?' · digitoxin is hepatically cleared (reduced eGFR)':''}`,'IIa','Reduces HFH (DIG, DIGIT-HF)'));
+    if(E!=null&&E<45) L.push(li(`<b>Vericiguat</b> 2.5 → 10 mg o.d. if symptomatic despite optimal FMT${s.wfh||s.hfh?' — recent worsening event fits VICTORIA':''}`,'IIb',s.nitr?'Not with long-acting nitrates / PDE5-I':'Neutral primary endpoint in stable patients (VICTOR)'));
+    if(s.black&&E!=null&&E<=40) L.push(li('<b>Hydralazine/ISDN</b> 37.5/20 → 75/40 mg t.i.d. on top of optimal FMT (self-identified Black patients)','IIa'));
+    if(s.xRas&&E!=null&&E<=40) L.push(li('<b>Hydralazine/ISDN</b> — cannot tolerate ACE-I, ARNI or ARB','IIb'));
+    L.push(li('Omecamtiv mecarbil — modest HF-event reduction, not approved for clinical use','','','no'));
+  }
+  if(s.pEF){
+    if(E!=null&&E>=45&&s.bmi!=null&&s.bmi>=30) L.push(li(`<b>Semaglutide</b> (to 2.4 mg weekly) or <b>tirzepatide</b> (to 15 mg weekly) — HFpEF, BMI ${r1(s.bmi)}, regardless of diabetes`,'IIa','Weight, symptoms, exercise capacity, QoL; may transiently lower eGFR'));
+    else if(s.obeseAny&&s.bmi==null) L.push(li('Obesity: enter weight/height — semaglutide/tirzepatide if LVEF ≥45% and BMI ≥30','IIa'));
+    if(s.dm2&&!(s.bmi!=null&&s.bmi>=30)) L.push(li('HFpEF + T2DM: add semaglutide or tirzepatide unless contraindicated, especially if obese'));
+  }
+  // iron
+  if(s.symp){
+    if(s.tsat!=null){
+      if(s.tsat<20&&s.rEF){
+        L.push(li(`<b>IV iron</b> (ferric carboxymaltose or ferric derisomaltose) — TSAT ${s.tsat}%: relieves symptoms and improves QoL`,'I'));
+        L.push(li('IV iron to reduce HF hospitalisation — TSAT &lt;20% patients likely benefit most','IIa'));
+      } else if(s.tsat<20&&s.pEF) L.push(li(`Iron deficiency (TSAT ${s.tsat}%) in HFpEF — evidence for IV iron is scarce; investigate cause`,'','','flag'));
+      else L.push(li(`TSAT ${s.tsat}% — not iron deficient by the 2026 definition (TSAT &lt;20%)`,'','','no'));
+      if(s.ferr!=null&&s.ferr<100&&s.tsat>=20) L.push(li(`Ferritin ${s.ferr} with TSAT ≥20%: met the <i>old</i> definition only — Task Force now favours TSAT &lt;20%`,'','','no'));
+    } else L.push(li('Check iron status (TSAT, ferritin) — iron deficiency now defined as <b>TSAT &lt;20%</b>','',s.rEF?'IV iron is Class I for symptoms in HFrEF':''));
+    if(s.hb!=null&&s.hb<12) L.push(li('Anaemia: investigate; avoid erythropoiesis-stimulating agents for HF-related anaemia (RED-HF)'));
+  }
+  if(!L.length) return '';
+  return sec('r','A','Additional medical therapy','AMT — Class IIa/IIb, or Class I for symptoms / subsets',ul(L));
+}
+
+/* ---------- GDIT ---------- */
+function gditSec(s){
+  const L=[],E=s.lvef,q=s.qrs,lb=s.qrsm==='lbbb',nl=s.qrsm==='non';
+  if(s.va) L.push(li('<b>Secondary-prevention ICD</b> — VA with haemodynamic instability, expected survival &gt;1 y, no reversible cause, not &lt;48 h post-MI','I'));
+  if(s.rEF&&E!=null&&E<=35){
+    const rdy=s.fmt3,life=!s.lowlife;
+    if(s.nyha===4&&!s.advAll&&!s.icd) L.push(li('NYHA IV refractory to drugs: ICD not recommended unless CRT, LVAD or transplant candidate','III'));
+    else if(!s.icd&&!s.va){
+      if(s.mi40) L.push(li('Primary-prevention ICD within 40 days of MI','III'));
+      const cls=s.isch?'I':'IIa',txt=s.isch?'ischaemic':'non-ischaemic';
+      if(!rdy) L.push(li(`<b>Primary-prevention ICD</b> (${txt}, LVEF ≤35%, NYHA II–III): reassess LVEF after <b>3 months of optimised FMT</b>`,cls,`${cls==='I'?'I B1':'IIa B1'} once criteria still met, if expected survival &gt;1 y with good function · shared decision-making`,'flag'));
+      else if(!life) L.push(li('ICD benefit limited — life expectancy &lt;1 y / severe frailty; discuss goals','','','no'));
+      else if(s.nyha>=2&&s.nyha<=3) L.push(li(`<b>Primary-prevention ICD</b> — ${txt} HFrEF, LVEF ${E}% despite ≥3 mo optimal FMT`,cls,cls==='IIa'?'Non-ischaemic: smaller benefit; weigh age and comorbidity':''));
+      L.push(li('Wearable defibrillator for a limited period as bridge to decision / while listed','IIb'));
+    }
+    // CRT
+    if(!s.crt){
+      if(s.avb) L.push(li('<b>CRT rather than RV pacing</b> — HFrEF needing ventricular pacing for high-degree AV block (any NYHA/QRS, incl. AF)','IIa'));
+      if(s.rvp) L.push(li('<b>Upgrade to CRT</b> — LVEF ≤35%, significant RV pacing and worsening HF despite optimal FMT','IIa'));
+      if(q!=null&&s.rhy!=='paced'){
+        if(q<130&&!s.avb) L.push(li(`CRT with QRS ${q} ms (&lt;130) and no pacing indication`,'III'));
+        else {
+          const qual=s.fmt3?' despite optimal FMT':' — if LVEF still ≤35% after optimal FMT';
+          if(q>=150&&lb){L.push(li(`<b>CRT</b> — SR, LBBB, QRS ${q} ms${qual}`,'I'));if(!s.fmt3)L.push(li('Plan CRT in parallel with FMT initiation (LBBB ≥150 ms) — reassess LVEF before implant','IIb'));}
+          else if(q>=150&&nl) L.push(li(`<b>CRT</b> — non-LBBB, QRS ${q} ms${qual}`,'IIa'));
+          else if(q>=130&&lb) L.push(li(`<b>CRT</b> — LBBB, QRS ${q} ms (130–149)${qual}`,'IIa'));
+          else if(q>=130&&nl) L.push(li(`<b>CRT</b> — non-LBBB, QRS ${q} ms (130–149)${qual}`,'IIb'));
+          else if(q>=130) L.push(li(`QRS ${q} ms — enter morphology (LBBB vs non-LBBB) to grade CRT`,'','','flag'));
+        }
+        if(q>=130&&s.rhy==='af') L.push(li('CRT evidence is in sinus rhythm; in AF ensure near-100% effective biventricular pacing (consider AV-node ablation)'));
+        if(q>=130&&!s.icd&&!s.va) L.push(li('Choose CRT-D vs CRT-P using the ICD criteria above, age, frailty and patient preference'));
+      } else if(q==null) L.push(li('Enter QRS duration/morphology to assess CRT','','','flag'));
+    } else L.push(li('CRT in situ: optimise AV delay/LV vector and keep biventricular pacing high; reassess FMT after implant'));
+    if(s.icd||s.crt) L.push(li('Before any generator replacement: shared decision with a CIED/HF cardiologist on whether benefit persists','IIa'));
+  }
+  if(s.permAF&&s.hfh>=1) L.push(li('<b>AV-node ablation + CRT</b> — severely symptomatic permanent AF, poor rate control and ≥1 HFH','IIa'));
+  if(s.afAny&&s.rEF){
+    if(s.afAbl) L.push(li('<b>AF catheter ablation</b> — HFrEF with high-burden AF, &lt;1 y persistent, clear AF→HF link','IIa'));
+    else if(s.symp) L.push(li('AF ablation only if all: high AF burden, continuous persistent &lt;1 y, clear cause–effect with HF','','','no'));
+  }
+  if(s.as) L.push(li('<b>Aortic valve intervention (SAVR or TAVI)</b> — severe AS with HF (high-gradient any LVEF; low-flow low-gradient with HFrEF)','I','After TAVI, an SGLT2-I is reasonable (DapaTAVI)'));
+  if(s.mr&&s.rEF){
+    const crit=[
+      [s.fmt3,'Optimised FMT (and CRT if indicated)'],
+      [s.nyha>=2,'NYHA ≥II'],
+      [s.hfh>=1||npHigh(s),'HFH in last year or BNP ≥300 / NT-proBNP ≥1000'],
+      [!s.advAll,'Not stage D'],
+      [!s.revasc,'No CAD needing revascularisation'],
+      [!s.hcm&&!s.attr,'No HCM/restrictive/infiltrative CM'],
+      [E!=null&&E>=20&&E<=50,'LVEF 20–50%'],
+      [!s.rvd,'No severe RV dysfunction'],
+      [!s.as&&!s.tr,'No severe AS / TR']];
+    const ok=crit.every(c=>c[0]);
+    L.push(li('<b>Mitral TEER</b> — symptomatic HFrEF with persistent severe secondary MR despite optimal FMT/CRT, meeting Table 19 criteria',ok?'I':'IIb',ok?'Also confirm: LVESD ≤70 mm, sPAP ≤70 mmHg, suitable anatomy':'Criteria not all met → IIb C for symptoms only (after LVAD/transplant considered)'));
+    L.push(`<li><div class="chk">${crit.map(c=>`<b class="${c[0]?'y':'n'}">${c[0]?'✓':'✗'}</b><span>${c[1]}</span>`).join('')}</div></li>`);
+    if(s.advAll) L.push(li('Advanced HF with severe MR: LVAD or transplant first choice; TEER for symptoms if unsuitable/waiting'));
+  }
+  if(s.tr) L.push(li('Severe TR: transcatheter therapy improves QoL (no mortality/HFH benefit at 1 y) — indications per 2025 ESC/EACTS VHD guideline'));
+  if(s.angina) L.push(li('<b>Coronary revascularisation</b> for persistent angina despite FMT and antianginals (any LVEF)','I'));
+  if(s.rEF&&E!=null&&E<=35&&s.mvd) L.push(li('If Heart Team plans revascularisation: <b>CABG preferred</b> — LVEF ≤35% with multivessel CAD suitable for surgery (STICHES)','IIa'));
+  if(s.symp&&s.nyha===3&&s.hfh>=1) L.push(li('<b>Remote PA-pressure monitoring</b> — NYHA III with HFH in the past 12 months','IIa'));
+  if(s.symp) L.push(li('Non-invasive telemonitoring','IIb'));
+  if(s.rEF) L.push(li('Conduction-system pacing, CCM, baroreflex activation, interatrial shunts — no recommendation yet','','','no'));
+  if(!L.length) return '';
+  return sec('g','G','Devices & interventions','GDIT — Recommendation Tables 6, 7, 15–17, 25',ul(L));
+}
+
+/* ---------- comorbidities ---------- */
+function comSec(s){
+  let b='';
+  if(s.afAny){
+    const c=cha(s),A=[];
+    b+=h4('Atrial fibrillation')+`<div class="brk">${c.it.map(x=>`<span class="${x[1]?'on':''}">${x[0]}${x[1]?' +'+x[1]:''}</span>`).join('')}</div>`;
+    if(s.hcm||s.attr) A.push(li('<b>Anticoagulate regardless of score</b> — HCM / cardiac amyloidosis','I'));
+    else if(c.score>=2) A.push(li(`<b>Oral anticoagulation</b> — CHA₂DS₂-VA ${c.score}`,'I',s.oac?'Already on OAC':'Not on OAC'));
+    else if(c.score===1) A.push(li('OAC — CHA₂DS₂-VA 1 (elevated risk)','IIa'));
+    A.push(li(s.mech||s.msten?'<b>VKA</b> — mechanical valve / moderate–severe mitral stenosis':'<b>DOAC</b> in preference to VKA',s.mech||s.msten?'':'I'));
+    if(s.rEF){
+      A.push(li('Rate control: <b>beta-blocker first-line</b> (stable HFrEF); lenient target &lt;110 bpm initially','I'));
+      A.push(li('Digoxin if rate still high or beta-blocker not tolerated','IIa'));
+      A.push(li('Pharmacological cardioversion: <b>amiodarone</b>; avoid flecainide, propafenone, dronedarone'));
+    } else A.push(li('HFpEF: no trial evidence for a specific rate-control drug — beta-blocker for short- and long-term rate control','IIa'));
+    A.push(li('Treat triggers: thyroid, alcohol, infection, BP, sleep apnoea, obesity, congestion'));
+    b+=ul(A);
+  }
+  const C=[],redEF=s.rEF||(s.lvef!=null&&s.lvef<50);
+  if(s.htn&&s.pre) C.push(li('<b>Hypertension</b>: SBP target &lt;130 mmHg (see prevention above)'));
+  else if(s.htn){
+    if(redEF) C.push(li('<b>Hypertension, HFrEF</b>: FMT lowers BP; add amlodipine/felodipine only if needed and euvolaemic; no verapamil/diltiazem, moxonidine or alpha-blockers for BP. Asymptomatic hypotension is acceptable to keep FMT'));
+    else C.push(li('<b>Hypertension, HFpEF</b>: MRA first; ACE-I/ARB/CCB regress LVH; keep normotension, avoid hypotension. Exclude secondary causes if refractory'));
+  }
+  if(s.dm2&&s.symp){
+    C.push(li('<b>T2DM</b>: SGLT2-I for all with HF regardless of HbA1c; metformin not if eGFR &lt;30; insulin → watch for WHF; avoid saxagliptin and glitazones'));
+  }
+  if(s.ckd||(s.egfr!=null&&s.egfr<60)) C.push(li(`<b>CKD</b>${s.egfr!=null?` (eGFR ${rnd(s.egfr)})`:''}: FMT is at least as effective — initiate and maintain; measure UACR; finerenone acutely lowers eGFR ~3 but protects long-term`));
+  if(s.obeseAny&&!(s.pEF&&s.lvef>=45)) C.push(li('<b>Obesity</b>: structured lifestyle programme; NP can be falsely low; GLP-1-based therapy lacks outcome data in HFrEF'));
+  if(s.bmi!=null&&s.bmi>=35) C.push(li(`<b>Bariatric surgery</b> — BMI ${r1(s.bmi)} if lifestyle + drugs fail to maintain weight loss`,'IIb'));
+  if(s.copd||s.asthma) C.push(li(`<b>${s.copd?'COPD':'Asthma'}</b>: cardioselective beta-blocker (bisoprolol, metoprolol succinate, nebivolol)${s.asthma?'; in asthma start low with close monitoring':''}; COPD exacerbation is not a reason to stop the beta-blocker`));
+  if(s.csa&&s.rEF) C.push(li('Adaptive servo-ventilation in HFrEF with predominant <b>central</b> sleep apnoea','III','↑ mortality (SERVE-HF)'));
+  if(s.osa&&s.rEF) C.push(li('ASV for HFrEF with predominant obstructive sleep apnoea — sleep quality, QoL','IIb'));
+  if(s.osa||s.csa) C.push(li('Confirm type with polysomnography; correct underlying causes'));
+  if(s.symp) C.push(li('Screen for <b>anxiety, depression and frailty</b> to personalise care','IIa',s.dep?'CBT effective; sertraline/escitalopram safe; avoid tricyclics':''));
+  if(s.gout) C.push(li('<b>Gout</b>: allopurinol for urate lowering; colchicine for flares; no NSAIDs'));
+  if(s.thy) C.push(li('<b>Thyroid dysfunction</b>: treat per endocrine guidance; recheck TFT during follow-up'));
+  if(s.attr) C.push(li('<b>ATTR-CM</b> NYHA I–III: TTR silencer (vutrisiran) or stabiliser (tafamidis, acoramidis)','I'));
+  if(s.cancer&&s.symp) C.push(li('<b>Cancer-therapy HF</b>: FMT regardless of LVEF; MDT decision on continuing cardiotoxic therapy'));
+  if(s.symp&&!s.afAny) C.push(li('Sinus-rhythm HFrEF: no routine anticoagulation for stroke prevention','','','no'));
+  if(s.symp) C.push(li('<b>Influenza and pneumococcal vaccination</b>','IIa'));
+  if(s.symp) C.push(li('NSAIDs and COX-2 inhibitors','III'));
+  if(s.symp) C.push(li('Erectile dysfunction: PDE5 inhibitors generally safe when compensated — never with nitrates (or vericiguat)','','','no'));
+  if(C.length) b+=h4('Other comorbidities')+ul(C);
+  if(!b) return '';
+  return sec('w','C','Comorbidities','Sections 9–10 — Recommendation Tables 15, 18–22, 28',b);
+}
+
+/* ---------- advanced HF ---------- */
+function advSec(s){
+  if(!s.symp) return '';
+  const a=s.adv,refer=s.advAll||s.help.length>=2,show=refer||s.help.length>=1||s.nyha>=3;
+  if(!show) return '';
+  let b=`<div class="verdict${s.advAll?' bad':''}">${s.advAll?'<b>Meets all 4 ESC criteria for advanced HF (stage D)</b>':`Advanced-HF criteria met: ${[a.c1,a.c2,a.c3,a.c4].filter(Boolean).length} / 4`}</div>`;
+  b+=`<div class="chk">
+  <b class="${a.c1?'y':'n'}">${a.c1?'✓':'✗'}</b><span>Severe persistent symptoms (NYHA III–IV)</span>
+  <b class="${a.c2?'y':'n'}">${a.c2?'✓':'✗'}</b><span>Severe dysfunction: LVEF ≤30%, isolated RV failure, non-operable valve/congenital disease, or high NP + severe HFpEF/HCM/RCM</span>
+  <b class="${a.c3?'y':'n'}">${a.c3?'✓':'✗'}</b><span>≥2 unplanned visits/admissions for congestion or malignant arrhythmia in 12 mo, or ≥1 low-output episode needing inotropes</span>
+  <b class="${a.c4?'y':'n'}">${a.c4?'✓':'✗'}</b><span>Severe exercise impairment (6MWT &lt;300 m, pVO₂ &lt;12–14 or &lt;50% predicted)</span></div>`;
+  if(s.help.length) b+=`<div class="hint w">I NEED HELP flags: ${s.help.join(' · ')}</div>`;
+  if(!refer){
+    b+=ul([li('Not advanced HF at present — optimise FMT/GDIT and rescreen at each visit; ≥1 I NEED HELP or “rule of three” flag (≥2 HFH or 1 needing inotropes in a year, diuretic resistance, intolerance of neurohormonal drugs with cardiorenal syndrome) should prompt discussion with an advanced HF centre')]);
+    return sec('a','D','Advanced HF screen','Section 8 — Tables 14–15',b);
+  }
+  const L=[];
+  L.push(li('<b>Early referral to an advanced HF centre</b> (LVAD/transplant) if motivated and no absolute contraindication','I'));
+  L.push(li('CPET and right heart catheterisation as part of LVAD/transplant work-up','I'));
+  if(s.rEF) L.push(li('<b>Durable LVAD</b> (BTT, BTC, BTR or destination therapy) in selected advanced HFrEF','I','Contraindicated by severe RV dysfunction, irreversible end-organ disease, inability to anticoagulate, poor social support'));
+  L.push(li('<b>Heart transplantation</b> — refractory to FMT and GDIT, no contraindication','I',s.bmi!=null&&s.bmi>35?`BMI ${r1(s.bmi)} (&gt;35) is a contraindication`:''));
+  if(s.rEF) L.push(li('Continuous inotropes — low output with hypoperfusion/end-organ dysfunction, as bridge','IIa'));
+  if(s.rEF) L.push(li('Down-titrate or stop beta-blocker/ivabradine if hypoperfused despite treatment','IIa'));
+  L.push(li('Ultrafiltration for refractory overload','IIb'));
+  L.push(li('Kidney replacement therapy for refractory overload with end-stage kidney failure','IIa'));
+  L.push(li('<b>Advance care planning</b>: discuss trajectory and goals of care','I'));
+  L.push(li('Access to an integrated HF <b>palliative care</b> team','I',s.lowlife?'Priority — limited life expectancy':''));
+  b+=ul(L);
+  return sec('a','D','Advanced heart failure','Section 8 — Tables 14–17',b);
+}
+
+/* ---------- care & follow-up ---------- */
+function careSec(s){
+  if(!s.symp) return '';
+  const L=[];
+  L.push(li('Multidisciplinary HF management programme','I'));
+  L.push(li('HF education and self-management (weights, symptoms, flexible diuretic plan)','I'));
+  L.push(li('Adherence support: health-literacy check and polypharmacy review','I'));
+  L.push(li('<b>Personalised exercise training</b> in exercise-based cardiac rehabilitation, then long-term','I'));
+  L.push(li('Routine fluid restriction in chronic HF — no evidence of benefit','','','no'));
+  L.push(li('Nutrition screen (malnutrition worsens prognosis)'));
+  const F=[];
+  if(s.dhf||s.hfh) F.push(li('After an HF admission: visits within 1–2 weeks and repeatedly to 6 weeks for rapid FMT uptitration'));
+  F.push(li('Titration phase: review every 1–2 weeks (BP, HR, weight, K⁺, creatinine)'));
+  if(s.rEF) F.push(li('<b>Repeat echo after ~3 months on optimised FMT</b> to decide ICD/CRT and reassess phenotype'));
+  F.push(li('Stable: regular in-person review — symptoms, adherence, ECG (QRS for CRT, AF), labs incl. FBC, electrolytes, iron, kidney, liver and thyroid function; echo if deterioration'));
+  F.push(li('NT-proBNP-guided therapy is not supported routinely — use for prognosis'));
+  return sec('s','S','Self-care & follow-up','Section 11 — Recommendation Tables 23–26',ul(L)+h4('Follow-up')+ul(F));
+}
+
+/* ---------- render ---------- */
+function render(){
+  const s=collect();
+  $('dhfCard').hidden=!s.dhf;
+  tiles(s);
+  let h=alerts(s);
+  const miss=[];
+  if(s.set!=='A'&&s.lvef==null) miss.push('LVEF');
+  if(s.symp&&s.egfr==null) miss.push('creatinine/eGFR');
+  if(s.symp&&s.k==null) miss.push('K⁺');
+  if(s.symp&&s.sbp==null) miss.push('SBP');
+  if(s.symp&&s.rEF&&s.qrs==null) miss.push('QRS');
+  if(miss.length) h+=`<div class="alert w"><b class="h">Missing for a complete plan</b>${miss.join(' · ')}</div>`;
+  if(s.pre){ h+=diagSec(s)+prevSec(s)+comSec(s); }
+  else {
+    if(s.dhf) h+=dhfSec(s);
+    h+=diagSec(s)+fmtSec(s)+amtSec(s)+gditSec(s)+advSec(s)+comSec(s)+careSec(s);
+  }
+  $('plan').innerHTML=h;
+}
+
+/* ---------- history parsing ---------- */
+const NEG=/\b(no|denies|denied|without|not|negative for|absence of|nil|free of|ruled out|r\/o)\b/i;
+function hit(text,re){
+  const g=new RegExp(re.source,'gi');let m;
+  while((m=g.exec(text))){
+    const pre=text.slice(Math.max(0,m.index-40),m.index);
+    const clause=pre.split(/[.;,\n]|\bbut\b/i).pop();
+    if(!NEG.test(clause)) return m[0];
+  }
+  return null;
+}
+const DNEG=/\b(intoleran\w*|not tolerated?|could not tolerate|stopped|discontinued|allerg\w*|off)\b/i;
+function hitDrug(text,re){
+  const g=new RegExp(re.source,'gi');let m;
+  while((m=g.exec(text))){
+    const clause=text.slice(Math.max(0,m.index-40),m.index).split(/[.;,\n]|\bbut\b/i).pop();
+    if(!NEG.test(clause)&&!DNEG.test(clause)) return m[0];
+  }
+  return null;
+}
+const RULES=[
+  ['isch',/\b(ischa?emic|prior mi|previous mi|old mi|myocardial infarction|stemi|nstemi|cabg|pci|post[- ]mi|icm)\b/,'Ischaemic'],
+  ['angina',/\b(angina|chest pain on exertion)\b/,'Angina'],
+  ['mvd',/\b(multi-?vessel|triple[- ]vessel|3[- ]vessel|left main)\b/,'Multivessel CAD'],
+  ['cmUnc',/\b(dilated cardiomyopathy|dcm|unknown (?:a?etiology|cause)|unclear (?:a?etiology|cause)|suspected cardiomyopathy|myocarditis)\b/,'Cardiomyopathy ?cause'],
+  ['amySusp',/\b(amyloid\w*|carpal tunnel|low[- ]voltage)\b/,'Amyloid flags'],
+  ['attr',/\b(attr|transthyretin)\b/,'ATTR-CM'],
+  ['hcm',/\b(hcm|hypertrophic cardiomyopathy)\b/,'HCM'],
+  ['as',/\bsevere (?:aortic stenosis|as)\b/,'Severe AS'],
+  ['mr',/\b(severe (?:functional |secondary )?(?:mitral regurgitation|mr))\b/,'Severe MR'],
+  ['tr',/\bsevere (?:tricuspid regurgitation|tr)\b/,'Severe TR'],
+  ['rvd',/\b(severe rv dysfunction|rv failure|right ventricular failure|tapse\s*\d)\b/,'RV dysfunction'],
+  ['mech',/\bmechanical (?:valve|mvr|avr|prosthe\w*)\b/,'Mechanical valve'],
+  ['lvh',/\b(lvh|left ventricular hypertrophy|concentric remodel\w*)\b/,'LVH'],
+  ['lad',/\b(la dilat\w*|dilated la|la enlarge\w*|left atrial (?:dilat|enlarge)\w*|lavi\s*\d+)/,'LA dilated'],
+  ['ee',/\be\/e['′]?\s*(?:of|=|:)?\s*(?:1\d|9\.\d|[2-9]\d)/,'E/e′ raised'],
+  ['pasp',/\b(pasp|rvsp)\s*(?:of|=|:)?\s*(3[6-9]|[4-9]\d)|pulmonary hypertension/,'PASP raised'],
+  ['va',/\b(cardiac arrest|vf arrest|sustained vt|ventricular fibrillation|resuscitated)\b/,'VT/VF'],
+  ['avb',/\b(complete heart block|chb|high[- ]grade av block|third[- ]degree|mobitz ii)\b/,'AV block'],
+  ['icd',/\b(icd|defibrillator)\b(?!\s*shock)/,'ICD'],
+  ['crt',/\b(crt|crt-d|crt-p|biventricular pacer)\b/,'CRT'],
+  ['rvp',/\b(rv pacing|right ventricular pacing|pacemaker)\b/,'RV pacing'],
+  ['htn',/\b(htn|hypertension|hypertensive)\b/,'Hypertension'],
+  ['dm2',/\b(t2dm|dm2|type 2 diabetes|diabet\w*|dm)\b/,'T2DM'],
+  ['dm1',/\b(t1dm|type 1 diabetes)\b/,'T1DM'],
+  ['ckd',/\b(ckd|chronic kidney disease|albuminuria|nephropathy)\b/,'CKD'],
+  ['obese',/\b(obes\w*)\b/,'Obesity'],
+  ['af',/\b(af|atrial fibrillation|atrial flutter|a-?fib)\b/,'AF'],
+  ['permAF',/\bpermanent (?:af|atrial fibrillation)\b/,'Permanent AF'],
+  ['stroke',/\b(stroke|tia|cva|systemic embolism)\b/,'Stroke/TIA'],
+  ['copd',/\bcopd|emphysema\b/,'COPD'],
+  ['asthma',/\basthma\b/,'Asthma'],
+  ['osa',/\b(osa|obstructive sleep apn\w*|sleep apn\w*)\b/,'OSA'],
+  ['csa',/\b(csa|central sleep apn\w*|cheyne)/,'CSA'],
+  ['dep',/\b(depress\w*|anxiety)\b/,'Depression/anxiety'],
+  ['frail',/\bfrail\w*\b/,'Frailty'],
+  ['gout',/\b(gout|hyperuric\w*)\b/,'Gout'],
+  ['thy',/\b(hyperthyroid\w*|hypothyroid\w*|thyrotox\w*)\b/,'Thyroid'],
+  ['cancer',/\b(anthracycline|doxorubicin|trastuzumab|chemotherapy|cardio-?toxic\w*)\b/,'Cardiotoxic Rx'],
+  ['black',/\b(self-identified black|black (?:man|woman|patient|male|female)|african[- ]american)\b/,'Self-identified Black'],
+  ['congest',/\b(oedema|edema|raised jvp|jvp raised|elevated jvp|crackles|rales|congest\w*|orthopno\w*|ascites)\b/,'Congestion'],
+  ['inotr',/\b(inotrop\w*|dobutamine|milrinone|levosimendan)\b/,'Inotropes'],
+  ['dres',/\b(diuretic resistan\w*|escalating diuretic\w*)\b/,'Diuretic resistance'],
+  ['shocks',/\b(icd shocks?|shocked|appropriate shocks?)\b/,'ICD shocks'],
+  ['endorg',/\b(cardiorenal|congestive hepatopathy|liver dysfunction|worsening renal|aki)\b/,'End-organ dysfunction'],
+  ['hypoperf',/\b(cold (?:and )?clammy|cold peripher\w*|hypoperfus\w*|mottl\w*|oliguri\w*)\b/,'Hypoperfusion'],
+  ['stemi',/\b(stemi|acute mi|acute myocardial infarction)\b/,'Acute MI'],
+  ['immob',/\b(bed[- ]?bound|immobil\w*)\b/,'Immobilised'],
+  ['hyperk',/\b(hyperkala?emia)\b/,'Hyperkalaemia'],
+  ['xAng',/\bangio-?o?edema\b/,'Angio-oedema'],
+  ['digox',/\b(digoxin|digitoxin)\b/,'Digoxin'],
+  ['ivab',/\bivabradine\b/,'Ivabradine'],
+  ['veric',/\bvericiguat\b/,'Vericiguat'],
+  ['hisdn',/\b(hydralazine|isosorbide dinitrate|bidil)\b/,'H-ISDN'],
+  ['glp1',/\b(semaglutide|tirzepatide|liraglutide|dulaglutide|glp-?1)\b/,'GLP-1 RA'],
+  ['oac',/\b(apixaban|rivaroxaban|edoxaban|dabigatran|warfarin|doac|noac|anticoagul\w*)\b/,'On OAC'],
+  ['thiaz',/\b(hydrochlorothiazide|hctz|indapamide|chlorthalidone|metolazone|bendroflumethiazide)\b/,'Thiazide'],
+  ['nsaid',/\b(nsaids?|ibuprofen|naproxen|diclofenac|celecoxib|etoricoxib|meloxicam)\b/,'NSAID'],
+  ['ndhp',/\b(verapamil|diltiazem)\b/,'Non-DHP CCB'],
+  ['tzd',/\b(pioglitazone|rosiglitazone|glitazone|saxagliptin)\b/,'Glitazone/saxagliptin'],
+  ['aad',/\b(flecainide|propafenone|dronedarone)\b/,'Class IC/dronedarone'],
+  ['tca',/\b(amitriptyline|nortriptyline|imipramine|tricyclic)\b/,'TCA'],
+  ['moxo',/\b(moxonidine|doxazosin|prazosin|terazosin)\b/,'Moxonidine/alpha-blocker'],
+  ['nitr',/\b(isosorbide mononitrate|imdur|ismn|nitrate patch|sildenafil|tadalafil)\b/,'Nitrate/PDE5-I']
+];
+const FREQ=[[/\b(t\.?i\.?d\.?|tds|three times)\b/i,3],[/\b(b\.?i\.?d\.?|bd|twice)\b/i,2],[/\b(o\.?d\.?|q\.?d\.?|daily|once|nocte|mane)\b/i,1]];
+function drugDose(tx,d){
+  const m=tx.match(new RegExp('(?:'+d.re.source+')[^.;,\\n]{0,14}?(\\d+(?:\\.\\d+)?)(?:\\s*\\/\\s*\\d+(?:\\.\\d+)?)?\\s*(?:mg|mcg)?([^.;,\\n]{0,22})','i'));
+  if(!m) return null;
+  let f=d.f||1;const tail=m[m.length-1]||'';
+  for(const [re,v] of FREQ){if(re.test(tail)){f=v;break;}}
+  return parseFloat(m[m.length-2])*f;
+}
+function doseLevel(frac){return frac>=0.99?'tgt':frac>=0.5?'mid':'low';}
+function parseHx(){
+  const tx=$('hx').value; if(!tx.trim()) return;
+  const found=[];
+  RULES.forEach(([id,re,lab])=>{if(hit(tx,re)){$(id).checked=true;found.push(lab);}});
+  if($('dm1').checked) $('dm2').checked=false;
+  let m;
+  if((m=tx.match(/\b(\d{2,3})\s*(?:-?\s*(?:y\/?o|yo|y\.o\.|yrs?|years?)(?:[\s-]*old)?\b|(m|f)\b)/i))){$('age').value=m[1];found.push('Age '+m[1]);if(m[2])setRad('sex',m[2].toUpperCase());}
+  if(/\b(female|woman|lady|she)\b/i.test(tx))setRad('sex','F');else if(/\b(male|man|gentleman|he)\b/i.test(tx))setRad('sex','M');
+  if((m=tx.match(/(\d{2,3}(?:\.\d+)?)\s*kg\b/i))){$('wt').value=m[1];found.push(m[1]+' kg');}
+  if((m=tx.match(/(\d{3})\s*cm\b/i))){$('ht').value=m[1];}
+  if((m=tx.match(/\bbmi\s*(?:of|=|:)?\s*(\d{2}(?:\.\d)?)/i))&&!$('ht').value&&$('wt').value){$('ht').value=Math.round(100*Math.sqrt(+$('wt').value/+m[1]));found.push('BMI '+m[1]);}
+  if((m=tx.match(/\b(?:lvef|ef)\s*(?:of|=|:|is|was)?\s*(\d{1,2})\s*%?/i))){$('lvef').value=m[1];found.push('LVEF '+m[1]+'%');}
+  if((m=tx.match(/\b(?:nyha|class)\s*(?:class|fc)?\s*(iv|iii|ii|i|[1-4])\b/i))){const r=m[1].toLowerCase();const v={i:1,ii:2,iii:3,iv:4}[r]||+r;$('nyha').value=v;found.push('NYHA '+ROMAN[v]);}
+  if((m=tx.match(/\b(?:hr|heart rate|pulse)\s*(?:of|=|:|is)?\s*(\d{2,3})\b/i))){$('hr').value=m[1];found.push('HR '+m[1]);}
+  if((m=tx.match(/\b(?:bp|blood pressure)\s*(?:of|=|:|is)?\s*(\d{2,3})\s*\/\s*\d{2,3}/i))||(m=tx.match(/\b(\d{2,3})\s*\/\s*\d{2,3}\s*(?:mm\s*hg)?\b(?!\s*mg)/i))){const v=+m[1];if(v>=50&&v<=260){$('sbp').value=v;found.push('SBP '+v);}}
+  if((m=tx.match(/\bqrs\s*(?:of|=|:|duration)?\s*(\d{2,3})/i))){$('qrs').value=m[1];found.push('QRS '+m[1]);}
+  if(hit(tx,/\b(lbbb|left bundle branch block)\b/)){$('qrsm').value='lbbb';found.push('LBBB');}
+  else if(hit(tx,/\b(rbbb|right bundle|ivcd|non-?lbbb|intraventricular conduction)\b/)){$('qrsm').value='non';found.push('Non-LBBB');}
+  if(hit(tx,/\b(in af|af rhythm|atrial fibrillation with|af with|af,? hr|rate[- ]controlled af|permanent af|persistent af|atrial flutter)\b/)&&!/\bsinus\b/i.test(tx)){$('rhy').value='af';}
+  else if(/\b(paced rhythm|v-?paced)\b/i.test(tx)) $('rhy').value='paced';
+  else if(/\b(sinus|sr)\b/i.test(tx)) $('rhy').value='sr';
+  if((m=tx.match(/\bnt-?pro-?bnp\s*(?:of|=|:|is)?\s*(\d[\d,]*)/i))){$('np').value=m[1].replace(/,/g,'');$('npType').value='nt';found.push('NT-proBNP '+$('np').value);}
+  else if((m=tx.match(/\bbnp\s*(?:of|=|:|is)?\s*(\d[\d,]*)/i))){$('np').value=m[1].replace(/,/g,'');$('npType').value='bnp';found.push('BNP '+$('np').value);}
+  if((m=tx.match(/\b(?:cr|creat(?:inine)?|scr)\s*(?:of|=|:|is)?\s*(\d+(?:\.\d+)?)\s*(mg\/dl|[µμu]mol\/l)?/i))){
+    const v=parseFloat(m[1]);const um=(m[2]&&/mol/i.test(m[2]))||v>20;$('cr').value=m[1];$('crUnit').value=um?'umol':'mg';found.push('Cr '+m[1]);}
+  if((m=tx.match(/\begfr\s*(?:of|=|:|is)?\s*(\d{1,3})/i))){$('egfrIn').value=m[1];found.push('eGFR '+m[1]);}
+  if((m=tx.match(/\b(?:k\+?|potassium)\s*(?:of|=|:|is)?\s*(\d(?:\.\d)?)\b/i))){$('k').value=m[1];found.push('K '+m[1]);}
+  if((m=tx.match(/\b(?:na\+?|sodium)\s*(?:of|=|:|is)?\s*(1[0-6]\d)\b/i))){$('na').value=m[1];}
+  if((m=tx.match(/\b(?:hb|ha?emoglobin)\s*(?:of|=|:|is)?\s*(\d{1,2}(?:\.\d)?)/i))){$('hb').value=m[1];}
+  if((m=tx.match(/\btsat\s*(?:of|=|:|is)?\s*(\d{1,2})/i))){$('tsat').value=m[1];found.push('TSAT '+m[1]+'%');}
+  if((m=tx.match(/\bferritin\s*(?:of|=|:|is)?\s*(\d{1,4})/i))){$('ferr').value=m[1];}
+  if((m=tx.match(/\bspo2\s*(?:of|=|:|is)?\s*(\d{2,3})|\bsat(?:uration)?s?\s*(?:of|=|:)?\s*(\d{2})\s*%/i))){$('spo2').value=m[1]||m[2];}
+  if((m=tx.match(/\b(?:rr|resp(?:iratory)? rate)\s*(?:of|=|:|is)?\s*(\d{1,2})\b/i))){$('rr').value=m[1];}
+  if((m=tx.match(/\blactate\s*(?:of|=|:|is)?\s*(\d+(?:\.\d)?)/i))){$('lact').value=m[1];}
+  if((m=tx.match(/(\d+|one|two|three|four|five)\s*(?:hf |heart failure )?(?:hospitali[sz]ations?|admissions?)\s*(?:in|over|during)?\s*(?:the\s*)?(?:past|last)\s*(?:year|12\s*months)/i))){const w={one:1,two:2,three:3,four:4,five:5};$('hfh').value=w[m[1].toLowerCase()]||m[1];found.push('HFH '+$('hfh').value+'/y');}
+  if((m=tx.match(/\b6\s*-?\s*mwt?d?\s*(?:of|=|:)?\s*(\d{2,3})/i))&&+m[1]<300) $('exlow').checked=true;
+  if((m=tx.match(/\bp?vo2\s*(?:max|peak)?\s*(?:of|=|:)?\s*(\d{1,2}(?:\.\d)?)/i))&&+m[1]<14) $('exlow').checked=true;
+  if(/\b(3|three|6|six)\+?\s*months? (?:of|on) (?:optimi[sz]ed|optimal|max\w*)/i.test(tx)) $('fmt3').checked=true;
+  if(/\bprevious(?:ly)? (?:lvef|ef)\s*\d|recovered ef|improved (?:lv)?ef|hfimpef\b/i.test(tx)) $('prevLow').checked=true;
+  // setting
+  if(hit(tx,/\b(decompensat\w*|admitted|acute heart failure|adhf|acute pulmonary o?edema|flash pulmonary|cardiogenic shock|presents? with (?:worsening )?(?:breathless|dyspno))/)){setRad('set','D');found.push('Decompensated');}
+  else if(/\basymptomatic\b/i.test(tx)){setRad('set',$('lvef').value||$('isch').checked?'B':'A');found.push('Asymptomatic');}
+  if(hit(tx,/\bcardiogenic shock\b/)) setRad('dtype','cs');
+  else if(hit(tx,/\b(acute pulmonary o?edema|flash pulmonary|\bapo\b)/)) setRad('dtype','apo');
+  else if(hit(tx,/\b(right[- ]sided|isolated right)\b/)) setRad('dtype','right');
+  if(/\b(?:stemi|nstemi|mi|myocardial infarction)\b[^.]{0,25}?\b(\d{1,2}|two|three|four|five)\s*(days?|weeks?)\s*ago|recent mi\b/i.test(tx)){const mm=tx.match(/(\d{1,2}|two|three|four|five)\s*(days?|weeks?)\s*ago/i);if(mm){const w={two:2,three:3,four:4,five:5};const n=w[mm[1].toLowerCase()]||+mm[1];const d=/week/i.test(mm[2])?n*7:n;if(d<40)$('mi40').checked=true;}}
+  // drugs
+  const pick=(cl,selId,dId)=>{
+    for(const [k,d] of Object.entries(DR)){
+      if(d.cl!==cl) continue;
+      if(!hitDrug(tx,d.re)) continue;
+      if(k==='valsartan'&&/sacubitril|entresto/i.test(tx)) continue;
+      $(selId).value=k;
+      const dd=drugDose(tx,d);
+      let tg=d.tgd; if(k==='carvedilol'&&num('wt')>85) tg=100; if(k==='finerenone'){const e=collect().egfr;tg=e!=null&&e<=60?20:40;}
+      if(dd&&tg) $(dId).value=doseLevel(dd/tg);
+      found.push(d.n+(dd&&tg?` ${Math.round(100*dd/tg)}%`:''));
+      return;
+    }
+  };
+  pick('ras','ras','rasD'); pick('bb','bb','bbD'); pick('mra','mra','mraD');
+  for(const [k,d] of Object.entries(DR)){if(d.cl==='sglt'&&hitDrug(tx,d.re)){$('sglt').value=k;found.push(d.n);break;}}
+  // loop diuretic (furosemide-equivalent)
+  const loops=[[/(?:furosemide|frusemide|lasix)/,1],[/bumetanide/,40],[/(?:torsemide|torasemide)/,2]];
+  for(const [re,x] of loops){
+    const d=drugDose(tx,{re,f:1});
+    if(d){$('loop').value=Math.round(d*x);found.push('Loop '+Math.round(d*x)+' mg/d');break;}
+  }
+  if(hit(tx,/\b(intoleran\w*|could not tolerate|not tolerate)\b[^.]{0,30}\b(ace|arni|entresto|sacubitril|arb|ramipril|enalapril|losartan)/)) $('xRas').checked=true;
+  const miss=[];[['lvef','LVEF'],['sbp','SBP'],['k','K⁺'],['cr','creatinine'],['np','NP']].forEach(([k,l])=>{if(num(k)==null&&!(k==='cr'&&num('egfrIn')!=null))miss.push(l);});
+  $('found').innerHTML=found.map(f=>`<span class="tag">${f}</span>`).join('')+miss.map(f=>`<span class="tag m">missing: ${f}</span>`).join('')||'<span class="tag m">nothing recognised</span>';
+  render();
+}
+
+/* ---------- examples ---------- */
+const EX=[
+  {hx:'62M ischaemic cardiomyopathy, prior MI 2022 with PCI. Breathless on 1 flight of stairs, NYHA III, mild ankle oedema. LVEF 28%. Sinus rhythm, HR 84, BP 118/72. QRS 156 ms LBBB. NT-proBNP 2600, K 4.7, Cr 1.3 mg/dL, 80 kg, 172 cm. TSAT 14%, ferritin 85. Hypertension, T2DM. On ramipril 2.5 mg bd, bisoprolol 2.5 mg daily, furosemide 40 mg daily, metformin.'},
+  {hx:'68F hypertension, T2DM, obesity, 98 kg, 162 cm. Exertional dyspnoea NYHA II. LVEF 60%, LVH, LA dilated, E/e\' 14, PASP 42. NT-proBNP 420. Paroxysmal AF on apixaban. HR 76, BP 146/84. K 4.4, Cr 0.9 mg/dL. On amlodipine, metformin, furosemide 20 mg daily. Takes ibuprofen for knee pain.'},
+  {hx:'75M known HFrEF LVEF 25%, admitted with 1 week of worsening orthopnoea, leg oedema, raised JVP — decompensated HF. AF, HR 104, BP 112/74, SpO2 88%, RR 28. NT-proBNP 8900. Cr 1.6 mg/dL, K 5.1, Na 132. Two HF hospitalisations in the past year. On furosemide 80 mg daily, sacubitril/valsartan 49/51 mg bd, carvedilol 6.25 mg bd, spironolactone 25 mg daily. 74 kg.'},
+  {hx:'52M dilated cardiomyopathy, LVEF 17%, NYHA IV. Three hospitalisations in the past 12 months, needed dobutamine in May. 6MWT 210 m. BP 86/58, HR 102 sinus, QRS 118. Cr 2.0 mg/dL, K 5.3, NT-proBNP 7400. ICD in situ with appropriate shocks. Intolerant of Entresto due to hypotension. On bisoprolol 1.25 mg, spironolactone 12.5 mg, dapagliflozin 10 mg, furosemide 120 mg daily. 70 kg.'},
+  {hx:'59M anterior STEMI 3 weeks ago, primary PCI. Asymptomatic, no congestion. LVEF 38%. Type 2 diabetes, hypertension, smoker. BP 128/78, HR 72, K 4.3, Cr 1.0.'}
+];
+function loadEx(i){
+  resetAll(true);
+  $('hx').value=EX[i].hx; parseHx();
+  render();
+  setView('plan');
+}
+const mobile=()=>window.matchMedia('(max-width:980px)').matches;
+function setView(v,noScroll){
+  document.body.dataset.view=v;
+  document.querySelectorAll('.mtabs [data-view]').forEach(b=>b.classList.toggle('on',b.dataset.view===v));
+  if(!noScroll&&mobile()) window.scrollTo(0,0);
+}
+function resetAll(quiet){
+  $('f').reset(); $('found').innerHTML='';
+  if(!quiet) render();
+}
+
+/* ---------- copy ---------- */
+function planText(){
+  const L=['HF CARE PLAN (ESC 2026 HF guideline)'];
+  const hx=$('hx').value.trim(); if(hx) L.push('History: '+hx);
+  L.push('Summary: '+[...document.querySelectorAll('#tiles .tile')].map(t=>t.querySelector('.k').textContent+' '+t.querySelector('.v').textContent.replace(/\s+/g,' ').trim()+' ('+t.querySelector('.s').textContent+')').join(' · '));
+  document.querySelectorAll('#plan > .alert, #plan > .sec').forEach(el=>{
+    if(el.classList.contains('alert')){L.push('','!! '+el.innerText.replace(/\s*\n+\s*/g,' — '));return;}
+    L.push('','== '+el.querySelector('h3').textContent.toUpperCase()+' ==');
+    el.querySelectorAll('.bd > *').forEach(ch=>{
+      if(ch.tagName==='H4') L.push('','-- '+ch.textContent);
+      else if(ch.classList.contains('verdict')) L.push('> '+ch.innerText.replace(/\s+/g,' ').trim());
+      else if(ch.tagName==='UL') ch.querySelectorAll(':scope > li').forEach(x=>{
+        if(x.querySelector('.chk')){x.querySelectorAll('.chk span').forEach(sp=>L.push('      '+sp.previousElementSibling.textContent+' '+sp.textContent));return;}
+        const c=x.querySelector('.cls');L.push('  - '+(c&&c.textContent!=='•'?'['+c.textContent+'] ':'')+x.querySelector('.tx').innerText.replace(/\s*\n+\s*/g,' — '));});
+      else if(ch.classList.contains('tblwrap')) ch.querySelectorAll('tbody tr').forEach(tr=>L.push('  - '+[...tr.cells].map(td=>td.innerText.trim()).join(' | ')));
+      else if(ch.classList.contains('chk')) ch.querySelectorAll('span').forEach(sp=>L.push('    '+sp.previousElementSibling.textContent+' '+sp.textContent));
+      else if(ch.classList.contains('brk')) L.push('  ('+[...ch.children].filter(x=>x.classList.contains('on')).map(x=>x.textContent).join(', ')+')');
+      else if(ch.innerText.trim()) L.push(ch.innerText.trim());
+    });
+  });
+  return L.join('\n');
+}
+let toastTimer;
+function toast(m,action,ms){const t=$('toast');t.textContent=m;if(action){const b=document.createElement('button');b.type='button';b.textContent=action.label;b.onclick=()=>{t.classList.remove('on');action.fn();};t.appendChild(b);}t.classList.add('on');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('on'),ms||1600);}
+$('copyBtn').addEventListener('click',()=>{
+  const txt=planText();
+  const done=()=>toast('Plan copied');
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done,()=>fallback(txt));
+  else fallback(txt);
+  function fallback(t){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy');done();}catch(e){toast('Copy failed');}a.remove();}
+});
+
+/* ---------- wiring ---------- */
+$('f').addEventListener('input',e=>{if(e.target.id!=='hx')render();});
+$('f').addEventListener('change',e=>{if(e.target.id!=='hx')render();});
+$('parseBtn').addEventListener('click',()=>{parseHx();if(mobile()&&$('hx').value.trim())toast('Filled — check the fields, then tap Plan');});
+document.querySelectorAll('.mtabs [data-view]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
+setView('inputs',true);
+/* new case: clear everything, with undo */
+function formEls(){return [...$('f').elements].filter(e=>e.name||e.id);}
+function snapshot(){return {v:formEls().map(e=>(e.type==='checkbox'||e.type==='radio')?e.checked:e.value),found:$('found').innerHTML};}
+function restore(snap){formEls().forEach((e,i)=>{if(e.type==='checkbox'||e.type==='radio')e.checked=snap.v[i];else e.value=snap.v[i];});$('found').innerHTML=snap.found;render();}
+function isDirty(){return formEls().some(e=>(e.type==='checkbox'||e.type==='radio')?e.checked!==e.defaultChecked:e.tagName==='SELECT'?[...e.options].some(o=>o.selected!==o.defaultSelected):e.value!==e.defaultValue);}
+function newCase(){
+  const dirty=isDirty(), snap=dirty?snapshot():null;
+  resetAll(false);
+  setView('inputs');
+  window.scrollTo(0,0); $('f').scrollTop=0;
+  try{$('hx').focus({preventScroll:true});}catch(e){}
+  if(dirty) toast('All details cleared — ready for a new case',{label:'Undo',fn:()=>{restore(snap);toast('Previous case restored');}},6000);
+  else toast('Ready for a new case');
+}
+document.querySelectorAll('[data-new]').forEach(b=>b.addEventListener('click',newCase));
+document.querySelectorAll('[data-ex]').forEach(b=>b.addEventListener('click',()=>loadEx(+b.dataset.ex)));
+
+/* theme */
+const root=document.documentElement;
+function setTheme(v){
+  if(v==='auto') root.removeAttribute('data-theme'); else root.setAttribute('data-theme',v);
+  document.querySelectorAll('[data-theme-set]').forEach(b=>b.classList.toggle('on',b.getAttribute('data-theme-set')===v));
+  try{localStorage.setItem('hfcare-theme',v);}catch(e){}
+}
+document.querySelectorAll('[data-theme-set]').forEach(b=>b.addEventListener('click',()=>setTheme(b.getAttribute('data-theme-set'))));
+try{const v=localStorage.getItem('hfcare-theme');if(v)setTheme(v);}catch(e){}
+
+render();
+})();
+</script>
+
+<div class="zcl-modal" id="zclModal" hidden role="dialog" aria-modal="true" aria-labelledby="zclTitle"><div class="zcl-sheet"><header><h2 id="zclTitle">What's new<small>Version history</small></h2><button type="button" class="zcl-x" data-zcl-close aria-label="Close">×</button></header><div class="zcl-bd" id="zclBody"></div></div></div>
+<script>
+/* ---------- changelog (newest first; bump on every update) ---------- */
+(function(){
+const changelogData=[
+ {"version":"v1.2.1","date":"October 11, 2026","features":["Collapsible blocks: every block starts folded except the main one (history, consult note or case text; in the warfarin planner also Setting & situation and the Simple-mode calculator and schedule). Tap a block’s header to unfold or fold it, or use “Expand all / Collapse all” at the top. The app remembers your choices. Copy and Print always include every block."],"bugs":["With a wide dose table in the plan, the whole page could scroll sideways on a phone; now only the table scrolls."]},
+  {"version":"v1.1.1","date":"October 7, 2026","features":["Colour-coded blocks for easier reading: each input card has its own colour band, tinted header and coloured number badge; each plan section takes the colour of its letter badge (tinted header, coloured edge and sub-headings); summary tiles are tinted."],"bugs":[]},
+ {"version":"v1.1.0","date":"October 6, 2026","features":["\"New case\" buttons in the header, History card, plan panel and bottom of the form (replacing \"Reset all\"): clear every field and restore the defaults, with a 6-second Undo."],"bugs":[]},
+ {"version":"v1.0.2","date":"October 6, 2026","features":["Theme switch is now a single sun/moon button, as in the Bronchodilator Guide: it follows your device setting until you tap it, then remembers your choice."],"bugs":[]},
+ {
+  "version": "v1.0.1",
+  "date": "October 6, 2026",
+  "features": [
+   "In-app changelog — tap the version badge next to the title."
+  ],
+  "bugs": []
+ },
+ {
+  "version": "v1.0.0",
+  "date": "September 30, 2026",
+  "features": [
+   "Release in use when version tracking began (earlier changes were not logged). History + key findings → HF phenotype and stage, foundational medical therapy titration with doses, additional therapy, devices/interventions and the decompensation pathway (ESC 2026 HF guideline)."
+  ],
+  "bugs": []
+ }
+];
+const APP_VERSION=changelogData[0].version;
+const modal=document.getElementById('zclModal'),body=document.getElementById('zclBody');
+const btn=document.createElement('button');btn.type='button';btn.className='zcl-ver';btn.title="What's new";btn.textContent=APP_VERSION;
+function place(){if(btn.isConnected)return;const a=document.querySelector("h1");if(a)a.appendChild(btn);}
+place();setInterval(place,1500);
+let back=null;
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+function open(){back=document.activeElement;
+  body.innerHTML=changelogData.map(l=>'<div class="zcl-item"><h3>'+esc(l.version)+'<span>'+esc(l.date)+'</span></h3>'+(l.features.length?'<h5>New</h5><ul>'+l.features.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'')+(l.bugs.length?'<h5>Fixed</h5><ul>'+l.bugs.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'')+'</div>').join('');
+  modal.hidden=false;document.documentElement.style.overflow='hidden';try{modal.querySelector('[data-zcl-close]').focus();}catch(e){}}
+function close(){modal.hidden=true;document.documentElement.style.overflow='';try{back&&back.focus();}catch(e){}}
+btn.addEventListener('click',open);
+modal.addEventListener('click',e=>{if(e.target===modal||e.target.closest('[data-zcl-close]'))close();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modal.hidden)close();});
+})();
+</script>
+
+<script>
+/* ---------- sun/moon theme button (drives the app's own light/dark controls, kept hidden) ---------- */
+(function(){
+var C={"hide":".seg-theme","light":"[data-theme-set=\"light\"]","dark":"[data-theme-set=\"dark\"]"},root=document.documentElement;
+var old=document.querySelector(C.hide);if(old&&C.parent)old=old.parentElement;if(!old)return;
+var SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>';
+var MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>';
+var btn=document.createElement('button');btn.type='button';btn.className='zth';
+old.classList.add('zth-hidden');old.insertAdjacentElement('afterend',btn);
+var mq=window.matchMedia?window.matchMedia('(prefers-color-scheme: dark)'):null;
+function cur(){var a=root.getAttribute('data-theme');if(a==='light'||a==='dark')return a;return mq&&mq.matches?'dark':'light';}
+function thai(){return (root.getAttribute('lang')||'').slice(0,2)==='th';}
+function paint(){var d=cur()==='dark';btn.innerHTML=d?SUN:MOON;
+  var l=d?(thai()?'เปลี่ยนเป็นโหมดสว่าง':'Switch to light mode'):(thai()?'เปลี่ยนเป็นโหมดมืด':'Switch to dark mode');
+  btn.setAttribute('aria-label',l);btn.title=l;}
+btn.addEventListener('click',function(){var t=document.querySelector(cur()==='dark'?C.light:C.dark);if(t)t.click();paint();});
+new MutationObserver(paint).observe(root,{attributes:true,attributeFilter:['data-theme','lang']});
+if(mq){if(mq.addEventListener)mq.addEventListener('change',paint);else if(mq.addListener)mq.addListener(paint);}
+paint();
+})();
+</script>
+<script id="zcol">
+/* ---------- colour-coded blocks: cards by topic, plan sections by their letter colour ---------- */
+(function(){
+  var KW=[[/bleed|contraind|red flag|danger|active cardiac|safety|storm|side.effect|alarm/i,'red'],
+          [/medic|drug|treatment|antihypertens|interact|tablet|override|dosing/i,'amber'],
+          [/history|note|picbox|report|case text/i,'teal'],
+          [/patient|labs?\b|vital|blood pressure|setting/i,'green'],];
+  var CYC=['violet','blue','teal','green'],prev=null;
+  function paintCards(){
+    var i=0;
+    document.querySelectorAll('.card').forEach(function(c){
+      var h=c.querySelector(':scope>h2');if(!h||c.dataset.zk)return;
+      var tx=h.textContent,k=null;
+      for(var j=0;j<KW.length;j++)if(KW[j][0].test(tx)){k=KW[j][1];break;}
+      if(!k||(k===prev&&k!=='red'&&k!=='amber')){k=CYC[i++%CYC.length];if(k===prev)k=CYC[i++%CYC.length];}
+      prev=k;
+      c.style.setProperty('--zk','var(--zc-'+k+')');c.dataset.zk=k;
+    });
+  }
+  function paintSecs(force){
+    document.querySelectorAll('.sec').forEach(function(s){
+      if(s.dataset.zk&&!force)return;
+      var L=s.querySelector(':scope>header .L');if(!L)return;
+      var c=getComputedStyle(L).backgroundColor;
+      if(!c||c==='transparent'||/rgba\(0, 0, 0, 0\)/.test(c))return;
+      s.style.setProperty('--zk',c);s.dataset.zk='1';
+    });
+  }
+  var q=0;function later(f){if(q)return;q=1;requestAnimationFrame(function(){q=0;paintCards();paintSecs(f);});}
+  paintCards();paintSecs(false);
+  new MutationObserver(function(){later(false);}).observe(document.body,{childList:true,subtree:true});
+  new MutationObserver(function(){requestAnimationFrame(function(){paintSecs(true);});}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+  var mq=window.matchMedia&&matchMedia('(prefers-color-scheme: dark)');
+  if(mq&&mq.addEventListener)mq.addEventListener('change',function(){requestAnimationFrame(function(){paintSecs(true);});});
+})();
+</script>
+<script id="zfold">
+/* ---------- collapsible blocks ---------- */
+(function(){
+  var SEL='.card,.sec,.simple>div.sm-card,section.panel,div.panel,section.section';
+  var KEY='zfold2:'+(document.title||'app'),st={};
+  try{st=JSON.parse(localStorage.getItem(KEY)||'{}')||{};}catch(e){}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(st));}catch(e){}}
+  function headOf(b){
+    var h=b.querySelector(':scope>h2,:scope>header,:scope>.sm-h,:scope>.panel-head,:scope>.section-head,:scope>h3');
+    if(h)return h;
+    var x=b.querySelector('h2,h3');if(!x)return null;
+    var k=x;while(k.parentElement&&k.parentElement!==b)k=k.parentElement;
+    if(k.parentElement!==b)return null;
+    return (k===x||k.children.length<=2)?k:null;   /* heading buried in a content wrapper: leave the block alone */
+  }
+  function name(b,h){var t=h.querySelector('h1,h2,h3,h4')||h;return (t.textContent||'').replace(/\s+/g,' ').trim().replace(/^[0-9]+[a-z]?\s+/i,'').slice(0,48);}
+  function setState(b,closed){
+    if(closed)b.setAttribute('data-zf','closed');else b.removeAttribute('data-zf');
+    var h=b.querySelector('.zf-head');if(h)h.setAttribute('aria-expanded',String(!closed));
+  }
+  /* everything starts folded except the main block(s) */
+  function defOpen(b){
+    if(/^(history|consult note|current meds|setting & situation|picbox|dose calculator|new weekly schedule)/i.test(b.dataset.zfn))return true;
+    return document.querySelector('[data-zfn]')===b;
+  }
+  function prep(){
+    document.querySelectorAll(SEL).forEach(function(b){
+      if(b.tagName==='DETAILS'||b.closest('[role=dialog],dialog,.modal,.zcl-back,.zcl-modal,.sheet,.sheet-doc'))return;
+      var h=headOf(b);if(!h)return;
+      if(!h.classList.contains('zf-head')){
+        h.classList.add('zf-head','zf-keep');h.setAttribute('role','button');h.setAttribute('tabindex','0');
+        var p=h.previousElementSibling;while(p){p.classList.add('zf-keep');p=p.previousElementSibling;}
+        b.dataset.zfn=name(b,h);
+        var s0=st[b.dataset.zfn];setState(b,s0?s0==='c':!defOpen(b));
+      }
+    });
+    paintAll();
+  }
+  function toggle(b,force){
+    var closed=force!=null?force:b.getAttribute('data-zf')!=='closed';
+    setState(b,closed);
+    st[b.dataset.zfn]=closed?'c':'o';
+    save();paintAll();
+    if(!closed)setTimeout(function(){try{window.dispatchEvent(new Event('resize'));}catch(e){}},30);
+  }
+  function blocks(){return [].filter.call(document.querySelectorAll(SEL),function(b){return b.dataset.zfn!=null&&b.offsetParent!==null;});}
+  var allBtn=null;
+  function anyOpen(){return blocks().some(function(b){return b.getAttribute('data-zf')!=='closed';});}
+  function paintAll(){if(allBtn)allBtn.textContent=anyOpen()?'Collapse all':'Expand all';}
+  function addAll(){
+    var host=document.querySelector('.top,header.mast,header.masthead,.masthead');if(!host||allBtn)return;
+    allBtn=document.createElement('button');allBtn.type='button';allBtn.className='zf-all btn';
+    allBtn.addEventListener('click',function(){var c=anyOpen();blocks().forEach(function(b){toggle(b,c);});});
+    var anchor=host.querySelector('.zth,[data-new]');
+    if(anchor&&anchor.parentElement)anchor.parentElement.insertBefore(allBtn,anchor);else host.appendChild(allBtn);
+    paintAll();
+  }
+  function act(e){
+    var h=e.target.closest&&e.target.closest('.zf-head');if(!h)return;
+    if(e.target.closest('button,a,input,select,textarea,label,summary')&&e.target.closest('button,a,input,select,textarea,label,summary')!==h)return;
+    var b=h.closest('[data-zfn]');if(!b)return;
+    if(e.type==='keydown'){if(e.key!=='Enter'&&e.key!==' ')return;if(e.target!==h)return;e.preventDefault();}
+    toggle(b);
+  }
+  document.addEventListener('click',act);document.addEventListener('keydown',act);
+  /* Copy / Print read the page text, so unfold everything for a moment */
+  document.addEventListener('click',function(e){
+    var b=e.target.closest&&e.target.closest('button');if(!b||b.classList.contains('zf-all'))return;
+    if(!/copy|print|คัดลอก|พิมพ์/i.test((b.textContent||'')+' '+(b.id||'')))return;
+    var c=[].slice.call(document.querySelectorAll('[data-zf="closed"]'));if(!c.length)return;
+    c.forEach(function(x){x.removeAttribute('data-zf');});
+    setTimeout(function(){c.forEach(function(x){if(x.isConnected)x.setAttribute('data-zf','closed');});},1200);
+  },true);
+  window.addEventListener('beforeprint',function(){});
+  var q=0;function later(){if(q)return;q=1;setTimeout(function(){q=0;prep();},0);}
+  function start(){prep();addAll();new MutationObserver(later).observe(document.body,{childList:true,subtree:true});}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
+})();
+</script>
+</body>
+</html>
