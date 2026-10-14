@@ -7694,6 +7694,21 @@ body[data-mode="simple"]{padding-bottom:0!important}
 .sm-wd.drop{outline:3px solid var(--acc);outline-offset:2px}
 .sm-wd.dragging{opacity:.45}
 .sm-wd.moved .sm-mg::after{content:"•";color:var(--acc);margin-left:4px}
+.sm-tray{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin:8px 0;padding:8px 10px;border:1px dashed var(--rule-2);border-radius:10px;background:var(--surface-2)}
+.sm-tray>b{font:600 12.5px/1.2 var(--cond);letter-spacing:.4px;text-transform:uppercase;color:var(--ink-2);margin-right:2px}
+.sm-tray.drop{outline:3px solid var(--bad);outline-offset:2px;background:var(--bad-wash)}
+.sm-tb,.sm-pill{border:1px solid transparent;background:transparent;border-radius:8px;padding:2px;line-height:0;cursor:grab;display:inline-flex;align-items:center;justify-content:center;color:inherit;touch-action:manipulation}
+.sm-tb{min-width:38px;min-height:38px;border-color:var(--rule-2);background:var(--surface)}
+.sm-tb.on,.sm-pill.sel{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc);background:var(--acc-wash)}
+.sm-pill:hover,.sm-tb:hover{border-color:var(--acc-line)}
+.sm-pill.dragging{opacity:.4}
+.sm-pill:focus-visible,.sm-tb:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+.sm-pill svg,.sm-tb svg{filter:drop-shadow(0 1px 1px rgba(0,0,0,.22))}
+.sm-tray-h{flex:1 1 220px;font-size:12px;color:var(--ink-3);min-width:0;line-height:1.45}
+.sm-tray-h b{color:var(--ink)}
+.sm-tray-h .btn{padding:2px 8px;font-size:12px;margin-left:4px}
+.sm-man{color:var(--warn);font-weight:600}
+@media print{.sm-tray{display:none!important}.sm-pill{border:0!important;padding:0;box-shadow:none!important;background:none!important}}
 .sm-move{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:8px 0 2px;font-size:12.5px;color:var(--ink-2)}
 .sm-move b{color:var(--ink)}
 .sm-move .btn{padding:3px 9px;font-size:12px}
@@ -8982,11 +8997,11 @@ function loadEx(i){resetAll();$('hx').value=EX[i];parseCase();setView('inputs');
 
 /* new case with undo */
 function formEls(){return [...$('f').elements].filter(e=>e.tagName!=='BUTTON'&&e.type!=='button'&&!(e.dataset&&e.dataset.ix));}
-function snapshot(){return {v:formEls().map(e=>(e.type==='checkbox'||e.type==='radio')?e.checked:e.value),found:$('found').innerHTML,ix:{...ixState},sm:{W:$('sW').value,wk:$('sWeeks').value,inr:$('sInr').value,tg:$('sTgt').value,sel:sSel,touched:sTouched,pref:sPref,tt:JSON.stringify(ttr)}};}
-function restore(s){formEls().forEach((e,i)=>{if(e.type==='checkbox'||e.type==='radio')e.checked=s.v[i];else e.value=s.v[i];});$('found').innerHTML=s.found;Object.assign(ixState,s.ix);renderIx();render();if(s.sm){$('sW').value=s.sm.W;$('sWeeks').value=s.sm.wk;$('sInr').value=s.sm.inr;$('sTgt').value=s.sm.tg;sSel=s.sm.sel;sTouched=s.sm.touched;sPref=s.sm.pref||null;sPick=null;if(s.sm.tt){ttr=JSON.parse(s.sm.tt);renderTtrRows();}syncSTabsFromMain();renderSimple();}}
+function snapshot(){return {v:formEls().map(e=>(e.type==='checkbox'||e.type==='radio')?e.checked:e.value),found:$('found').innerHTML,ix:{...ixState},sm:{W:$('sW').value,wk:$('sWeeks').value,inr:$('sInr').value,tg:$('sTgt').value,sel:sSel,touched:sTouched,pref:sPref,man:sMan?JSON.stringify(sMan):null,mk:sManKey,tt:JSON.stringify(ttr)}};}
+function restore(s){formEls().forEach((e,i)=>{if(e.type==='checkbox'||e.type==='radio')e.checked=s.v[i];else e.value=s.v[i];});$('found').innerHTML=s.found;Object.assign(ixState,s.ix);renderIx();render();if(s.sm){$('sW').value=s.sm.W;$('sWeeks').value=s.sm.wk;$('sInr').value=s.sm.inr;$('sTgt').value=s.sm.tg;sSel=s.sm.sel;sTouched=s.sm.touched;sPref=s.sm.pref||null;sPick=null;sMan=s.sm.man?JSON.parse(s.sm.man):null;sManKey=s.sm.mk||null;sTool=null;sSelPill=null;sManLost=false;if(s.sm.tt){ttr=JSON.parse(s.sm.tt);renderTtrRows();}syncSTabsFromMain();renderSimple();}}
 function newCase(){
   const snap=snapshot(); resetAll(); setView('inputs'); window.scrollTo(0,0);
-  $('sW').value='';$('sInr').value='';$('sWeeks').value='2';$('sTgt').value='2-3';sSel=0;sTouched=false;sPref=null;sPick=null;ttr=blankTtr();renderTtrRows();$('ttPaste').value='';syncSTabsFromMain();renderSimple();
+  $('sW').value='';$('sInr').value='';$('sWeeks').value='2';$('sTgt').value='2-3';sSel=0;sTouched=false;sPref=null;sPick=null;sMan=null;sTool=null;sSelPill=null;sManLost=false;ttr=blankTtr();renderTtrRows();$('ttPaste').value='';syncSTabsFromMain();renderSimple();
   try{(document.body.dataset.mode==='simple'?$('sW'):$('hx')).focus({preventScroll:true});}catch(e){}
   toast('Cleared — ready for a new case',{label:'Undo',fn:()=>{restore(snap);toast('Previous case restored');}},6000);
 }
@@ -9030,7 +9045,41 @@ function arrange(sch){
   const moved=out.map((o,i)=>o.mg!==sch.days[i].mg);
   return Object.assign({},sch,{days:out,custom:moved.some(Boolean),moved});
 }
+/* hand edits: sMan holds each day's tablets {strength: count} once the user adds, removes or moves a tablet.
+   They belong to one calculated schedule (weekly dose, % change, tablets in stock); if any of those change they are dropped. */
+let sMan=null,sManKey=null,sManLost=false,sTool=null,sSelPill=null;
+function manKey(){return [num('sW'),sSel,[...$('tabs').querySelectorAll('input[type=checkbox]')].map(e=>e.checked?1:0).join('')].join('|');}
+const partsMg=pp=>r2(Object.keys(pp).reduce((a,s)=>a+(+s)*pp[s],0));
+function simpleView(W){
+  const sch=arrange(buildSchedule(W*(1+sSel/100),true));if(!sch)return null;
+  if(sMan&&sManKey!==manKey()){sMan=null;sManLost=true;sSelPill=null;}
+  if(!sMan)return Object.assign({},sch,{manual:false});
+  const days=sMan.map(pp=>({parts:pp,mg:partsMg(pp)}));
+  const moved=days.map((o,i)=>o.mg!==sch.days[i].mg);
+  return Object.assign({},sch,{days,total:r2(days.reduce((a,o)=>a+o.mg,0)),manual:true,moved,custom:true});
+}
+function ensureMan(){if(sMan)return;const v=simpleView(num('sW'));sMan=v.days.map(o=>Object.assign({},o.parts));sManKey=manKey();sManLost=false;}
+function addPill(d,s,h){ensureMan();const pp=sMan[d];pp[s]=r2((pp[s]||0)+(h?0.5:1));}
+function delPill(d,s,h){ensureMan();const pp=sMan[d];pp[s]=r2((pp[s]||0)-(h?0.5:1));if(!(pp[s]>0))delete pp[s];}
+function splitPill(d,s,h){
+  delPill(d,s,h);addPill(d,s,!h);
+  toast(h?'Made whole: '+s+' mg on '+DAYS[d]:'Split: ½ × '+s+' mg on '+DAYS[d]);
+}
+$('sOut').addEventListener('dblclick',e=>{const pl=e.target.closest('.sm-pill');if(!pl)return;e.preventDefault();sSelPill=null;splitPill(+pl.dataset.pd,pl.dataset.s,pl.dataset.h==='1');renderSimple();});
+const pillName=(s,h)=>(h?'½ × ':'')+s+' mg';
+function trayBtn(s,h){const on=sTool&&sTool.s==s&&sTool.h===h;return `<button type="button" class="sm-tb${on?' on':''}" draggable="true" data-tray="1" data-s="${s}" data-h="${h?1:0}" aria-pressed="${!!on}" aria-label="Add ${h?'half a ':'a '}${s} mg tablet" title="${pillName(s,h)} — drag onto a day, or tap then tap days">${tabSvg(s,h,28)}</button>`;}
+function pillBtns(o,i){
+  if(!o||o.mg===0)return '<span class="muted">—</span>';
+  return Object.keys(o.parts).sort((a,b)=>b-a).map(s=>{
+    const c=o.parts[s],w=Math.floor(c+1e-9),hh=c-w>0.01;
+    const one=(half,k)=>{const sel=!!(sSelPill&&sSelPill.d===i&&sSelPill.s==s&&sSelPill.h===half&&sSelPill.k===k);
+      return `<button type="button" class="sm-pill${sel?' sel':''}" draggable="true" data-pd="${i}" data-s="${s}" data-h="${half?1:0}" data-k="${k}" aria-pressed="${sel}" aria-label="${half?'Half of a ':''}${s} mg tablet on ${DAYS_L[i]}">${tabSvg(s,half,26)}</button>`;};
+    return Array.from({length:w},(_,k)=>one(false,k)).join('')+(hh?one(true,0):'');
+  }).join('');
+}
 function swapDays(i,j){
+  if(i===j)return;
+  if(sMan){const x=sMan[i];sMan[i]=sMan[j];sMan[j]=x;sPick=null;renderSimple();toast(`Swapped ${DAYS[i]} ↔ ${DAYS[j]}`);return;}
   if(i===j)return;
   const W=num('sW');if(!(W>0))return;
   const sch=arrange(buildSchedule(W*(1+sSel/100),true));if(!sch)return;
@@ -9045,7 +9094,7 @@ function renderSimpleCore(){
   $('sHint').innerHTML=sg?`<div class="sm-sg${sg.crit?' bad':''}">INR <b>${fmt(inr)}</b> (target ${fmt(tg.lo)}–${fmt(tg.hi)}): ${sg.txt} ${SRC('Thai HA 2010')}</div>`
     :'<div class="sm-sg info">Enter today’s INR to see the suggested change. Before changing the dose, ask about missed doses, new drugs or herbs, illness and diet.</div>';
   if(!(W>0)){$('sOut').innerHTML='<div class="sm-empty">Enter the current total weekly dose to build the new schedule.</div>';return;}
-  const want=W*(1+sSel/100),sch=arrange(buildSchedule(want,true));
+  const sch=simpleView(W);
   if(!sch){$('sOut').innerHTML='<div class="sm-empty">Tick at least one tablet strength in stock.</div>';return;}
   const actual=(sch.total/W-1)*100,td=todayIdx();
   const tot={};sch.days.forEach(o=>Object.keys(o.parts).forEach(s=>{tot[s]=(tot[s]||0)+o.parts[s];}));
@@ -9054,23 +9103,28 @@ function renderSimpleCore(){
   const tile=(k,v,s,cls)=>`<div class="tile ${cls||''}"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s}</div></div>`;
   let h=`<div class="sm-h noprint">New weekly schedule <small>ตารางรับประทานยา · tablets to dispense</small></div><div class="sm-printhead">ตารางรับประทานยาวาร์ฟาริน · Warfarin schedule — ${new Date().toLocaleDateString('th-TH',{day:'numeric',month:'long',year:'numeric'})}</div>`;
   h+='<div class="sm-tiles">'+tile('New weekly dose',fmt(sch.total)+'<small> mg/wk</small>',fmt(r2(sch.total/7))+' mg/day on average',Math.abs(actual)>0.05?'warn':'good')
-    +tile('Change',(actual>0.05?'+':actual<-0.05?'−':'')+Math.abs(actual).toFixed(1)+'<small> %</small>',sSel===0?'same dose':'selected '+(sSel>0?'+':'−')+Math.abs(sSel)+'% · nearest with tablets in stock')
+    +tile('Change',(actual>0.05?'+':actual<-0.05?'−':'')+Math.abs(actual).toFixed(1)+'<small> %</small>',(sch.manual?'<span class="sm-man">edited by hand</span> · ':'')+(sSel===0?'from the same dose':'from '+(sSel>0?'+':'−')+Math.abs(sSel)+'%'+(sch.manual?'':' · nearest with tablets in stock')))
     +tile('Next INR',dEn,`${dTh} · ${weeks} week${weeks>1?'s':''}`,'t-date')+'</div>';
   if(sg&&sg.hold) h+=`<div class="alert${sg.crit?'':' w'}"><b class="h">${sg.hold}</b>${sg.crit?'This INR needs more than a dose table — switch to Detailed mode.':'Then take the doses below.'}</div>`;
-  h+=`<div class="sm-move noprint"><span>Patient prefers other days? <b>Drag a day onto another</b>, or <b>tap two days</b>, to swap their doses.${sch.custom?' <span style="color:var(--acc)">•</span> marks a day you changed.':''}</span>${sPref?'<button type="button" class="btn" id="sReorder">Reset to suggested days</button>':''}${sPick!=null?`<span>Now tap the day to swap with ${DAYS[sPick]}.</span>`:''}</div>`;
-  h+='<div class="sm-week">'+sch.days.map((o,i)=>`<div class="sm-wd${i===td?' today':''}${i===sPick?' pick':''}${sch.moved[i]?' moved':''}" draggable="true" tabindex="0" data-day="${i}" role="button" aria-label="${DAYS_L[i]} ${o.mg===0?'no dose':fmt(o.mg)+' mg'} — drag or tap to swap with another day"><div class="sm-dh sm-d${i}"><b>${TH_DAYS[i]}</b><small>${DAYS[i]}${i===td?' · today':''}</small></div><div class="sm-pills">${pillsFor(o)}</div><div class="sm-mg">${o.mg===0?'งดยา':fmt(o.mg)+' mg'}</div><div class="sm-tx">${o.mg===0?'no dose':tabTxt(o)}</div></div>`).join('')+'</div>';
+  h+=`<div class="sm-move noprint"><span>Patient prefers other days? <b>Drag a day onto another</b>, or <b>tap two days</b>, to swap their doses.${sch.custom?' <span style="color:var(--acc)">•</span> marks a day you changed.':''}</span>${sMan?'<button type="button" class="btn" id="sManReset">Undo hand edits</button>':sPref?'<button type="button" class="btn" id="sReorder">Reset to suggested days</button>':''}${sManLost&&!sMan?'<span class="sm-man">Hand edits were cleared because the dose or tablets changed.</span>':''}${sPick!=null?`<span>Now tap the day to swap with ${DAYS[sPick]}.</span>`:''}</div>`;
+  {const stock=[1,2,3,5];
+   const msg=sTool?`Tap days to add <b>${pillName(sTool.s,sTool.h)}</b>. Tap the tablet again to stop.`
+     :sSelPill?`<b>${pillName(sSelPill.s,sSelPill.h)}</b> on ${DAYS[sSelPill.d]} selected: tap another day to move it, or <button type="button" class="btn" id="sPillSplit">${sSelPill.h?'Make it whole':'Split in half'}</button><button type="button" class="btn" id="sPillDel">Remove it</button>`
+     :'<b>Drag a tablet onto a day</b> to add it; drag a tablet out of a day back here to remove it. <b>Tap a tablet in the table</b> to split it in half, move it or remove it (double-click splits it straight away).';
+   h+=`<div class="sm-tray noprint" id="sTray"><b>Tablets</b>${stock.map(s=>trayBtn(s,false)).join('')}<span class="sm-tray-h">${msg}</span></div>`;}
+  h+='<div class="sm-week">'+sch.days.map((o,i)=>`<div class="sm-wd${i===td?' today':''}${i===sPick?' pick':''}${sch.moved[i]?' moved':''}" draggable="true" tabindex="0" data-day="${i}" role="group" aria-label="${DAYS_L[i]} ${o.mg===0?'no dose':fmt(o.mg)+' mg'} — drag the day onto another, or tap two days, to swap; drop tablets here to add"><div class="sm-dh sm-d${i}"><b>${TH_DAYS[i]}</b><small>${DAYS[i]}${i===td?' · today':''}</small></div><div class="sm-pills">${pillBtns(o,i)}</div><div class="sm-mg">${o.mg===0?'งดยา':fmt(o.mg)+' mg'}</div><div class="sm-tx">${o.mg===0?'no dose':tabTxt(o)}</div></div>`).join('')+'</div>';
   h+=`<div class="sm-disp"><b>รวมยาที่ต้องจ่าย · Dispense for ${weeks} week${weeks>1?'s':''}</b>${Object.keys(tot).sort((a,b)=>a-b).map(s=>`<span class="dp">${tpHtml(s,false)} ${s} mg × <b>${Math.ceil(tot[s]*weeks-1e-9)}</b> tablets</span>`).join('')}</div>`;
-  h+='<div class="sm-legend"><b>ลักษณะเม็ดยา · Tablets</b>'+[1,2,3,5].filter(s=>{const e=$('tabs').querySelector('input[value="'+s+'"]');return e&&e.checked;}).map(s=>`<span class="lg">${tpHtml(s,false,34)}<span><b>${s} mg</b> ${TABC[s].n} · ${TABC[s].th}</span></span>`).join('')+'</div>';
+  h+='<div class="sm-legend"><b>ลักษณะเม็ดยา · Tablets</b>'+[1,2,3,5].filter(s=>{const e=$('tabs').querySelector('input[value="'+s+'"]');return (e&&e.checked)||tot[s]>0;}).map(s=>`<span class="lg">${tpHtml(s,false,34)}<span><b>${s} mg</b> ${TABC[s].n} · ${TABC[s].th}</span></span>`).join('')+'</div>';
   h+='<div class="hint">Check the colours against the brand you dispense. Keep the odd-dose days on fixed weekdays; ½ = half a tablet.</div>';
   h+='<div class="sm-actions noprint"><button type="button" class="btn pri" id="sPrint">Print table</button><button type="button" class="btn" id="sCopy">Copy</button><button type="button" class="btn" data-mode-set="detailed">Open in Detailed mode →</button></div>';
   $('sOut').innerHTML=h;
 }
 function simpleText(){
   const W=num('sW');if(!(W>0))return '';
-  const sch=arrange(buildSchedule(W*(1+sSel/100),true));if(!sch)return '';
+  const sch=simpleView(W);if(!sch)return '';
   const weeks=+$('sWeeks').value,tot={};sch.days.forEach(o=>Object.keys(o.parts).forEach(s=>{tot[s]=(tot[s]||0)+o.parts[s];}));
   const act=(sch.total/W-1)*100;
-  return `Warfarin ${fmt(W)} → ${fmt(sch.total)} mg/week (${act>=0?'+':''}${act.toFixed(1)}%)${num('sInr')!=null?', INR '+fmt(num('sInr')):''}\n`+sch.days.map((o,i)=>`${DAYS[i]} ${fmt(o.mg)} mg (${o.mg?tabTxt(o):'none'})`).join('; ')+`\nDispense for ${weeks} wk: `+Object.keys(tot).sort((a,b)=>a-b).map(s=>`${s} mg × ${Math.ceil(tot[s]*weeks-1e-9)}`).join(', ');
+  return `Warfarin ${fmt(W)} → ${fmt(sch.total)} mg/week (${act>=0?'+':''}${act.toFixed(1)}%${sch.manual?', edited by hand':''})${num('sInr')!=null?', INR '+fmt(num('sInr')):''}\n`+sch.days.map((o,i)=>`${DAYS[i]} ${fmt(o.mg)} mg (${o.mg?tabTxt(o):'none'})`).join('; ')+`\nDispense for ${weeks} wk: `+Object.keys(tot).sort((a,b)=>a-b).map(s=>`${s} mg × ${Math.ceil(tot[s]*weeks-1e-9)}`).join(', ');
 }
 function setMode(m,save){
   document.body.dataset.mode=m;$('simple').hidden=m!=='simple';
@@ -9102,20 +9156,58 @@ $('simple').addEventListener('change',e=>{
   if(e.target.id==='sTgt'){const sg=suggest(num('sInr'),sTarget());if(sg){sSel=sg.p[0];sTouched=false;}}
   renderSimple();
 });
-let sDrag=null;
-$('sOut').addEventListener('dragstart',e=>{const d=e.target.closest&&e.target.closest('.sm-wd[data-day]');if(!d)return;sDrag=+d.dataset.day;d.classList.add('dragging');try{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',String(sDrag));}catch(x){}});
-$('sOut').addEventListener('dragover',e=>{const d=e.target.closest('.sm-wd[data-day]');if(!d||sDrag==null)return;e.preventDefault();document.querySelectorAll('.sm-wd.drop').forEach(x=>x!==d&&x.classList.remove('drop'));d.classList.add('drop');});
-$('sOut').addEventListener('dragleave',e=>{const d=e.target.closest('.sm-wd[data-day]');if(d&&!d.contains(e.relatedTarget))d.classList.remove('drop');});
-$('sOut').addEventListener('drop',e=>{const d=e.target.closest('.sm-wd[data-day]');if(!d||sDrag==null)return;e.preventDefault();const i=sDrag;sDrag=null;swapDays(i,+d.dataset.day);});
-$('sOut').addEventListener('dragend',()=>{sDrag=null;document.querySelectorAll('.sm-wd.dragging,.sm-wd.drop').forEach(x=>x.classList.remove('dragging','drop'));});
+let sDrag=null;   /* {k:'day',d} | {k:'pill',d,s,h} | {k:'tray',s,h} */
+$('sOut').addEventListener('dragstart',e=>{
+  const pl=e.target.closest&&e.target.closest('.sm-pill'),tr=e.target.closest&&e.target.closest('[data-tray]'),d=e.target.closest&&e.target.closest('.sm-wd[data-day]');
+  if(pl){sDrag={k:'pill',d:+pl.dataset.pd,s:pl.dataset.s,h:pl.dataset.h==='1'};pl.classList.add('dragging');}
+  else if(tr)sDrag={k:'tray',s:tr.dataset.s,h:tr.dataset.h==='1'};
+  else if(d){sDrag={k:'day',d:+d.dataset.day};d.classList.add('dragging');}
+  else return;
+  try{e.dataTransfer.effectAllowed=sDrag.k==='tray'?'copy':'move';e.dataTransfer.setData('text/plain',sDrag.k);}catch(x){}
+});
+$('sOut').addEventListener('dragover',e=>{
+  if(!sDrag)return;const d=e.target.closest('.sm-wd[data-day]'),tray=e.target.closest('#sTray');
+  document.querySelectorAll('.sm-wd.drop,#sTray.drop').forEach(x=>x!==d&&x!==tray&&x.classList.remove('drop'));
+  if(d){e.preventDefault();d.classList.add('drop');}
+  else if(tray&&sDrag.k==='pill'){e.preventDefault();tray.classList.add('drop');}
+});
+$('sOut').addEventListener('dragleave',e=>{const x=e.target.closest('.sm-wd[data-day],#sTray');if(x&&!x.contains(e.relatedTarget))x.classList.remove('drop');});
+$('sOut').addEventListener('drop',e=>{
+  if(!sDrag)return;const g=sDrag;sDrag=null;
+  const d=e.target.closest('.sm-wd[data-day]'),tray=e.target.closest('#sTray');
+  if(d){e.preventDefault();const to=+d.dataset.day;
+    if(g.k==='day')swapDays(g.d,to);
+    else if(g.k==='tray'){addPill(to,g.s,g.h);sSelPill=null;renderSimple();toast('Added '+pillName(g.s,g.h)+' to '+DAYS[to]);}
+    else if(g.k==='pill'&&g.d!==to){delPill(g.d,g.s,g.h);addPill(to,g.s,g.h);sSelPill=null;renderSimple();toast('Moved '+pillName(g.s,g.h)+': '+DAYS[g.d]+' → '+DAYS[to]);}
+  } else if(tray&&g.k==='pill'){e.preventDefault();delPill(g.d,g.s,g.h);sSelPill=null;renderSimple();toast('Removed '+pillName(g.s,g.h)+' from '+DAYS[g.d]);}
+});
+$('sOut').addEventListener('dragend',()=>{sDrag=null;document.querySelectorAll('.sm-wd.dragging,.sm-wd.drop,.sm-pill.dragging,#sTray.drop').forEach(x=>x.classList.remove('dragging','drop'));});
+function dayAct(to){
+  if(sTool){addPill(to,sTool.s,sTool.h);renderSimple();toast('Added '+pillName(sTool.s,sTool.h)+' to '+DAYS[to]);return;}
+  if(sSelPill){const g=sSelPill;sSelPill=null;if(g.d!==to){delPill(g.d,g.s,g.h);addPill(to,g.s,g.h);toast('Moved '+pillName(g.s,g.h)+': '+DAYS[g.d]+' → '+DAYS[to]);}renderSimple();return;}
+  pickDay(to);
+}
 function pickDay(i){
   if(sPick==null){sPick=i;renderSimple();const el=document.querySelector('.sm-wd[data-day="'+i+'"]');el&&el.focus({preventScroll:true});}
   else if(sPick===i){sPick=null;renderSimple();}
   else swapDays(sPick,i);
 }
-$('sOut').addEventListener('keydown',e=>{const d=e.target.closest&&e.target.closest('.sm-wd[data-day]');if(!d||(e.key!=='Enter'&&e.key!==' '))return;e.preventDefault();pickDay(+d.dataset.day);});
+$('sOut').addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&(sTool||sSelPill||sPick!=null)){sTool=null;sSelPill=null;sPick=null;renderSimple();return;}
+  const pl=e.target.closest&&e.target.closest('.sm-pill');
+  if(pl&&(e.key==='Delete'||e.key==='Backspace')){e.preventDefault();const s=pl.dataset.s,h=pl.dataset.h==='1',d=+pl.dataset.pd;delPill(d,s,h);sSelPill=null;renderSimple();toast('Removed '+pillName(s,h)+' from '+DAYS[d]);return;}
+  const d=e.target.classList&&e.target.classList.contains('sm-wd')?e.target:null;if(!d||(e.key!=='Enter'&&e.key!==' '))return;e.preventDefault();dayAct(+d.dataset.day);
+});
 $('sOut').addEventListener('click',e=>{
-  const d=e.target.closest('.sm-wd[data-day]');if(d){pickDay(+d.dataset.day);return;}
+  const pl=e.target.closest('.sm-pill');
+  if(pl){const k={d:+pl.dataset.pd,s:pl.dataset.s,h:pl.dataset.h==='1',k:+pl.dataset.k};sTool=null;sPick=null;
+    sSelPill=(sSelPill&&sSelPill.d===k.d&&sSelPill.s==k.s&&sSelPill.h===k.h&&sSelPill.k===k.k)?null:k;renderSimple();return;}
+  const tb=e.target.closest('[data-tray]');
+  if(tb){const x={s:tb.dataset.s,h:tb.dataset.h==='1'};sSelPill=null;sPick=null;sTool=(sTool&&sTool.s==x.s&&sTool.h===x.h)?null:x;renderSimple();return;}
+  if(e.target.id==='sPillSplit'&&sSelPill){const g=sSelPill;splitPill(g.d,g.s,g.h);sSelPill=null;renderSimple();return;}
+  if(e.target.id==='sPillDel'&&sSelPill){const g=sSelPill;delPill(g.d,g.s,g.h);sSelPill=null;renderSimple();toast('Removed '+pillName(g.s,g.h)+' from '+DAYS[g.d]);return;}
+  if(e.target.id==='sManReset'){sMan=null;sSelPill=null;sTool=null;renderSimple();toast('Hand edits undone');return;}
+  const d=e.target.closest('.sm-wd[data-day]');if(d){dayAct(+d.dataset.day);return;}
   if(e.target.id==='sReorder'){sPref=null;sPick=null;renderSimple();toast('Back to the suggested days');return;}
   if(e.target.id==='sPrint'){document.body.classList.add('sm-print');window.print();setTimeout(()=>document.body.classList.remove('sm-print'),500);}
   if(e.target.id==='sCopy'){const txt=simpleText();(navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(()=>toast('Copied'),()=>{const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('Copied');}catch(x){toast('Copy failed');}ta.remove();});}
@@ -9274,7 +9366,7 @@ $('sEx').addEventListener('click',e=>{
   $('sW').value=s.W;$('sInr').value=s.inr;$('sTgt').value=s.tg;$('sWeeks').value=s.wk;
   $('sTabs').querySelectorAll('input').forEach(i=>{i.checked=i.dataset.v==='h'?true:s.st.includes(+i.dataset.v);const m=i.dataset.v==='h'?$('halves'):$('tabs').querySelector('input[value="'+i.dataset.v+'"]');if(m)m.checked=i.checked;});
   render();
-  const sg=suggest(s.inr,sTarget());sSel=sg?sg.p[0]:0;sTouched=false;sPref=null;sPick=null;
+  const sg=suggest(s.inr,sTarget());sSel=sg?sg.p[0]:0;sTouched=false;sPref=null;sPick=null;sMan=null;sTool=null;sSelPill=null;sManLost=false;
   ttr=s.hist.map(([d,v])=>({d:isoDay(d),v:String(v)}));renderTtrRows();
   renderSimple();
   toast('Sample loaded: '+s.title,{label:'Undo',fn:()=>{restore(snap);toast('Previous case restored');}},6000);
@@ -9287,7 +9379,7 @@ renderTtrRows();
 
 /* changelog */
 const changelogData=[
-  {version:'v1.6.0',date:'October 14, 2026',features:['Simple mode is now the default view (Detailed is one tap away and the app remembers your choice).','Move doses between days in the Simple-mode table: drag a day onto another, or tap two days, to swap their doses — for patients who want the smaller (or larger) dose on particular days. The chosen days are kept when the dose is changed: the smallest doses stay on the days the patient picked. “Reset to suggested days” undoes it; Copy and Print follow the new order.'],bugs:[]},
+  {version:'v1.7.1',date:'October 14, 2026',features:['Edit the Simple-mode table tablet by tablet: drag a whole tablet (1, 2, 3 or 5 mg) from the tablet tray onto a day to add it, drag a tablet from one day to another to move it, or drag it back to the tray to remove it. Tap a tablet in the table to split it in half (or make a half whole again), move it or remove it; double-click splits it straight away. On a phone, tap a tablet and then tap a day. The weekly total, % change and tablets to dispense update as you go; “Undo hand edits” returns to the calculated schedule.','Simple mode is now the default view (Detailed is one tap away and the app remembers your choice).','Move doses between days in the Simple-mode table: drag a day onto another, or tap two days, to swap their doses — for patients who want the smaller (or larger) dose on particular days. The chosen days are kept when the dose is changed: the smallest doses stay on the days the patient picked. “Reset to suggested days” undoes it; Copy and Print follow the new order.'],bugs:[]},
  {"version":"v1.5.1","date":"October 11, 2026","features":["Collapsible blocks: every block starts folded except the main one (history, consult note or case text; in the warfarin planner also Setting & situation and the Simple-mode calculator and schedule). Tap a block’s header to unfold or fold it, or use “Expand all / Collapse all” at the top. The app remembers your choices. Copy and Print always include every block."],"bugs":[]},
   {version:'v1.4.1',date:'October 7, 2026',features:['Colour-coded blocks for easier reading: each input card and plan section has its own colour band and tinted header; summary tiles, action boxes and the day-by-day schedule (Thai day colours) are tinted; in Simple mode the calculator, schedule, nomogram and TTR cards each have a colour, the dose-change buttons are green (up), blue (same) and red (down), and the nomogram rows are tinted by INR band.'],bugs:['Simple mode: the tablet picture in each “Tablets in stock” chip showed an extra checkbox and border.']},
   {version:'v1.4.0',date:'October 7, 2026',features:['Simple mode: tablet pictures — round scored tablets in the brand colours (1 mg white, 2 mg orange, 3 mg blue, 5 mg pink), with half tablets drawn as halves, in the day table, the dispense list, the stock chips and a tablet guide.','Simple mode: Thai warfarin nomogram chart (Thai HA 2010, Table 3) — an INR band gauge with today’s INR pinned, and the dose step for each band; tap a row to use its change. Simple-mode suggestions now follow the table, including the vitamin K step from INR 9.0 and about 20% reduction for INR 5–8.9.','Simple mode: TTR calculator (Rosendaal linear interpolation) — enter or paste dated INRs (Thai Buddhist years converted); shows TTR, % of tests in range, below/in/above bar, an INR chart with the target band, ESC 2024 (<70%) and NICE NG196 (<65%, INR >5 ×2, >8, <1.5 ×2 in 6 months) prompts.','Simple mode: six sample cases (low INR, stable, INR 4.3, INR 6.8, mechanical valve, erratic INRs) with INR histories, each with Undo.'],bugs:['Print table printed a blank page: the print style hid every card, including the schedule.']},
