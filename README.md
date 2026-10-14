@@ -20,3 +20,9 @@ Each app has a changelog: tap the version badge next to its title.
 ## Source
 
 The standalone planners are the source. `af-care-suite.html` is generated from them.
+
+## Licence
+
+Copyright (c) 2026 Warodom Phaenthong, M.D. Licensed under
+[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/): share and adapt for non-commercial use,
+with credit, under the same licence. See `LICENSE` and `NOTICE`.
