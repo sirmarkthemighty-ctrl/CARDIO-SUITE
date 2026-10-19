@@ -7949,10 +7949,10 @@ details.sm-card[open]>summary{margin-bottom:12px}
     </div>
     <div class="lbl">Tablets in stock</div>
     <div class="cks" id="sTabs">
-      <label class="ck"><input type="checkbox" data-v="1"><span>1 mg</span></label>
+      <label class="ck"><input type="checkbox" data-v="1" checked><span>1 mg</span></label>
       <label class="ck"><input type="checkbox" data-v="2" checked><span>2 mg</span></label>
       <label class="ck"><input type="checkbox" data-v="3" checked><span>3 mg</span></label>
-      <label class="ck"><input type="checkbox" data-v="4"><span>4 mg</span></label>
+      <label class="ck"><input type="checkbox" data-v="4" checked><span>4 mg</span></label>
       <label class="ck"><input type="checkbox" data-v="5" checked><span>5 mg</span></label>
       <label class="ck"><input type="checkbox" data-v="h" checked><span>Allow ½ tablets</span></label>
     </div>
@@ -8026,10 +8026,10 @@ details.sm-card[open]>summary{margin-bottom:12px}
       <div class="wk" id="wkCur"></div>
       <div class="lbl">Tablet strengths in stock</div>
       <div class="cks" id="tabs">
-        <label class="ck"><input type="checkbox" value="1"><span>1 mg</span></label>
+        <label class="ck"><input type="checkbox" value="1" checked><span>1 mg</span></label>
         <label class="ck"><input type="checkbox" value="2" checked><span>2 mg</span></label>
         <label class="ck"><input type="checkbox" value="3" checked><span>3 mg</span></label>
-        <label class="ck"><input type="checkbox" value="4"><span>4 mg</span></label>
+        <label class="ck"><input type="checkbox" value="4" checked><span>4 mg</span></label>
         <label class="ck"><input type="checkbox" value="5" checked><span>5 mg</span></label>
         <label class="ck"><input type="checkbox" id="halves" checked><span>Allow ½ tablets</span></label>
       </div>
@@ -9570,7 +9570,7 @@ applyLang();
 
 /* changelog */
 const changelogData=[
-  {version:'v1.9.2',date:'October 19, 2026',features:['4 mg warfarin tablets: tick 4 mg under tablets in stock (Simple and Detailed) to use them in the schedule, or drag a 4 mg tablet from the tablet tray. The 4 mg tablet is yellow.'],bugs:[]},
+  {version:'v1.9.3',date:'October 19, 2026',features:['All tablet strengths (1, 2, 3, 4 and 5 mg) are ticked in stock by default; untick the ones you do not have.','4 mg warfarin tablets: tick 4 mg under tablets in stock (Simple and Detailed) to use them in the schedule, or drag a 4 mg tablet from the tablet tray. The 4 mg tablet is yellow.'],bugs:[]},
   {version:'v1.8.1',date:'October 14, 2026',features:['Thai language: a 🇹🇭 ไทย / 🇬🇧 EN switch in the header translates the Simple view — calculator, weekly table, tablet tray, Thai nomogram, TTR calculator, messages and the copied text (Detailed view stays in English). The app remembers your choice.','“Clear table” in the tablet tray empties the week so you can build it tablet by tablet (with Undo).','Edit the Simple-mode table tablet by tablet: drag a whole tablet (1, 2, 3 or 5 mg) from the tablet tray onto a day to add it, drag a tablet from one day to another to move it, or drag it back to the tray to remove it. In the table, click a tablet to split it (whole → ½ → ¼ → whole), drag it to another day to move it, or press and hold it to remove it (with Undo); this works with a mouse and on a phone. The weekly total, % change and tablets to dispense update as you go; “Undo hand edits” returns to the calculated schedule.','Simple mode is now the default view (Detailed is one tap away and the app remembers your choice).','Move doses between days in the Simple-mode table: drag a day onto another, or tap two days, to swap their doses — for patients who want the smaller (or larger) dose on particular days. The chosen days are kept when the dose is changed: the smallest doses stay on the days the patient picked. “Reset to suggested days” undoes it; Copy and Print follow the new order.'],bugs:['Print printed a blank page in dark mode (white text on white paper); printing now always uses the light colours. On phones and in the Cardio suite tab, Print table printed the whole app instead of the weekly table.',]},
  {"version":"v1.5.1","date":"October 11, 2026","features":["Collapsible blocks: every block starts folded except the main one (history, consult note or case text; in the warfarin planner also Setting & situation and the Simple-mode calculator and schedule). Tap a block’s header to unfold or fold it, or use “Expand all / Collapse all” at the top. The app remembers your choices. Copy and Print always include every block."],"bugs":[]},
   {version:'v1.4.1',date:'October 7, 2026',features:['Colour-coded blocks for easier reading: each input card and plan section has its own colour band and tinted header; summary tiles, action boxes and the day-by-day schedule (Thai day colours) are tinted; in Simple mode the calculator, schedule, nomogram and TTR cards each have a colour, the dose-change buttons are green (up), blue (same) and red (down), and the nomogram rows are tinted by INR band.'],bugs:['Simple mode: the tablet picture in each “Tablets in stock” chip showed an extra checkbox and border.']},
