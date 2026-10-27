@@ -12,7 +12,9 @@ author, link to the licence, say what you changed, and release your version unde
 No warranty. The apps are decision support for healthcare professionals. They do not replace
 guidelines, product labels or clinical judgement.
 
-The apps contain no third-party code. Fonts (IBM Plex Sans, IBM Plex Sans Condensed, IBM Plex Mono)
-are loaded from Google Fonts under the SIL Open Font License.
+The apps bundle no third-party code. Fonts (IBM Plex Sans, IBM Plex Sans Condensed, IBM Plex Mono)
+are loaded from Google Fonts under the SIL Open Font License. The Warfarin planner's "Download PNG"
+button loads html2canvas-pro 1.5.8 by yorickshan (a fork of html2canvas by Niklas
+von Hertzen; MIT License) from jsDelivr when pressed.
 
 Product names and trademarks belong to their owners and are used only to identify the products.
